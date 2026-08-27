@@ -1,0 +1,2 @@
+import test from "node:test";import assert from "node:assert/strict";import { ReferenceInMemorySagaPersistenceBinding, assertProductionPersistence } from "../../../src/p4/governed_coordination/saga_persistence_binding.ts";
+test("reference in-memory persistence is test/reference only",()=>{const p=new ReferenceInMemorySagaPersistenceBinding();assert.equal(p.restart_safe,false);assert.throws(()=>assertProductionPersistence(p),/restart-safe/);});

@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activation_mode": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "activation_plan_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "active_pointer_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "approval_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "candidate_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "change_set_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "evaluation_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expected_active_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "fencing_token": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "lease_epoch": {
+      "type": "integer"
+    },
+    "method": {
+      "enum": [
+        "request_activation",
+        "request_rollback"
+      ]
+    },
+    "request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "rollback_scope": {},
+    "rollback_target_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_domain_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "target_step_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "trial_pointer_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "trial_profile_ref": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "method",
+    "change_set_ref",
+    "activation_plan_ref",
+    "target_domain_ref",
+    "target_step_ref",
+    "expected_active_version",
+    "lease_epoch",
+    "fencing_token",
+    "idempotency_key",
+    "trace_id",
+    "request_id"
+  ],
+  "title": "P4 Authorization Semantic Request",
+  "type": "object"
+}

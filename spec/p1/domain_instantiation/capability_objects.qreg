@@ -1,0 +1,162 @@
+authority:
+  capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  semantic_authority: false
+identity:
+  capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  capability_id: domain_instantiation
+  capability_version: V0114
+  capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  contract_version_equals_capability_version: true
+  one_exact_contract_for_this_capability_version: true
+  capability_contract_integrity_binding_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/capability_composition/domain_instantiation
+operations:
+  instantiate_repository:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/instantiate_repository
+    semantic_role: SINGLE_ENTRY_DETERMINISTIC_REPOSITORY_INSTANTIATION
+    requires:
+    - ACTIVATED_CONTRACT_BINDING
+    - TARGET_REPOSITORY_REQUIREMENT
+    requirements:
+    - resolve activated_contract_material only through the predeclared P1 dependency slot and current P1 dependency_invoke interface after P2.Consumer realization
+    - accept only exact source Contract material whose selected active state is proven by the governed Provider material; Q.Template does not decide activation or
+      support status
+    - treat the exact received Contract bytes and verified hash as the sole business semantic authority for this repository instantiation
+    - treat TARGET_REPOSITORY_REQUIREMENT only as execution intent and never as business semantic authority
+    - invoke compile_contract build_instance_plan materialize_repository and verify_instance strictly in deterministic_instance_automation.internal_chain_order
+    - require build_instance_plan to resolve governed selected-state authority material through its own predeclared dependency slot and Q.Template-owned templates
+      without caller preassembly
+    - return success only after repository readback verifies exact file-set and byte-hash closure against EXACT_INSTANCE_PLAN
+    - invoke no LLM model AI Q.Prompt Q.Gate Activation publication or deployment in steady state
+    output_role: VERIFIED_REPOSITORY_INSTANCE
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/instantiate_repository_invoke
+    optional_development_or_legacy_input:
+    - EXACT_INPUT_CONTRACT
+    direct_exact_input_bypass_allowed_in_production: false
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  compile_contract:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/compile_contract
+    semantic_role: DETERMINISTIC_CONTRACT_COMPILATION
+    input_authority: EXACT_INPUT_CONTRACT
+    requirements:
+    - preserve exact input Contract as business semantic authority
+    - compile only machine-readable Contract semantics
+    - recompute SHA-256 over the exact received Contract bytes or exact canonical representation required by its governing Contract standard and compare it with the
+      received exact integrity binding
+    - verify q_id q_version selected-active binding source provenance and integrity before downstream semantic use
+    - perform no LLM model AI interpretation semantic completion or invention
+    - fail closed on unresolved unsupported inactive ambiguous identity-invalid or integrity-invalid input
+    output_role: COMPILED_CONTRACT_REPRESENTATION
+    requires:
+    - EXACT_INPUT_CONTRACT
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/compile_contract_invoke
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  build_instance_plan:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/build_instance_plan
+    semantic_role: DECOUPLED_DETERMINISTIC_INSTANCE_PLANNING_FACADE
+    requires:
+    - COMPILED_CONTRACT_REPRESENTATION
+    delegates_to_capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}
+    delegates_to_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}#/operations/build_instance_plan
+    delegates_to_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}#/interfaces/build_instance_plan_invoke
+    delegation_mode: P1_INTERNAL_CALL
+    exact_target_ref_and_hash_resolved_before_call: true
+    exact_target_version_or_hash_embedded: false
+    output_role: EXACT_INSTANCE_PLAN
+    optional_legacy_governed_inputs:
+    - GOVERNED_CURRENT_LOCATOR_STATE
+    - GOVERNED_TEMPLATE_AUTHORITY_SET
+    - EXPLICIT_GOVERNED_BINDING_INPUTS
+    caller_preassembly_required: false
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/build_instance_plan_invoke
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  materialize_repository:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/materialize_repository
+    semantic_role: DETERMINISTIC_REPOSITORY_MATERIALIZATION
+    requires:
+    - EXACT_INSTANCE_PLAN
+    requirements:
+    - invoke only the predeclared repository_materialization local dependency through the current P1 dependency_invoke interface after P2.Consumer realization
+    - allow the bound repository Provider to create the target repository when absent only under its exact published Q Interface contract
+    - freeze the exact target base revision before write and fail closed if the base revision changes before provider commit
+    - materialize only final bytes and hashes already frozen in EXACT_INSTANCE_PLAN
+    - write hash delta only and never infer or repair code from repository state
+    - preserve Contract Stage template and binding authority without reinterpretation
+    - invoke no LLM model or AI
+    - require an exact materialization receipt including resulting repository revision identity before success
+    output_role: MATERIALIZED_REPOSITORY
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/materialize_repository_invoke
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  verify_instance:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/verify_instance
+    semantic_role: FAIL_CLOSED_INSTANCE_VERIFICATION
+    requires:
+    - EXACT_INSTANCE_PLAN
+    - MATERIALIZED_REPOSITORY
+    requirements:
+    - invoke only the predeclared repository_readback local dependency through the current P1 dependency_invoke interface after P2.Consumer realization
+    - read the exact resulting repository revision identified by MATERIALIZED_REPOSITORY
+    - verify repository bytes file set and content hashes against EXACT_INSTANCE_PLAN
+    - verify path binding template authority integrity and replay closure without treating repository content as business semantic authority
+    - fail closed on mismatch missing artifact unresolved dependency stale revision or nondeterministic deviation
+    - do not claim Q.Gate PASS Q.Activation publication deployment or runtime ACTIVE
+    output_role: VERIFICATION_REPORT
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/verify_instance_invoke
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+ownership:
+  domain_contract_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120
+  domain_contract_resolution_mode: EXACT_CURRENT_DOMAIN_COMPOSITION
+  exact_parent_version_pin_embedded: true
+  exact_parent_content_hash_embedded: false
+  resolved_exact_parent_ref_and_hash_required_when_parent_identity_is_materialized: true
+  stage_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  p2_realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  domain_ref: q.p1.domain.q_template
+dependencies:
+  build_instance_plan:
+    classification: INTRA_DOMAIN
+    capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}#/operations/build_instance_plan
+    connection_mode: INTRA_DOMAIN
+    p1_internal_call_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke
+    exact_target_ref_and_hash_resolved_before_call: true
+    direct_handler_import_forbidden: true
+  activated_contract_material:
+    local_dependency_ref: q.template.domain_instantiation.activated_contract_material
+    classification: CROSS_DOMAIN
+    receiving_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/instantiate_repository
+    p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+    p2_consumer_authority_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer
+    p2_governed_data_consumption_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/governed_data_consumption
+    p1_dependency_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization
+    consumer_to_receiving_p1_boundary_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary
+    required_data_category: STATIC
+    exact_selected_active_contract_ref_hash_and_material_required: true
+    direct_foreign_p1_read_forbidden: true
+  repository_materialization:
+    local_dependency_ref: q.template.domain_instantiation.repository_materialization
+    classification: CROSS_DOMAIN
+    receiving_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/materialize_repository
+    p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+    p2_consumer_authority_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer
+    p2_external_capability_mounting_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/external_capability_mounting
+    p1_dependency_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization
+    consumer_to_receiving_p1_boundary_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary
+    exact_active_provider_publication_and_mount_required: true
+    provider_operation_identity_not_owned_by_q_template: true
+    direct_repository_api_bypass_forbidden: true
+  repository_readback:
+    local_dependency_ref: q.template.domain_instantiation.repository_readback
+    classification: CROSS_DOMAIN
+    receiving_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/verify_instance
+    p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+    p2_consumer_authority_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer
+    p2_external_capability_mounting_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/external_capability_mounting
+    p1_dependency_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization
+    consumer_to_receiving_p1_boundary_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary
+    exact_resulting_revision_readback_required: true
+    provider_operation_identity_not_owned_by_q_template: true
+    direct_repository_api_bypass_forbidden: true
+  implicit_dependency_forbidden: true
+  p2_creates_receiving_p1_dependency_forbidden: true
+  p1_formal_dependency_on_p2_stage_forbidden: true

@@ -1,0 +1,794 @@
+{
+  "call_result": {
+    "exactly_one_of": [
+      "Response",
+      "StableError"
+    ],
+    "explicit_outcome_type_required": true,
+    "governed_evaluation_decision_is_success_result": true,
+    "stable_error_wire_fields": [
+      "code",
+      "message",
+      "category",
+      "retriable",
+      "trace_id",
+      "request_id"
+    ],
+    "validation_or_approval_rejection_is_stable_error": true
+  },
+  "classification": {
+    "active_interface_kinds": [
+      "CALL_INVOKE"
+    ],
+    "active_surfaces": [
+      "CALL"
+    ],
+    "not_applicable_interface_kinds": [
+      "HOOK_BIND",
+      "HOOK_EVALUATE",
+      "EVENT_PUBLISH",
+      "EVENT_CONSUME",
+      "REGISTRY_REGISTER",
+      "REGISTRY_RESOLVE",
+      "REGISTRY_LOOKUP",
+      "REGISTRY_WATCH"
+    ],
+    "not_applicable_surfaces": [
+      "HOOK",
+      "EVENT",
+      "REGISTRY"
+    ],
+    "role": "N1/NONE",
+    "stage": "B4/P3"
+  },
+  "common_fields": {
+    "mutation_request_required": [
+      "idempotency_key",
+      "trace_id",
+      "request_id"
+    ],
+    "mutation_response_required": [
+      "receipt_ref",
+      "trace_id",
+      "request_id"
+    ],
+    "read_request_required": [
+      "trace_id",
+      "request_id"
+    ],
+    "read_response_required": [
+      "trace_id",
+      "request_id"
+    ]
+  },
+  "coordination_port": {
+    "closed": true,
+    "contract_file": "src/p3/coordination_port_contract.ts",
+    "downstream_provider_import_forbidden": true,
+    "exact_port_parity_required": true,
+    "fifth_method_forbidden": true,
+    "method_names_exact": [
+      "request_candidate",
+      "request_activation",
+      "request_rollback",
+      "read_receipt"
+    ],
+    "methods": {
+      "read_receipt": {
+        "authorization": "forbidden",
+        "read_only": true,
+        "request_forbidden": [
+          "p4_authorization_receipt_ref",
+          "idempotency_key"
+        ],
+        "request_required": [
+          "domain_ref",
+          "receipt_ref",
+          "trace_id",
+          "request_id"
+        ],
+        "response_required": [
+          "receipt",
+          "receipt_hash",
+          "trace_id",
+          "request_id"
+        ],
+        "stable_errors": [
+          "P3_RECEIPT_NOT_FOUND",
+          "P3_RECEIPT_INVALID"
+        ]
+      },
+      "request_activation": {
+        "authorization": "required_single_use",
+        "cas_required": true,
+        "request_optional": [
+          "activation_mode",
+          "trial_profile_ref",
+          "evaluation_ref"
+        ],
+        "request_required": [
+          "change_set_ref",
+          "activation_plan_ref",
+          "target_domain_ref",
+          "target_step_ref",
+          "candidate_ref",
+          "approval_ref",
+          "expected_active_version",
+          "p4_authorization_receipt_ref",
+          "lease_epoch",
+          "fencing_token",
+          "idempotency_key",
+          "trace_id",
+          "request_id"
+        ],
+        "response_optional": [
+          "trial_pointer_ref"
+        ],
+        "response_required": [
+          "active_pointer_ref",
+          "active_version",
+          "receipt_ref",
+          "trace_id",
+          "request_id"
+        ],
+        "stable_errors": [
+          "P3_COORDINATION_REQUEST_INVALID",
+          "P3_AUTHORIZATION_INVALID",
+          "P3_AUTHORIZATION_EXPIRED",
+          "P3_AUTHORIZATION_REPLAYED",
+          "P3_TRUST_ANCHOR_INVALID",
+          "P3_TRIAL_POLICY_REQUIRED",
+          "P3_EVALUATION_REQUIRED",
+          "P3_COMPONENT_PREPARATION_INCOMPLETE",
+          "P3_LEASE_INVALID",
+          "P3_FENCING_REJECTED",
+          "P3_ACTIVATION_CONFLICT",
+          "P3_ACTIVATION_FAILED"
+        ]
+      },
+      "request_candidate": {
+        "authorization": "forbidden",
+        "cas_required": true,
+        "request_forbidden": [
+          "p4_authorization_receipt_ref",
+          "activation_plan_ref",
+          "approval_ref"
+        ],
+        "request_optional": [
+          "predicted_impact_graph_ref"
+        ],
+        "request_required": [
+          "change_set_ref",
+          "target_domain_ref",
+          "change_ref",
+          "expected_active_version",
+          "lease_epoch",
+          "fencing_token",
+          "idempotency_key",
+          "trace_id",
+          "request_id"
+        ],
+        "response_optional": [
+          "domain_state_ref"
+        ],
+        "response_required": [
+          "candidate_ref",
+          "candidate_hash",
+          "receipt_ref",
+          "trace_id",
+          "request_id"
+        ],
+        "stable_errors": [
+          "P3_COORDINATION_REQUEST_INVALID",
+          "P3_CHANGE_AUTHORITY_INVALID",
+          "P3_IMPACT_GRAPH_INVALID",
+          "P3_LEASE_INVALID",
+          "P3_FENCING_REJECTED",
+          "P3_CANDIDATE_CONFLICT",
+          "P3_CANDIDATE_CREATE_FAILED"
+        ]
+      },
+      "request_rollback": {
+        "authorization": "required_single_use",
+        "cas_required": true,
+        "request_optional": [
+          "trial_pointer_ref",
+          "rollback_scope"
+        ],
+        "request_required": [
+          "change_set_ref",
+          "activation_plan_ref",
+          "target_domain_ref",
+          "target_step_ref",
+          "active_pointer_ref",
+          "rollback_target_ref",
+          "expected_active_version",
+          "p4_authorization_receipt_ref",
+          "lease_epoch",
+          "fencing_token",
+          "idempotency_key",
+          "trace_id",
+          "request_id"
+        ],
+        "response_optional": [
+          "trial_pointer_ref"
+        ],
+        "response_required": [
+          "active_pointer_ref",
+          "active_version",
+          "receipt_ref",
+          "trace_id",
+          "request_id"
+        ],
+        "stable_errors": [
+          "P3_COORDINATION_REQUEST_INVALID",
+          "P3_AUTHORIZATION_INVALID",
+          "P3_AUTHORIZATION_EXPIRED",
+          "P3_AUTHORIZATION_REPLAYED",
+          "P3_TRUST_ANCHOR_INVALID",
+          "P3_IRREVERSIBLE_MIGRATION_UNRECOVERABLE",
+          "P3_LEASE_INVALID",
+          "P3_FENCING_REJECTED",
+          "P3_ROLLBACK_CONFLICT",
+          "P3_ROLLBACK_FAILED"
+        ]
+      }
+    },
+    "ownership": {
+      "binding": "P4",
+      "client": "P4",
+      "contract": "P3",
+      "provider": "P3"
+    },
+    "provider_file": "src/p3/coordination_port_provider.ts"
+  },
+  "idempotency": {
+    "canonical_request_hash_required": true,
+    "max_effective_executions_per_key": 1,
+    "same_key_different_request_rejected": true,
+    "same_key_same_request_same_result": true
+  },
+  "interfaces": {
+    "activate_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/activate_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "activate_candidate",
+      "operation_ref": "q.p3.operation.activate_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "approve_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/approve_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "approve_candidate",
+      "operation_ref": "q.p3.operation.approve_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "coordination_read_receipt_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_read_receipt_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "read_receipt",
+      "operation_ref": "q.p3.operation.read_receipt",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "coordination_request_activation_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_request_activation_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "request_activation",
+      "operation_ref": "q.p3.operation.activate_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "coordination_request_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_request_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "request_candidate",
+      "operation_ref": "q.p3.operation.create_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "coordination_request_rollback_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_request_rollback_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "request_rollback",
+      "operation_ref": "q.p3.operation.rollback_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "create_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/create_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "create_candidate",
+      "operation_ref": "q.p3.operation.create_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "evaluate_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/evaluate_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "evaluate_candidate",
+      "operation_ref": "q.p3.operation.evaluate_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "inspect_change_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/inspect_change_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "inspect_change",
+      "operation_ref": "q.p3.operation.inspect_change",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "read_receipt_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/read_receipt_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "read_receipt",
+      "operation_ref": "q.p3.operation.read_receipt",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "rollback_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/rollback_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "rollback_candidate",
+      "operation_ref": "q.p3.operation.rollback_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    },
+    "validate_candidate_invoke": {
+      "dynamic_mount": [
+        "input",
+        "context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ],
+      "interface_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/validate_candidate_invoke",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "method_ref": "validate_candidate",
+      "operation_ref": "q.p3.operation.validate_candidate",
+      "path": [
+        "route_key",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "policy_refs",
+        "receipt_contract_ref"
+      ],
+      "surface": "CALL"
+    }
+  },
+  "layers": {
+    "DYNAMIC_MOUNT": "request_execution_fact_response_evidence_outcome_and_stable_error",
+    "PATH": "routing_identity_and_correlation_only",
+    "STATIC_MOUNT": "versioned_contract_policy_state_cas_lease_fencing_idempotency_persistence_trust_and_verification",
+    "closed_disjoint": true,
+    "exact": [
+      "PATH",
+      "STATIC_MOUNT",
+      "DYNAMIC_MOUNT"
+    ],
+    "inferred_omitted_duplicate_or_unclassified_field_forbidden": true
+  },
+  "operations": {
+    "activate_candidate": {
+      "cas_required": true,
+      "request_optional": [
+        "activation_mode",
+        "trial_profile_ref",
+        "evaluation_ref"
+      ],
+      "request_required": [
+        "domain_ref",
+        "candidate_ref",
+        "approval_ref",
+        "expected_active_version"
+      ],
+      "response_optional": [
+        "trial_pointer_ref"
+      ],
+      "response_required": [
+        "active_pointer_ref",
+        "active_version"
+      ],
+      "stable_errors": [
+        "P3_APPROVAL_REQUIRED",
+        "P3_TRIAL_POLICY_REQUIRED",
+        "P3_EVALUATION_REQUIRED",
+        "P3_COMPONENT_PREPARATION_INCOMPLETE",
+        "P3_ACTIVE_VERSION_CONFLICT",
+        "P3_ACTIVATION_FAILED"
+      ]
+    },
+    "approve_candidate": {
+      "request_required": [
+        "domain_ref",
+        "candidate_ref",
+        "validation_ref",
+        "verified_impact_graph_ref",
+        "approver_ref",
+        "approval_scope"
+      ],
+      "response_required": [
+        "approval_ref",
+        "approval_status",
+        "approval_scope",
+        "routing_decision"
+      ],
+      "stable_errors": [
+        "P3_VALIDATION_REQUIRED",
+        "P3_IMPACT_SCOPE_UNRESOLVED",
+        "P3_APPROVAL_SCOPE_INVALID",
+        "P3_APPROVAL_REJECTED",
+        "P3_APPROVAL_FAILED"
+      ]
+    },
+    "create_candidate": {
+      "cas_required": true,
+      "request_forbidden": [
+        "partial_patch_ref"
+      ],
+      "request_required": [
+        "domain_ref",
+        "change_ref",
+        "inspection_ref",
+        "predicted_impact_graph_ref",
+        "expected_active_version"
+      ],
+      "response_required": [
+        "candidate_ref",
+        "candidate_hash",
+        "domain_state_ref"
+      ],
+      "stable_errors": [
+        "P3_CHANGE_INVALID",
+        "P3_INSPECTION_REQUIRED",
+        "P3_DOMAIN_STATE_INCOMPLETE",
+        "P3_CANDIDATE_CONFLICT",
+        "P3_CANDIDATE_CREATE_FAILED"
+      ]
+    },
+    "evaluate_candidate": {
+      "request_required": [
+        "domain_ref",
+        "candidate_ref",
+        "trial_pointer_ref",
+        "evaluation_profile_ref",
+        "outcome_evidence_ref"
+      ],
+      "response_required": [
+        "evaluation_ref",
+        "evaluation_result"
+      ],
+      "stable_errors": [
+        "P3_TRIAL_NOT_ACTIVE",
+        "P3_OUTCOME_EVIDENCE_INVALID",
+        "P3_EVALUATION_PROFILE_INVALID",
+        "P3_EVALUATION_FAILED"
+      ]
+    },
+    "inspect_change": {
+      "request_forbidden": [
+        "raw_observation",
+        "unverified_ai_recommendation"
+      ],
+      "request_required": [
+        "domain_ref",
+        "change_ref"
+      ],
+      "response_required": [
+        "inspection_ref",
+        "evolution_case_ref",
+        "predicted_impact_graph_ref",
+        "routing_decision"
+      ],
+      "stable_errors": [
+        "P3_CHANGE_NOT_FOUND",
+        "P3_CHANGE_AUTHORITY_INVALID",
+        "P3_EVOLUTION_EVIDENCE_INVALID",
+        "P3_IMPACT_GRAPH_INVALID",
+        "P3_INSPECTION_FAILED"
+      ]
+    },
+    "read_receipt": {
+      "read_only": true,
+      "request_forbidden": [
+        "p4_authorization_receipt_ref",
+        "idempotency_key"
+      ],
+      "request_required": [
+        "domain_ref",
+        "receipt_ref"
+      ],
+      "response_required": [
+        "receipt",
+        "receipt_hash"
+      ],
+      "stable_errors": [
+        "P3_RECEIPT_NOT_FOUND",
+        "P3_RECEIPT_INVALID"
+      ]
+    },
+    "rollback_candidate": {
+      "cas_required": true,
+      "request_optional": [
+        "trial_pointer_ref",
+        "rollback_scope"
+      ],
+      "request_required": [
+        "domain_ref",
+        "active_pointer_ref",
+        "rollback_target_ref",
+        "expected_active_version"
+      ],
+      "response_optional": [
+        "trial_pointer_ref"
+      ],
+      "response_required": [
+        "active_pointer_ref",
+        "active_version"
+      ],
+      "stable_errors": [
+        "P3_ROLLBACK_TARGET_INVALID",
+        "P3_IRREVERSIBLE_MIGRATION_UNRECOVERABLE",
+        "P3_ACTIVE_VERSION_CONFLICT",
+        "P3_ROLLBACK_FAILED"
+      ]
+    },
+    "validate_candidate": {
+      "request_required": [
+        "domain_ref",
+        "candidate_ref",
+        "candidate_hash",
+        "predicted_impact_graph_ref"
+      ],
+      "response_required": [
+        "validation_ref",
+        "validation_status",
+        "verified_impact_graph_ref"
+      ],
+      "stable_errors": [
+        "P3_CANDIDATE_NOT_FOUND",
+        "P3_CANDIDATE_HASH_MISMATCH",
+        "P3_DOMAIN_STATE_INCOMPLETE",
+        "P3_OWNER_RECEIPT_INVALID",
+        "P3_IMPACT_SCOPE_EXPANDED",
+        "P3_VALIDATION_REJECTED",
+        "P3_VALIDATION_FAILED"
+      ]
+    }
+  },
+  "projection": {
+    "projection_only": true,
+    "semantic_authority": false,
+    "source_contract_ref": "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144"
+  }
+}

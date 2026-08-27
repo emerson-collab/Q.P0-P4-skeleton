@@ -1,0 +1,2 @@
+import test from "node:test";import assert from "node:assert/strict";import { sha256Jcs, type JsonObject } from "../../../src/p4/governed_coordination/stage_extension_contract.ts";
+test("semantic request hash covers complete method input",()=>{const a={change_set_ref:"c",activation_plan_ref:"p",target_domain_ref:"d",target_step_ref:"s",expected_active_version:"v",lease_epoch:1,fencing_token:"f",idempotency_key:"i",trace_id:"t",request_id:"r"} as JsonObject;const b={...a,expected_active_version:"v2"} as JsonObject;assert.notEqual(sha256Jcs(a),sha256Jcs(b));});

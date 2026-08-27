@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "key_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "key_version": {
+      "type": "integer"
+    },
+    "private_key_handle_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "public_key_pem": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "revocation_epoch": {
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "active",
+        "revoked"
+      ]
+    }
+  },
+  "required": [
+    "key_id",
+    "key_version",
+    "revocation_epoch",
+    "public_key_pem",
+    "status",
+    "private_key_handle_ref"
+  ],
+  "title": "P4 Authorization Key Metadata",
+  "type": "object"
+}

@@ -1,0 +1,4 @@
+import { P3Fault } from "./stage_extension_contract.ts";
+export interface AuthorizationConsumptionRecord {readonly authorization_ref:string;readonly nonce:string;readonly consumed_at:string;readonly request_hash:string;}
+export interface AuthorizationConsumptionStore{get(authorizationRef:string):Promise<AuthorizationConsumptionRecord|null>;consume(record:AuthorizationConsumptionRecord):Promise<void>;}
+export class ReferenceInMemoryAuthorizationConsumptionStore implements AuthorizationConsumptionStore{readonly profile="REFERENCE_IN_MEMORY" as const;private readonly m=new Map<string,AuthorizationConsumptionRecord>();async get(r:string){return this.m.get(r)??null;}async consume(v:AuthorizationConsumptionRecord){if(this.m.has(v.authorization_ref))throw new P3Fault("P3_AUTHORIZATION_REPLAYED","authorization is single-use and was already consumed");this.m.set(v.authorization_ref,Object.freeze({...v}));}}

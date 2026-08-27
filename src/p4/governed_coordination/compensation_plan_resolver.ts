@@ -1,0 +1,3 @@
+import { P4Fault, asStringArray, type JsonObject } from "./stage_extension_contract.ts";import type { SagaRegistry } from "./saga_registry.ts";
+export class CompensationPlanResolver{constructor(private readonly registry:SagaRegistry){}async resolve(ref:string):Promise<JsonObject>{const p=await this.registry.getCompensation(ref);if(!p)throw new P4Fault("P4_PLAN_INVALID","compensation plan not found");asStringArray(p.reverse_step_refs,"reverse_step_refs");return p;}}
+export function reverseSuccessfulActivationOrder(stepRefs:readonly string[]):readonly string[]{return Object.freeze([...stepRefs].reverse());}

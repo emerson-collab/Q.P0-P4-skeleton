@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "candidate_ref": {
+      "type": "string"
+    },
+    "domain_ref": {
+      "type": "string"
+    },
+    "trial_pointer_ref": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "trial_pointer_ref",
+    "domain_ref",
+    "candidate_ref",
+    "version"
+  ],
+  "title": "P3 Evolution Trial Pointer",
+  "type": "object"
+}

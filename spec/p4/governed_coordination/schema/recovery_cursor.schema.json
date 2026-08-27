@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "execution_phase": {
+      "enum": [
+        "CANDIDATE",
+        "TRIAL_ACTIVATION",
+        "EVALUATION_WAIT",
+        "FINAL_ACTIVATION",
+        "COMPENSATION",
+        "ROLLBACK"
+      ]
+    },
+    "last_provider_receipt_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "last_verified_journal_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "step_index": {
+      "type": "integer"
+    },
+    "target_step_ref": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "execution_phase",
+    "step_index",
+    "target_step_ref",
+    "last_verified_journal_hash",
+    "last_provider_receipt_ref"
+  ],
+  "title": "P4 Recovery Cursor",
+  "type": "object"
+}

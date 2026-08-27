@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "capability_contract_map": {
+      "type": "array"
+    },
+    "components": {
+      "type": "array"
+    },
+    "content_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "domain_ref": {
+      "type": "string"
+    },
+    "domain_state_ref": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "domain_state_ref",
+    "domain_ref",
+    "content_hash",
+    "components",
+    "capability_contract_map"
+  ],
+  "title": "P3 Complete Domain State Manifest",
+  "type": "object"
+}

@@ -1,0 +1,2351 @@
+q_header: '1'
+q_id: Q.SS.STD.P3.CONTRACT.EVOLUTION
+q_version: V0144
+q_title: P3 Business Evolution Plane — Domain, Capability and Operation Contract Evolution
+q_stage: P3
+q_role: domain_evolution
+q_status: active
+q_refs:
+  supersedes:
+    - Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  pair: Q.SS.STD.P3.DESC.EVOLUTION@V0144
+  contract:
+  drt: Q.SS.STD.P3.DRT.EVOLUTION@V0144
+  depends_on:
+    - Q.SS.STD.META.CONTRACT.ARTIFACT@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.STAGE_ARTIFACT_FILE_NAMING@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+    - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+    - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+    - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.DATABASE_PERSISTENCE@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.DATABASE_TOPOLOGY@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  desc: Q.SS.STD.P3.DESC.EVOLUTION@V0144
+artifact_scope:
+  profile: implementation_specification_standard
+  normative_unit:
+    - DESC
+    - CONTRACT
+    - DRT
+  readiness: active_current_source
+  claims_implementation_exists: false
+  runtime_evidence_required: false
+  deployment_required: false
+  tree_required: true
+  tree_source: physical_model
+  production_runtime_claim_forbidden_without_evidence: true
+  latest_source_is_current_and_active: true
+schema: q.ss.p3.evolution.contract.v12
+authority:
+  contract_is_machine_source_of_truth: true
+  desc_is_non_authoritative_projection: true
+  drt_is_non_authoritative_projection: true
+  contract_rule_set_is_importable_authority: true
+  drt_rule_set_is_drt_artifact_projection_authority: true
+  hand_written_parallel_authority_forbidden: true
+  local_upstream_semantic_redefinition_forbidden: true
+  fail_closed_on_missing_or_ambiguous_authority: true
+  current_selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+  database_projection_is_not_current_selection_authority: true
+  gate_verdict_is_not_current_selection_authority: true
+  capability_contract_standard_ref: Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  current_contract_is_self_contained: true
+  predecessor_is_lineage_only_not_current_semantic_source: true
+release_change_boundary:
+  predecessor: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  change_kind: business_evolution_plane_capability_operation_scope_and_contract_class_routing
+  update_classification: INCOMPATIBLE
+  semantic_reduction_forbidden: true
+  business_semantics_redefined: false
+  implementation_activation_implied: false
+  governance_transition_implied: false
+  business_domain_capability_operation_evolution_owned_by_p3: true
+  business_multi_domain_execution_removed_from_p4: true
+  standard_skeleton_root_routes_to_p4: true
+  implementation_only_change_excluded_from_evolution_root: true
+inheritance_boundary:
+  dependency_direction: P0 -> P1 -> P2 -> P3 -> P4
+  imported_semantics:
+    P0:
+      ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+      role: only_runtime_provider
+    P1:
+      ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+      role: business_and_capability_semantic_owner
+    P2:
+      ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+      role: provider_publication_fact_and_consumer_mount_fact_owner
+  import_mode: exact_versioned_reference
+  copy_restate_override_or_widen_forbidden: true
+  conflict_resolution: fail_closed
+  direct_runtime_consumption_of_p1_p2a_p2b: false
+  accepted_p2_facts:
+    - P2.Provider Publication Fact
+    - P2.Consumer Mount Fact
+  reverse_dependency_forbidden: true
+  unversioned_or_undeclared_dependency_forbidden: true
+  direct_runtime_consumption_of_p1_or_p2: false
+stage:
+  stage_id: P3
+  stage_name: SELF_EVOLUTION
+  scope: one_business_domain_per_execution
+  decisive_authority: transition_one_complete_governed_business_domain_state_for_domain_capability_or_operation_contract_change
+  self_evolving: true
+  self_authorizing: false
+  domain_write_owner: P3
+  runtime_model: local_p0_runtime_only
+  separate_runtime_forbidden: true
+  cross_domain_write_or_transaction_forbidden: true
+  multi_domain_or_shared_scope_routes_to: P4_ONLY_FOR_STANDARD_OR_SKELETON_CONTRACT_ROOT
+  shared_scope_kinds:
+    - META_STANDARD_CONTRACT
+    - STAGE_STANDARD_CONTRACT
+  stage_role: NONE
+  business_cross_domain_change_propagates_via: P2
+  business_cross_domain_execution_model: INDEPENDENT_P3_PER_AFFECTED_DOMAIN
+  implementation_change_without_contract_change_is_not_evolution: true
+semantic_kernel:
+  change_authority:
+    accepted:
+      - accepted_evolution_case
+      - governed_manual_change_case
+    rejected:
+      - raw_observation
+      - metric_or_log
+      - unverified_model_recommendation
+      - inferred_dependency
+      - partial_patch
+    root_event: EXACT_CONTRACT_TRANSITION_ONLY
+    required_contract_transition_semantics:
+      - stable_contract_q_id
+      - previous_exact_contract_ref
+      - previous_contract_hash
+      - current_exact_contract_ref
+      - current_contract_hash
+    implementation_only_change_without_contract_transition_rejected: true
+  evolution_case:
+    immutable_hash_bound: true
+    required_semantics:
+      - objective
+      - problem_statement
+      - reason
+      - target_object_refs
+      - expected_effects
+      - success_metrics
+      - risk
+      - proposal_source
+      - evidence_set
+      - predicted_impact_graph_ref
+    semantic_revision_requires_new_reference: true
+  evidence:
+    source_ownership_preserved: true
+    stored_as_versioned_reference_only: true
+    required_semantics:
+      - content_hash
+      - lineage
+      - time_window
+      - declared_usage
+    mutable_or_unhashed_evidence_rejected: true
+  impact_graph:
+    predicted_required_before_candidate: true
+    verified_required_before_activation: true
+    verified_graph_recomputed_from_complete_candidate: true
+    ai_inferred_edges_are_hypotheses: false
+    unresolved_or_expanded_scope_blocks_activation: true
+    ai_inferred_edges_forbidden: true
+    hash_delta_and_governed_dependency_facts_only: true
+  candidate_domain_state:
+    complete_state_not_patch: true
+    component_kinds_closed:
+      - BUSINESS_OBJECT
+      - ITEM
+      - FIELD
+      - SCHEMA
+      - INTERFACE
+      - CONTRACT
+      - POLICY
+      - CONFIGURATION
+      - IMPLEMENTATION
+      - PUBLICATION
+      - DEPENDENCY
+      - DATA
+      - DEPLOYMENT
+      - SECURITY_CONTROL
+    applicable_component_required_semantics:
+      - kind
+      - versioned_ref
+      - content_hash
+      - owner_ref
+      - compatibility_status
+      - owner_preparation_receipt_ref
+    non_applicable_kind_requires_reason: true
+    p3_composes_and_verifies_but_does_not_absorb_owner_authority: true
+    capability_contract_composition_required: true
+    capability_contract_map_entry_required:
+      - capability_ref
+      - capability_contract_ref
+      - capability_contract_content_hash
+      - compatibility_status
+    moving_current_alias_inside_activated_domain_state_forbidden: true
+lifecycle:
+  formal_operations:
+    - inspect_change
+    - create_candidate
+    - validate_candidate
+    - approve_candidate
+    - activate_candidate
+    - evaluate_candidate
+    - rollback_candidate
+    - read_receipt
+  states:
+    - OBSERVED
+    - PROPOSED
+    - CANDIDATE_CREATED
+    - VALIDATED
+    - APPROVED
+    - WAITING_FOR_P4
+    - TRIAL_ACTIVE
+    - EFFECT_EVALUATED
+    - ACTIVE
+    - ROLLED_BACK
+  transition_order:
+    - OBSERVED -> PROPOSED
+    - PROPOSED -> CANDIDATE_CREATED
+    - CANDIDATE_CREATED -> VALIDATED
+    - VALIDATED -> APPROVED | WAITING_FOR_P4
+    - APPROVED | WAITING_FOR_P4 -> TRIAL_ACTIVE | ACTIVE
+    - TRIAL_ACTIVE -> EFFECT_EVALUATED
+    - EFFECT_EVALUATED -> ACTIVE | ROLLED_BACK | CANDIDATE_CREATED | WAITING_FOR_P4
+  outcomes:
+    - RETAIN
+    - ADJUST
+    - ROLLBACK
+    - ESCALATE
+  invariants:
+    direct_activation_only_when_trial_not_required: true
+    trial_pointer_separate_from_active_pointer: true
+    active_pointer_unchanged_during_trial: true
+    pointer_mutation_uses_cas: true
+    mutation_guarded_idempotent_atomic_and_receipted: true
+    adjust_creates_new_candidate_lineage: true
+    irreversible_migration_requires_forward_recovery_plan: true
+    active_is_stable_non_terminal: true
+    rolled_back_is_terminal: true
+    validation_precedes_approval: true
+    active_state_exact_capability_contract_refs_and_hashes_required: true
+    capability_pass_does_not_replace_domain_composition_validation: true
+object_model:
+  hierarchy:
+    - DOMAIN
+    - CAPABILITY
+    - OPERATION
+  domain_ref: q.p3.domain.domain_evolution
+  capability_ref: q.p3.capability.governed_evolution
+  operation_ids:
+    - inspect_change
+    - create_candidate
+    - validate_candidate
+    - approve_candidate
+    - activate_candidate
+    - evaluate_candidate
+    - rollback_candidate
+    - read_receipt
+  coordination_port_ref: q.p3.port.coordination_contract
+  module_object_forbidden: true
+  local_parent_identity_must_resolve: true
+  interface_is_operation_owned_formal_object_not_hierarchy_level: true
+  port_is_binding_object_not_business_hierarchy_level: true
+interface_contract:
+  classification:
+    stage: B4/P3
+    role: N1/NONE
+    active_surfaces:
+      - CALL
+    not_applicable_surfaces:
+      - HOOK
+      - EVENT
+      - REGISTRY
+    active_interface_kinds:
+      - CALL_INVOKE
+    not_applicable_interface_kinds:
+      - HOOK_BIND
+      - HOOK_EVALUATE
+      - EVENT_PUBLISH
+      - EVENT_CONSUME
+      - REGISTRY_REGISTER
+      - REGISTRY_RESOLVE
+      - REGISTRY_LOOKUP
+      - REGISTRY_WATCH
+  layers:
+    exact:
+      - PATH
+      - STATIC_MOUNT
+      - DYNAMIC_MOUNT
+    closed_disjoint: true
+    PATH: routing_identity_and_correlation_only
+    STATIC_MOUNT: versioned_contract_policy_state_cas_lease_fencing_idempotency_persistence_trust_and_verification
+    DYNAMIC_MOUNT: request_execution_fact_response_evidence_outcome_and_stable_error
+    inferred_omitted_duplicate_or_unclassified_field_forbidden: true
+  call_result:
+    exactly_one_of:
+      - Response
+      - StableError
+    explicit_outcome_type_required: true
+    stable_error_wire_fields:
+      - code
+      - message
+      - category
+      - retriable
+      - trace_id
+      - request_id
+    validation_or_approval_rejection_is_stable_error: true
+    governed_evaluation_decision_is_success_result: true
+  common_fields:
+    mutation_request_required:
+      - idempotency_key
+      - trace_id
+      - request_id
+    mutation_response_required:
+      - receipt_ref
+      - trace_id
+      - request_id
+    read_request_required:
+      - trace_id
+      - request_id
+    read_response_required:
+      - trace_id
+      - request_id
+  idempotency:
+    canonical_request_hash_required: true
+    same_key_same_request_same_result: true
+    same_key_different_request_rejected: true
+    max_effective_executions_per_key: 1
+  operations:
+    inspect_change:
+      request_required:
+        - domain_ref
+        - change_ref
+      request_forbidden:
+        - raw_observation
+        - unverified_ai_recommendation
+      response_required:
+        - inspection_ref
+        - evolution_case_ref
+        - predicted_impact_graph_ref
+        - routing_decision
+      stable_errors:
+        - P3_CHANGE_NOT_FOUND
+        - P3_CHANGE_AUTHORITY_INVALID
+        - P3_EVOLUTION_EVIDENCE_INVALID
+        - P3_IMPACT_GRAPH_INVALID
+        - P3_INSPECTION_FAILED
+    create_candidate:
+      request_required:
+        - domain_ref
+        - change_ref
+        - inspection_ref
+        - predicted_impact_graph_ref
+        - expected_active_version
+      request_forbidden:
+        - partial_patch_ref
+      response_required:
+        - candidate_ref
+        - candidate_hash
+        - domain_state_ref
+      stable_errors:
+        - P3_CHANGE_INVALID
+        - P3_INSPECTION_REQUIRED
+        - P3_DOMAIN_STATE_INCOMPLETE
+        - P3_CANDIDATE_CONFLICT
+        - P3_CANDIDATE_CREATE_FAILED
+      cas_required: true
+    validate_candidate:
+      request_required:
+        - domain_ref
+        - candidate_ref
+        - candidate_hash
+        - predicted_impact_graph_ref
+      response_required:
+        - validation_ref
+        - validation_status
+        - verified_impact_graph_ref
+      stable_errors:
+        - P3_CANDIDATE_NOT_FOUND
+        - P3_CANDIDATE_HASH_MISMATCH
+        - P3_DOMAIN_STATE_INCOMPLETE
+        - P3_OWNER_RECEIPT_INVALID
+        - P3_IMPACT_SCOPE_EXPANDED
+        - P3_VALIDATION_REJECTED
+        - P3_VALIDATION_FAILED
+    approve_candidate:
+      request_required:
+        - domain_ref
+        - candidate_ref
+        - validation_ref
+        - verified_impact_graph_ref
+        - approver_ref
+        - approval_scope
+      response_required:
+        - approval_ref
+        - approval_status
+        - approval_scope
+        - routing_decision
+      stable_errors:
+        - P3_VALIDATION_REQUIRED
+        - P3_IMPACT_SCOPE_UNRESOLVED
+        - P3_APPROVAL_SCOPE_INVALID
+        - P3_APPROVAL_REJECTED
+        - P3_APPROVAL_FAILED
+    activate_candidate:
+      request_required:
+        - domain_ref
+        - candidate_ref
+        - approval_ref
+        - expected_active_version
+      request_optional:
+        - activation_mode
+        - trial_profile_ref
+        - evaluation_ref
+      response_required:
+        - active_pointer_ref
+        - active_version
+      response_optional:
+        - trial_pointer_ref
+      stable_errors:
+        - P3_APPROVAL_REQUIRED
+        - P3_TRIAL_POLICY_REQUIRED
+        - P3_EVALUATION_REQUIRED
+        - P3_COMPONENT_PREPARATION_INCOMPLETE
+        - P3_ACTIVE_VERSION_CONFLICT
+        - P3_ACTIVATION_FAILED
+      cas_required: true
+    evaluate_candidate:
+      request_required:
+        - domain_ref
+        - candidate_ref
+        - trial_pointer_ref
+        - evaluation_profile_ref
+        - outcome_evidence_ref
+      response_required:
+        - evaluation_ref
+        - evaluation_result
+      stable_errors:
+        - P3_TRIAL_NOT_ACTIVE
+        - P3_OUTCOME_EVIDENCE_INVALID
+        - P3_EVALUATION_PROFILE_INVALID
+        - P3_EVALUATION_FAILED
+    rollback_candidate:
+      request_required:
+        - domain_ref
+        - active_pointer_ref
+        - rollback_target_ref
+        - expected_active_version
+      request_optional:
+        - trial_pointer_ref
+        - rollback_scope
+      response_required:
+        - active_pointer_ref
+        - active_version
+      response_optional:
+        - trial_pointer_ref
+      stable_errors:
+        - P3_ROLLBACK_TARGET_INVALID
+        - P3_IRREVERSIBLE_MIGRATION_UNRECOVERABLE
+        - P3_ACTIVE_VERSION_CONFLICT
+        - P3_ROLLBACK_FAILED
+      cas_required: true
+    read_receipt:
+      request_required:
+        - domain_ref
+        - receipt_ref
+      request_forbidden:
+        - p4_authorization_receipt_ref
+        - idempotency_key
+      response_required:
+        - receipt
+        - receipt_hash
+      stable_errors:
+        - P3_RECEIPT_NOT_FOUND
+        - P3_RECEIPT_INVALID
+      read_only: true
+  coordination_port:
+    closed: true
+    method_names_exact:
+      - request_candidate
+      - request_activation
+      - request_rollback
+      - read_receipt
+    fifth_method_forbidden: true
+    ownership:
+      contract: P3
+      provider: P3
+      client: P4
+      binding: P4
+    contract_file: src/p3/coordination_port_contract.ts
+    provider_file: src/p3/coordination_port_provider.ts
+    downstream_provider_import_forbidden: true
+    exact_port_parity_required: true
+    methods:
+      request_candidate:
+        request_required:
+          - change_set_ref
+          - target_domain_ref
+          - change_ref
+          - expected_active_version
+          - lease_epoch
+          - fencing_token
+          - idempotency_key
+          - trace_id
+          - request_id
+        request_optional:
+          - predicted_impact_graph_ref
+        request_forbidden:
+          - p4_authorization_receipt_ref
+          - activation_plan_ref
+          - approval_ref
+        response_required:
+          - candidate_ref
+          - candidate_hash
+          - receipt_ref
+          - trace_id
+          - request_id
+        response_optional:
+          - domain_state_ref
+        stable_errors:
+          - P3_COORDINATION_REQUEST_INVALID
+          - P3_CHANGE_AUTHORITY_INVALID
+          - P3_IMPACT_GRAPH_INVALID
+          - P3_LEASE_INVALID
+          - P3_FENCING_REJECTED
+          - P3_CANDIDATE_CONFLICT
+          - P3_CANDIDATE_CREATE_FAILED
+        authorization: forbidden
+        cas_required: true
+      request_activation:
+        request_required:
+          - change_set_ref
+          - activation_plan_ref
+          - target_domain_ref
+          - target_step_ref
+          - candidate_ref
+          - approval_ref
+          - expected_active_version
+          - p4_authorization_receipt_ref
+          - lease_epoch
+          - fencing_token
+          - idempotency_key
+          - trace_id
+          - request_id
+        request_optional:
+          - activation_mode
+          - trial_profile_ref
+          - evaluation_ref
+        response_required:
+          - active_pointer_ref
+          - active_version
+          - receipt_ref
+          - trace_id
+          - request_id
+        response_optional:
+          - trial_pointer_ref
+        stable_errors:
+          - P3_COORDINATION_REQUEST_INVALID
+          - P3_AUTHORIZATION_INVALID
+          - P3_AUTHORIZATION_EXPIRED
+          - P3_AUTHORIZATION_REPLAYED
+          - P3_TRUST_ANCHOR_INVALID
+          - P3_TRIAL_POLICY_REQUIRED
+          - P3_EVALUATION_REQUIRED
+          - P3_COMPONENT_PREPARATION_INCOMPLETE
+          - P3_LEASE_INVALID
+          - P3_FENCING_REJECTED
+          - P3_ACTIVATION_CONFLICT
+          - P3_ACTIVATION_FAILED
+        authorization: required_single_use
+        cas_required: true
+      request_rollback:
+        request_required:
+          - change_set_ref
+          - activation_plan_ref
+          - target_domain_ref
+          - target_step_ref
+          - active_pointer_ref
+          - rollback_target_ref
+          - expected_active_version
+          - p4_authorization_receipt_ref
+          - lease_epoch
+          - fencing_token
+          - idempotency_key
+          - trace_id
+          - request_id
+        request_optional:
+          - trial_pointer_ref
+          - rollback_scope
+        response_required:
+          - active_pointer_ref
+          - active_version
+          - receipt_ref
+          - trace_id
+          - request_id
+        response_optional:
+          - trial_pointer_ref
+        stable_errors:
+          - P3_COORDINATION_REQUEST_INVALID
+          - P3_AUTHORIZATION_INVALID
+          - P3_AUTHORIZATION_EXPIRED
+          - P3_AUTHORIZATION_REPLAYED
+          - P3_TRUST_ANCHOR_INVALID
+          - P3_IRREVERSIBLE_MIGRATION_UNRECOVERABLE
+          - P3_LEASE_INVALID
+          - P3_FENCING_REJECTED
+          - P3_ROLLBACK_CONFLICT
+          - P3_ROLLBACK_FAILED
+        authorization: required_single_use
+        cas_required: true
+      read_receipt:
+        request_required:
+          - domain_ref
+          - receipt_ref
+          - trace_id
+          - request_id
+        request_forbidden:
+          - p4_authorization_receipt_ref
+          - idempotency_key
+        response_required:
+          - receipt
+          - receipt_hash
+          - trace_id
+          - request_id
+        stable_errors:
+          - P3_RECEIPT_NOT_FOUND
+          - P3_RECEIPT_INVALID
+        authorization: forbidden
+        read_only: true
+  registry_not_applicable_reason: P3 current declares no registry method; durable persistence is internal state, not a public Registry Interface.
+coordination_authorization:
+  required_for:
+    - request_activation
+    - request_rollback
+  forbidden_for:
+    - request_candidate
+    - read_receipt
+  issuer: P4
+  verifier_and_consumer: P3
+  single_use: true
+  signature_profile:
+    algorithm: ECDSA_P256_SHA256
+    canonicalization: RFC8785_JCS
+    encoding: base64url_without_padding
+  binds:
+    - method
+    - change_set
+    - activation_plan
+    - domain
+    - step
+    - expected_version
+    - lease_epoch
+    - fencing_token
+    - exact_semantic_request_hash
+    - key_id
+    - key_version
+    - revocation_epoch
+    - issued_at
+    - expires_at
+    - nonce
+    - method_specific_subject
+  trust_boundary:
+    p4_private_signing_key_handle_only: true
+    p3_public_trust_anchor_and_revocation_state_only: true
+    shared_symmetric_secret_forbidden: true
+    downgrade_substitution_replay_or_reuse_forbidden: true
+    verification_nonce_consumption_lease_fencing_and_domain_write_atomic: true
+p2_fact_consumption:
+  provider_publication_fact_contract: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/provider_fact_contract
+  consumer_mount_fact_contract: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_fact_contract
+  required_verification:
+    - fact_identity
+    - content_hash
+    - source_contract
+    - owner_ref
+  semantic_reinterpretation_or_body_takeover_forbidden: true
+persistence_and_receipts:
+  production_store_properties:
+    vendor_neutral: true
+    restart_safe: true
+    crash_safe: true
+    in_memory_only_for_test_or_reference: true
+  stores:
+    - evolution_state
+    - immutable_receipt
+    - idempotency
+    - lease_and_fencing
+    - authorization_consumption
+    - public_trust_anchor
+  pointer_cas_required:
+    - trial_pointer
+    - active_pointer
+  idempotency_contract:
+    canonical_request_hash_required: true
+    same_key_same_request_same_result: true
+    same_key_different_request_rejected: true
+    max_effective_executions_per_key: 1
+  partial_commit_forbidden: true
+  authorization_consumption_and_domain_write_atomic: true
+  receipt:
+    immutable: true
+    hash_chained: true
+    required_semantics:
+      - trace_and_request_identity
+      - canonical_request_hash
+      - evolution_case_ref
+      - evidence_refs
+      - predicted_and_verified_impact_graph_refs_when_applicable
+      - complete_domain_state_ref_and_hash
+      - component_owner_receipt_refs
+      - trial_and_evaluation_refs_when_used
+      - previous_receipt_ref
+      - primary_stable_error_identity_when_failed
+  persistence_standard_ref: Q.SS.STD.META.CONTRACT.DATABASE_PERSISTENCE@${CURRENT}
+  topology_standard_ref: Q.SS.STD.META.CONTRACT.DATABASE_TOPOLOGY@${CURRENT}
+  database_is_not_semantic_authority: true
+  live_database_catalog_is_observation_only: true
+  cross_domain_direct_sql_business_dependency_forbidden: true
+  cross_owner_foreign_key_business_dependency_forbidden: true
+  artifact_result_evidence_receipt_body_externalization_follows_persistence_standard: true
+  exact_persistence_contract_required_before_relational_materialization: true
+  relational_materialization_claimed_by_this_candidate: false
+runtime_binding:
+  provider_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  invocation_path: explicit_stage_extension_handler_binding
+  every_operation_and_port_method_resolves_to_one_handler_file_and_symbol: true
+  inferred_handler_routing_forbidden: true
+contract_rule_set:
+  rule_set_id: q.p3.evolution.contract_rules
+  rule_set_version: V0113
+  owner_stage: P3
+  authority_kind: CONTRACT
+  source_authority_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  supersedes_rule_set: q.p3.evolution.contract_rules@V0112
+  purpose: Validate P3 as the Business Evolution Plane for Domain, Capability and Operation Contract transitions while preserving exact local Domain write authority.
+  counting_method:
+    count_unit: independently_testable_normative_clause
+    scalar_and_field_members_are_evidence_dimensions_not_independent_rules: true
+    semantic_reduction_forbidden: true
+  evaluation_profiles:
+    - STANDARD_REVIEW
+    - TEMPLATE_GENERATION
+    - IMPLEMENTATION_GATE
+    - FREEZE_GATE
+  group_order:
+    - AUTHORITY_INHERITANCE
+    - CASE_EVIDENCE_IMPACT
+    - CANDIDATE_STATE
+    - LIFECYCLE
+    - INTERFACE_OUTCOME
+    - PORT_SECURITY
+    - PERSISTENCE_RECEIPT
+    - BUSINESS_EVOLUTION_SCOPE
+  group_counts:
+    AUTHORITY_INHERITANCE: 7
+    CASE_EVIDENCE_IMPACT: 5
+    CANDIDATE_STATE: 4
+    LIFECYCLE: 7
+    INTERFACE_OUTCOME: 5
+    PORT_SECURITY: 6
+    PERSISTENCE_RECEIPT: 4
+    BUSINESS_EVOLUTION_SCOPE: 4
+  rule_identity_key:
+    - rule_set_id
+    - rule_id
+    - rule_version
+  rule_stamp_algorithm: sha256_canonical_json
+  active_rule_update_forbidden: true
+  semantic_change_requires_new_rule_version: true
+  lifecycle_state: ACTIVE
+  rule_count: 42
+  legacy_v0123_leaf_rule_count: 1118
+  legacy_group_coverage:
+    authority_release_and_classification:
+      - P3_AUTHORITY
+      - P3_RELEASE_CHANGE_BOUNDARY
+      - P3_DEPENDENCY_CLASSIFICATION
+      - P3_DIMENSION_CLASSIFICATION
+      - P3_STAGE
+      - P3_RESPONSIBILITIES
+      - P3_FORMAL_OPERATIONS
+      - P3_COORDINATION_METHODS
+    object_interface_and_result:
+      - P3_OBJECT_CATALOG
+      - P3_OBJECT_RELATIONSHIPS
+      - P3_INTERFACE_PROFILE
+      - P3_CALL_METHODS
+      - P3_INTERFACES
+      - P3_OUTCOME_CONTRACTS
+      - P3_PORTS
+      - P3_FIELD_CATALOG
+      - P3_PORT_OPTIONAL_FIELD_CLOSURE
+      - P3_STABLE_ERROR_CATALOG
+      - P3_STABLE_ERROR_WIRE_CONTRACT
+      - P3_RESULT_ERROR_SEMANTICS
+    evolution_and_lifecycle:
+      - P3_STATE_MACHINE
+      - P3_APPROVAL_RULES
+      - P3_EVOLUTION_EVIDENCE_CONTRACT
+      - P3_EVOLUTION_CASE_CONTRACT
+      - P3_IMPACT_GRAPH_CONTRACT
+      - P3_DOMAIN_STATE_MANIFEST_CONTRACT
+      - P3_COMPONENT_AUTHORITY_CONTRACT
+      - P3_TRIAL_POLICY
+      - P3_SUCCESS_METRIC_CONTRACT
+      - P3_EVALUATION_CONTRACT
+      - P3_IRREVERSIBLE_MIGRATION_RECOVERY_CONTRACT
+    authorization_persistence_and_runtime:
+      - P3_COORDINATION_AUTHORIZATION_CONTRACT
+      - P3_PERSISTENCE
+      - P3_RECEIPT_RULES
+      - P3_STAGE_EXTENSION_DECLARATION
+      - P3_RUNTIME_CONNECTIONS
+      - P3_P2_GOVERNANCE_FACT_CONSUMPTION
+      - P3_OPERATION_EXECUTION_MAP
+      - P3_COORDINATION_METHOD_EXECUTION_MAP
+      - P3_OPERATION_ROUTING_RULES
+    gate_and_projection:
+      - P3_STATIC_OBJECTS
+      - P3_DYNAMIC_OBJECTS
+      - P3_NOT_APPLICABLE
+      - P3_QREG_PROJECTION
+      - P3_GATE_REQUIREMENTS
+      - P3_FREEZE_POLICY
+      - P3_FORBIDDEN
+  rules:
+    P3-A01:
+      rule_id: P3-A01
+      rule_version: V0108
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/stage/decisive_authority
+      predicate:
+        type: single_domain_transition_authority
+      evidence_required:
+        - authority_reference_evidence
+      status: active
+      rule_stamp: sha256:612dd574cdbffc35f28d863a85d8dbeee062272fd8f8281257ddd94dcdfa3871
+    P3-A02:
+      rule_id: P3-A02
+      rule_version: V0108
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/inheritance_boundary/imported_semantics/P0/ref
+      predicate:
+        type: p0_is_only_runtime
+      evidence_required:
+        - authority_reference_evidence
+      status: active
+      rule_stamp: sha256:5d3487bf6a1f75ce0e3005aa996a6c12f84cc318da72b40ead75f9fe1acdfc4e
+    P3-A03:
+      rule_id: P3-A03
+      rule_version: V0108
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/inheritance_boundary/copy_restate_override_or_widen_forbidden
+      predicate:
+        type: upstream_semantics_by_reference_only
+      evidence_required:
+        - authority_reference_evidence
+      status: active
+      rule_stamp: sha256:4e55cc39601986b77078c381cb01b8c9cd9dfdaf0fcb9b38ea3fe5fd87ee00a2
+    P3-A04:
+      rule_id: P3-A04
+      rule_version: V0108
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/stage/domain_write_owner
+      predicate:
+        type: p3_only_single_domain_write_owner
+      evidence_required:
+        - authority_reference_evidence
+      status: active
+      rule_stamp: sha256:e3f5271b5db7b5a1b7027eae743d943d2477e7527aac0a237942f830ded18e04
+    P3-A05:
+      rule_id: P3-A05
+      rule_version: V0113
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/stage
+      predicate:
+        type: contract_class_routes_business_to_p3_standard_skeleton_to_p4
+      evidence_required:
+        - authority_reference_evidence
+        - contract_change_case_evidence
+      status: active
+      rule_stamp: sha256:057dc2366ef16a8498b5262b4adea4fc9ac9b1cd1fb5e0bec1bc53a52b1bd9a5
+    P3-A06:
+      rule_id: P3-A06
+      rule_version: V0108
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/release_change_boundary
+      predicate:
+        type: candidate_add_only_no_activation_claim
+      evidence_required:
+        - authority_reference_evidence
+      status: active
+      rule_stamp: sha256:d6ca21a254b200042d040c7f6c7220b0b1cb75d0b206b16a012c2bd2b76c8605
+    P3-E01:
+      rule_id: P3-E01
+      rule_version: V0108
+      group_id: CASE_EVIDENCE_IMPACT
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/change_authority
+      predicate:
+        type: accepted_case_or_governed_manual_case_only
+      evidence_required:
+        - case_evidence_impact_evidence
+      status: active
+      rule_stamp: sha256:20b44b640f226452a94b4f8b791e8e6bbaadeafddd1e7be6e58155b1a54b24b3
+    P3-E02:
+      rule_id: P3-E02
+      rule_version: V0108
+      group_id: CASE_EVIDENCE_IMPACT
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/evolution_case
+      predicate:
+        type: case_identity_hash_and_revision_closed
+      evidence_required:
+        - case_evidence_impact_evidence
+      status: active
+      rule_stamp: sha256:7907bb69b5eadc703a04272108d43ad466b70e3e87f9ac53c52db13f153dd63f
+    P3-E03:
+      rule_id: P3-E03
+      rule_version: V0108
+      group_id: CASE_EVIDENCE_IMPACT
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/evidence
+      predicate:
+        type: evidence_reference_hash_lineage_and_source_ownership_required
+      evidence_required:
+        - case_evidence_impact_evidence
+      status: active
+      rule_stamp: sha256:67bcdb9040dc59267cc006e870c515b97c285590fdc4186294147a8735c884c4
+    P3-E04:
+      rule_id: P3-E04
+      rule_version: V0108
+      group_id: CASE_EVIDENCE_IMPACT
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/impact_graph/predicted_required_before_candidate
+      predicate:
+        type: predicted_graph_precedes_candidate
+      evidence_required:
+        - case_evidence_impact_evidence
+      status: active
+      rule_stamp: sha256:8f7beeee1c58e05e33a404248c6ced526c3befc29d64258e49abe51a79beb240
+    P3-E05:
+      rule_id: P3-E05
+      rule_version: V0108
+      group_id: CASE_EVIDENCE_IMPACT
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/impact_graph/verified_required_before_activation
+      predicate:
+        type: verified_graph_precedes_activation_and_unresolved_scope_blocks
+      evidence_required:
+        - case_evidence_impact_evidence
+      status: active
+      rule_stamp: sha256:c49cd9ab617a417518c92d06a66a96b98b5b496ca102c66cf1004e506ff776c2
+    P3-C01:
+      rule_id: P3-C01
+      rule_version: V0108
+      group_id: CANDIDATE_STATE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/candidate_domain_state/complete_state_not_patch
+      predicate:
+        type: complete_state_not_patch
+      evidence_required:
+        - candidate_state_evidence
+      status: active
+      rule_stamp: sha256:d3bd9bea82bb4349589614af65a88ae51c92d58a24df49d1842ac6bbd660ebef
+    P3-C02:
+      rule_id: P3-C02
+      rule_version: V0108
+      group_id: CANDIDATE_STATE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/candidate_domain_state/component_kinds_closed
+      predicate:
+        type: component_kind_set_closed
+      evidence_required:
+        - candidate_state_evidence
+      status: active
+      rule_stamp: sha256:939d334526a3c9feb546798ad3be6abe8b5d2b2433f7565d963def3b6dca3d6c
+    P3-C03:
+      rule_id: P3-C03
+      rule_version: V0108
+      group_id: CANDIDATE_STATE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/candidate_domain_state/applicable_component_required_semantics
+      predicate:
+        type: component_identity_owner_compatibility_receipt_closed
+      evidence_required:
+        - candidate_state_evidence
+      status: active
+      rule_stamp: sha256:b20352abb8f4746c9045ff1380554e7e60f0e05debe04d4d1a6b43f562900418
+    P3-C04:
+      rule_id: P3-C04
+      rule_version: V0108
+      group_id: CANDIDATE_STATE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/candidate_domain_state/non_applicable_kind_requires_reason
+      predicate:
+        type: non_applicable_requires_reason
+      evidence_required:
+        - candidate_state_evidence
+      status: active
+      rule_stamp: sha256:7edc5182e3ed1b47cc2ea2ccb57c57cc4badbfecf3e6b084f1a83d1413339baf
+    P3-L01:
+      rule_id: P3-L01
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/formal_operations
+      predicate:
+        type: operation_set_closed
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:e71c667aa7c9e4160423897fa222b5a29fac7e333d100d5a4807541f8495414b
+    P3-L02:
+      rule_id: P3-L02
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/transition_order
+      predicate:
+        type: transition_graph_closed
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:b9323e6863454610e8c91c4b7525d7a0499a44bc73751959da6a2dafe7fd75ce
+    P3-L03:
+      rule_id: P3-L03
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/invariants/validation_precedes_approval
+      predicate:
+        type: validate_before_approve
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:cf07004157eb2525f2d4efc87ae6d9a0807a73ed74a8fa9216916264065df4d8
+    P3-L04:
+      rule_id: P3-L04
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/invariants/trial_pointer_separate_from_active_pointer
+      predicate:
+        type: trial_pointer_separate_and_active_unchanged
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:477234c0a6bf0b467f2945ebb86922a33cb601498eb054aaecdf67ed79fc7844
+    P3-L05:
+      rule_id: P3-L05
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/invariants/direct_activation_only_when_trial_not_required
+      predicate:
+        type: direct_activation_policy_guarded
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:8548906fb683ab4f06122f11417e3ce564cd4838273c1eb80c902099437b09c0
+    P3-L06:
+      rule_id: P3-L06
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/outcomes
+      predicate:
+        type: evaluation_decision_set_closed_and_adjust_new_lineage
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:e5324ca17ff8012d5299eca107d7f05be544c84a2de2ada82e7fe6f42e6ac9de
+    P3-L07:
+      rule_id: P3-L07
+      rule_version: V0108
+      group_id: LIFECYCLE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/lifecycle/invariants/irreversible_migration_requires_forward_recovery_plan
+      predicate:
+        type: rollback_or_forward_recovery_governed
+      evidence_required:
+        - lifecycle_transition_evidence
+      status: active
+      rule_stamp: sha256:8915a26bd01b1e261a39b0dcbef59a20a0a48895e22a86bb9ad28eecacec093d
+    P3-I01:
+      rule_id: P3-I01
+      rule_version: V0108
+      group_id: INTERFACE_OUTCOME
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/classification
+      predicate:
+        type: classification_exact
+      evidence_required:
+        - interface_projection_evidence
+      status: active
+      rule_stamp: sha256:c3dc28c454482085d6cfa9e922fb9e969c4a562b5024777159d7f9965b2f1a3d
+    P3-I02:
+      rule_id: P3-I02
+      rule_version: V0108
+      group_id: INTERFACE_OUTCOME
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/classification/active_surfaces
+      predicate:
+        type: call_only_public_interface_surface
+      evidence_required:
+        - interface_projection_evidence
+      status: active
+      rule_stamp: sha256:a67d875a6ca9b5e836dfb8f61d2abd432449b3e4a7cdbe7b37e9062121793200
+      assertion: P3 public Interface surface is CALL only; durable registry-like persistence remains internal and is not exposed as a REGISTRY Interface.
+    P3-I03:
+      rule_id: P3-I03
+      rule_version: V0108
+      group_id: INTERFACE_OUTCOME
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/layers
+      predicate:
+        type: three_layers_exact_and_disjoint
+      evidence_required:
+        - interface_projection_evidence
+      status: active
+      rule_stamp: sha256:7fd3238d9c483790b6a4694784b5af7967365aba9703b5ab235614ab4bf75cec
+    P3-I04:
+      rule_id: P3-I04
+      rule_version: V0108
+      group_id: INTERFACE_OUTCOME
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/operations
+      predicate:
+        type: operation_field_and_stable_error_partitions_closed
+      evidence_required:
+        - interface_projection_evidence
+      status: active
+      rule_stamp: sha256:eeabc4e93c358b9f4ce8edef8b38986b22cf3a53def7cc9cac87e665dd146fbe
+    P3-I05:
+      rule_id: P3-I05
+      rule_version: V0108
+      group_id: INTERFACE_OUTCOME
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/call_result
+      predicate:
+        type: response_xor_stable_error
+      evidence_required:
+        - interface_projection_evidence
+      status: active
+      rule_stamp: sha256:341ecc61cfa75c516496d11305f8de6c0dc3d87f5f214cb65f009adab95e764a
+    P3-P01:
+      rule_id: P3-P01
+      rule_version: V0108
+      group_id: PORT_SECURITY
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/coordination_port/method_names_exact
+      predicate:
+        type: four_methods_exact
+      evidence_required:
+        - coordination_security_evidence
+      status: active
+      rule_stamp: sha256:299640b59821c3888bf7c8e851b03b900447d098d71b44da413e7aaf0964a160
+    P3-P02:
+      rule_id: P3-P02
+      rule_version: V0108
+      group_id: PORT_SECURITY
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/coordination_port/ownership
+      predicate:
+        type: p3_contract_provider_p4_client_binding
+      evidence_required:
+        - coordination_security_evidence
+      status: active
+      rule_stamp: sha256:861e88ba7b8fc482998e21eb18955acf3095df043f8b5f71549572b91eda7558
+    P3-P03:
+      rule_id: P3-P03
+      rule_version: V0108
+      group_id: PORT_SECURITY
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interface_contract/coordination_port/methods
+      predicate:
+        type: port_field_optional_forbidden_response_error_partitions_closed
+      evidence_required:
+        - coordination_security_evidence
+      status: active
+      rule_stamp: sha256:aaa99a5ea8cdeadefa0dab633cfec170a49bf8562f085412291b9b58e576602d
+    P3-P04:
+      rule_id: P3-P04
+      rule_version: V0108
+      group_id: PORT_SECURITY
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/coordination_authorization/required_for
+      predicate:
+        type: activation_and_rollback_authorization_only
+      evidence_required:
+        - coordination_security_evidence
+      status: active
+      rule_stamp: sha256:a273b38ceed9fe4740990871fa397654e6e67f0d23650c717a1675cb1c0c00ab
+    P3-P05:
+      rule_id: P3-P05
+      rule_version: V0108
+      group_id: PORT_SECURITY
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/coordination_authorization/binds
+      predicate:
+        type: authorization_binds_exact_context
+      evidence_required:
+        - coordination_security_evidence
+      status: active
+      rule_stamp: sha256:6a4c74f11095e54765845de25ec6588426824674b89d77bebb1f7b7d246e1c32
+    P3-P06:
+      rule_id: P3-P06
+      rule_version: V0108
+      group_id: PORT_SECURITY
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/coordination_authorization/trust_boundary
+      predicate:
+        type: asymmetric_trust_replay_and_atomic_consumption_closed
+      evidence_required:
+        - coordination_security_evidence
+      status: active
+      rule_stamp: sha256:9b965cc9c8f8f556edf9367d88748ef6d291e22bc6c373aa30f290d6a58c1827
+    P3-S01:
+      rule_id: P3-S01
+      rule_version: V0108
+      group_id: PERSISTENCE_RECEIPT
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/persistence_and_receipts/production_store_properties
+      predicate:
+        type: restart_crash_safe_vendor_neutral
+      evidence_required:
+        - persistence_receipt_evidence
+      status: active
+      rule_stamp: sha256:ad23a5323accb930444660c662848480a845842017ed6aae2edef29878b0e847
+    P3-S02:
+      rule_id: P3-S02
+      rule_version: V0108
+      group_id: PERSISTENCE_RECEIPT
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/persistence_and_receipts/pointer_cas_required
+      predicate:
+        type: pointers_cas_and_mutations_idempotent
+      evidence_required:
+        - persistence_receipt_evidence
+      status: active
+      rule_stamp: sha256:1f238ec91d408cb7a5924dad9bfef6532628003878ab5453434fb08dae8268f2
+    P3-S03:
+      rule_id: P3-S03
+      rule_version: V0108
+      group_id: PERSISTENCE_RECEIPT
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/persistence_and_receipts/partial_commit_forbidden
+      predicate:
+        type: partial_commit_forbidden_and_authorization_write_atomic
+      evidence_required:
+        - persistence_receipt_evidence
+      status: active
+      rule_stamp: sha256:791b09d63c7bee194328bec56ec7e9a499446ceb80da2a3de4c60db535e68a87
+    P3-S04:
+      rule_id: P3-S04
+      rule_version: V0108
+      group_id: PERSISTENCE_RECEIPT
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/persistence_and_receipts/receipt
+      predicate:
+        type: immutable_chained_receipt_closed
+      evidence_required:
+        - persistence_receipt_evidence
+      status: active
+      rule_stamp: sha256:f41ff5f6b32312916ead4137dd8be26e81a1b62c17f1914cfe280f5edffa9bb1
+    P3-A07:
+      rule_id: P3-A07
+      rule_version: V0100
+      group_id: AUTHORITY_INHERITANCE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/verification_execution_boundary
+      predicate:
+        type: upstream_semantics_by_reference_only
+      evidence_required:
+        - authority_reference_evidence
+        - filesystem_inventory
+      status: active
+      rule_stamp: sha256:887abb9dd0b5dccb5e390ce5c26faae653d4d5ed960758c4a8aa26ab60ddcde4
+    P3-B01:
+      rule_id: P3-B01
+      rule_version: V0113
+      group_id: BUSINESS_EVOLUTION_SCOPE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/semantic_kernel/change_authority
+      predicate:
+        type: exact_contract_transition_only
+      evidence_required:
+        - contract_change_case_evidence
+      status: active
+      assertion: Only an exact governed Contract transition is an evolution root; implementation-only code changes without Contract semantic change do not create P3 evolution.
+      rule_stamp: sha256:9c24e91a31e14b09060c3e3b515332fe6c3cd1938eb62337f6cafcc67cc0f940
+    P3-B02:
+      rule_id: P3-B02
+      rule_version: V0113
+      group_id: BUSINESS_EVOLUTION_SCOPE
+      gate_level: G4
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/capability_granular_evolution
+      predicate:
+        type: capability_operation_business_evolution_owned_by_p3
+      evidence_required:
+        - candidate_state_evidence
+      status: active
+      assertion: Business Domain, Capability and Operation semantic changes are P3 evolution subjects; Operation semantic change is versioned through its owning Capability 
+        Contract.
+      rule_stamp: sha256:ec040cac3d9510e62a219e683a4fea5bdc984216e78017e2414bc0cf8d9836ef
+    P3-B03:
+      rule_id: P3-B03
+      rule_version: V0113
+      group_id: BUSINESS_EVOLUTION_SCOPE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/capability_granular_evolution/multi_domain_business_impact_uses_p2_propagation_and_independent_p3
+      predicate:
+        type: business_multi_domain_uses_p2_plus_independent_p3
+      evidence_required:
+        - p2_fact_evidence
+        - impact_graph_evidence
+      status: active
+      assertion: A business Capability/Operation change affecting multiple Domains propagates through governed P2 facts and is executed by independent P3 evolution in each affected
+        Domain; domain count alone does not route business evolution to P4.
+      rule_stamp: sha256:5ed26e8d90e5beac85beaa8fd51d250b41c1e1a9077b21844a26b0f98a45400f
+    P3-B04:
+      rule_id: P3-B04
+      rule_version: V0113
+      group_id: BUSINESS_EVOLUTION_SCOPE
+      gate_level: G5
+      applies_to:
+        - STANDARD_REVIEW
+        - TEMPLATE_GENERATION
+        - IMPLEMENTATION_GATE
+        - FREEZE_GATE
+      source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/capability_granular_evolution/unchanged_capability_operation_and_leaf_hashes_are_reused
+      predicate:
+        type: hash_targeted_business_evolution
+      evidence_required:
+        - hash_delta_evidence
+        - candidate_state_evidence
+      status: active
+      assertion: P3 targets only changed Contract/rule/Capability/Operation/leaf hashes and preserves unchanged exact refs and hashes in the complete candidate Domain State.
+      rule_stamp: sha256:d279a23d8f4e2a8b9b99bf76ecf0d2801a7832a764912d4515aee6ea4a1e7397
+  source_contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  imported_predecessor_rule_set: true
+  inherited_source_contract_ref_is_lineage_provenance_only: true
+  current_execution_authority_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+contract_gates:
+  required:
+    - identity_version_and_release_closure
+    - inherited_authority_and_scope_closure
+    - object_interface_layer_field_and_result_closure
+    - case_evidence_impact_and_complete_state_closure
+    - lifecycle_trial_evaluation_rollback_and_recovery_closure
+    - p3_p4_port_parity_and_authorization_closure
+    - persistence_idempotency_cas_receipt_and_atomicity_closure
+    - p0_stage_extension_and_handler_routing_closure
+    - contract_and_drt_rule_set_import_and_legacy_coverage_closure
+    - drt_exact_projection_and_file_closure
+    - q_workflow_execution_routing_and_stage_launcher_absence_closure
+  pass_condition: all_required_gates_pass_same_candidate_hash_with_zero_errors_and_zero_warnings
+  fail_closed_on:
+    - missing_or_stale_evidence
+    - unresolved_scope
+    - hash_or_version_mismatch
+    - incomplete_candidate_state
+    - unverified_authorization
+    - replay_or_nonce_reuse
+    - non_atomic_mutation
+    - missing_rollback_or_forward_recovery
+    - port_parity_mismatch
+    - invalid_rule_stamp_or_unmapped_legacy_rule_group
+    - drt_or_filesystem_mismatch
+verification_execution_boundary:
+  execution_owner: Q.WORKFLOW
+  system_interface_declaration_ref: Q.WORKFLOW.CONTRACT.DOMAIN@V0116#/system_interface_declarations/workflow_execution_invoke
+  base_interface_ref: Q.WORKFLOW.CONTRACT.CAPABILITY.WORKFLOW@V0101#/interfaces/workflow_execution_invoke
+  operation_ref: Q.WORKFLOW.CONTRACT.CAPABILITY.WORKFLOW@V0101#/operations/execute_workflow
+  stage_local_workflow_launcher_forbidden: true
+  github_actions_stage_verification_launcher_forbidden: true
+  stage_owned_verification_assets_preserved: true
+  tests_remain_stage_owned: true
+  evidence_execution_owner: Q.WORKFLOW
+  gate_verdict_authority_ref: Q.SS.STD.P1.CONTRACT.GATE_CAPABILITY@${CURRENT}
+  q_gate_remains_only_verdict_authority: true
+  workflow_success_is_not_gate_pass: true
+  q_workflow_reference_is_execution_routing_not_stage_semantic_authority: true
+physical_model:
+  projection_order:
+    - standard_library
+    - template
+  standard_library:
+    standards/authority/stages/p3:
+      desc:
+        - P3.DESC.V0144.txt
+      contract:
+        - P3.CONTRACT.V0144.yaml
+      drt:
+        - P3.DRT.V0144.txt
+  template:
+    spec/p3:
+      qcon:
+        - evolution.qcon.yaml
+      qreg:
+        - evolution.qreg
+      qconfig:
+        - evolution.qconfig
+      interface:
+        - evolution_interfaces.json
+      schema:
+        - evolution_case_reference.schema.json
+        - evolution_evidence_reference.schema.json
+        - impact_graph_reference.schema.json
+        - domain_state_manifest.schema.json
+        - evolution_candidate.schema.json
+        - evolution_validation.schema.json
+        - evolution_approval.schema.json
+        - evolution_trial_pointer.schema.json
+        - evolution_active_pointer.schema.json
+        - evolution_outcome.schema.json
+        - evolution_receipt.schema.json
+        - evolution_idempotency_record.schema.json
+        - coordination_authorization.schema.json
+        - authorization_consumption_record.schema.json
+        - authorization_trust_anchor.schema.json
+    src/p3:
+      - stage_extension_contract.ts
+      - coordination_port_contract.ts
+      - coordination_authorization_contract.ts
+      - coordination_port_provider.ts
+      - evolution_runtime_binding.ts
+      - evolution_registry.ts
+      - evolution_state_store.ts
+      - evolution_receipt_store.ts
+      - evolution_idempotency_store.ts
+      - evolution_lease_store.ts
+      - authorization_consumption_store.ts
+      - authorization_trust_store.ts
+      - evolution_persistence_binding.ts
+      - receipt_verifier.ts
+      - authorization_verifier.ts
+      - domain_state_resolver.ts
+      - impact_graph_verifier.ts
+      - outcome_evaluation_handler.ts
+      - component_owner_receipt_verifier.ts
+      - stable_errors.ts
+    tests/p3:
+      - p3_contract_conformance.test.ts
+      - p3_evolution_integration.test.ts
+      - p3_evidence_case_impact.test.ts
+      - p3_domain_state_closure.test.ts
+      - p3_trial_evaluation.test.ts
+      - p3_authorization_security.test.ts
+      - p3_authorization_trust_rotation.test.ts
+      - p3_idempotency_replay.test.ts
+      - p3_persistence_recovery.test.ts
+      - p3_receipt_tamper.test.ts
+      - p3_port_parity.test.ts
+  constraints:
+    drt_header_contains_governed_drt_rule_set: true
+    drt_body_is_directory_tree_only: true
+    drt_exactly_matches_this_projection: true
+    every_declared_target_path_must_exist_for_implementation_conformance: true
+    unlisted_stage_file_forbidden: true
+    module_object_and_module_directory_forbidden: true
+    empty_placeholder_forbidden: true
+    hidden_path_forbidden_unless_declared: true
+    inferred_or_undeclared_path_forbidden: true
+    drt_implementation_activation_freeze_or_current_pointer_claim_forbidden: true
+    local_gate_script_or_parallel_gate_authority_forbidden: true
+    runtime_and_persistence_bindings_must_not_create_protocol_translation_authority: true
+    drt_summary_only_projection_forbidden: true
+    drt_must_project_exact_paths_from_this_contract: true
+    stage_local_workflow_launcher_forbidden: true
+  hierarchy_projection:
+    carrier_kind: CAPABILITY
+    carrier_id: governed_evolution
+    spec_root: spec/p3/governed_evolution
+    source_root: src/p3/governed_evolution
+    test_root: tests/p3/governed_evolution
+    operation_ids:
+      - inspect_change
+      - create_candidate
+      - validate_candidate
+      - approve_candidate
+      - activate_candidate
+      - evaluate_candidate
+      - rollback_candidate
+      - read_receipt
+    operation_source_expression: src/p3/governed_evolution/<operation_id>/handler.ts
+    module_directory_forbidden: true
+    operations_intermediate_directory_forbidden: true
+    empty_placeholder_forbidden: true
+    path_name_inference_forbidden: true
+  trial_coexistence:
+    predecessor_candidate_bytes_retained_in_git_and_receipt_history: true
+    current_tree_projects_only_latest_unactivated_candidate_for_this_lineage: false
+    same_commit_same_path_two_authorities_forbidden: true
+    current_authority_lock_selects_locked_predecessor_until_governed_activation: false
+  candidate_exact_paths:
+    - spec/p3/governed_evolution/capability_interfaces.json
+    - spec/p3/governed_evolution/capability_objects.qreg
+    - spec/p3/governed_evolution/capability_policy.qconfig
+    - spec/p3/governed_evolution/capability_profile.qcon.yaml
+    - spec/p3/governed_evolution/schema/authorization_consumption_record.schema.json
+    - spec/p3/governed_evolution/schema/authorization_trust_anchor.schema.json
+    - spec/p3/governed_evolution/schema/coordination_authorization.schema.json
+    - spec/p3/governed_evolution/schema/domain_state_manifest.schema.json
+    - spec/p3/governed_evolution/schema/evolution_active_pointer.schema.json
+    - spec/p3/governed_evolution/schema/evolution_approval.schema.json
+    - spec/p3/governed_evolution/schema/evolution_candidate.schema.json
+    - spec/p3/governed_evolution/schema/evolution_case_reference.schema.json
+    - spec/p3/governed_evolution/schema/evolution_evidence_reference.schema.json
+    - spec/p3/governed_evolution/schema/evolution_idempotency_record.schema.json
+    - spec/p3/governed_evolution/schema/evolution_outcome.schema.json
+    - spec/p3/governed_evolution/schema/evolution_receipt.schema.json
+    - spec/p3/governed_evolution/schema/evolution_trial_pointer.schema.json
+    - spec/p3/governed_evolution/schema/evolution_validation.schema.json
+    - spec/p3/governed_evolution/schema/impact_graph_reference.schema.json
+    - src/p3/governed_evolution/activate_candidate/handler.ts
+    - src/p3/governed_evolution/approve_candidate/handler.ts
+    - src/p3/governed_evolution/authorization_consumption_store.ts
+    - src/p3/governed_evolution/authorization_trust_store.ts
+    - src/p3/governed_evolution/authorization_verifier.ts
+    - src/p3/governed_evolution/component_owner_receipt_verifier.ts
+    - src/p3/governed_evolution/coordination_authorization_contract.ts
+    - src/p3/governed_evolution/coordination_port_contract.ts
+    - src/p3/governed_evolution/coordination_port_provider.ts
+    - src/p3/governed_evolution/create_candidate/handler.ts
+    - src/p3/governed_evolution/domain_state_resolver.ts
+    - src/p3/governed_evolution/evaluate_candidate/handler.ts
+    - src/p3/governed_evolution/evolution_idempotency_store.ts
+    - src/p3/governed_evolution/evolution_lease_store.ts
+    - src/p3/governed_evolution/evolution_persistence_binding.ts
+    - src/p3/governed_evolution/evolution_receipt_store.ts
+    - src/p3/governed_evolution/evolution_registry.ts
+    - src/p3/governed_evolution/evolution_runtime_binding.ts
+    - src/p3/governed_evolution/evolution_state_store.ts
+    - src/p3/governed_evolution/evolution_validation_dependencies.ts
+    - src/p3/governed_evolution/impact_graph_verifier.ts
+    - src/p3/governed_evolution/inspect_change/handler.ts
+    - src/p3/governed_evolution/outcome_evaluation_handler.ts
+    - src/p3/governed_evolution/read_receipt/handler.ts
+    - src/p3/governed_evolution/receipt_verifier.ts
+    - src/p3/governed_evolution/rollback_candidate/handler.ts
+    - src/p3/governed_evolution/stable_errors.ts
+    - src/p3/governed_evolution/stage_extension_contract.ts
+    - src/p3/governed_evolution/validate_candidate/handler.ts
+    - standards/authority/stages/p3/contract/P3.CONTRACT.V0144.yaml
+    - standards/authority/stages/p3/desc/P3.DESC.V0144.txt
+    - standards/authority/stages/p3/drt/P3.DRT.V0144.txt
+    - tests/p3/governed_evolution/activate_candidate/handler.test.ts
+    - tests/p3/governed_evolution/approve_candidate/handler.test.ts
+    - tests/p3/governed_evolution/create_candidate/handler.test.ts
+    - tests/p3/governed_evolution/evaluate_candidate/handler.test.ts
+    - tests/p3/governed_evolution/inspect_change/handler.test.ts
+    - tests/p3/governed_evolution/p3_authorization_security.test.ts
+    - tests/p3/governed_evolution/p3_authorization_trust_rotation.test.ts
+    - tests/p3/governed_evolution/p3_contract_conformance.test.ts
+    - tests/p3/governed_evolution/p3_domain_state_closure.test.ts
+    - tests/p3/governed_evolution/p3_evidence_case_impact.test.ts
+    - tests/p3/governed_evolution/p3_evolution_integration.test.ts
+    - tests/p3/governed_evolution/p3_idempotency_replay.test.ts
+    - tests/p3/governed_evolution/p3_persistence_recovery.test.ts
+    - tests/p3/governed_evolution/p3_port_parity.test.ts
+    - tests/p3/governed_evolution/p3_receipt_tamper.test.ts
+    - tests/p3/governed_evolution/p3_trial_evaluation.test.ts
+    - tests/p3/governed_evolution/p3_validation_runtime_closure.test.ts
+    - tests/p3/governed_evolution/read_receipt/handler.test.ts
+    - tests/p3/governed_evolution/rollback_candidate/handler.test.ts
+    - tests/p3/governed_evolution/validate_candidate/handler.test.ts
+  exact_paths:
+    - spec/p3/governed_evolution/capability_interfaces.json
+    - spec/p3/governed_evolution/capability_objects.qreg
+    - spec/p3/governed_evolution/capability_policy.qconfig
+    - spec/p3/governed_evolution/capability_profile.qcon.yaml
+    - spec/p3/governed_evolution/schema/authorization_consumption_record.schema.json
+    - spec/p3/governed_evolution/schema/authorization_trust_anchor.schema.json
+    - spec/p3/governed_evolution/schema/coordination_authorization.schema.json
+    - spec/p3/governed_evolution/schema/domain_state_manifest.schema.json
+    - spec/p3/governed_evolution/schema/evolution_active_pointer.schema.json
+    - spec/p3/governed_evolution/schema/evolution_approval.schema.json
+    - spec/p3/governed_evolution/schema/evolution_candidate.schema.json
+    - spec/p3/governed_evolution/schema/evolution_case_reference.schema.json
+    - spec/p3/governed_evolution/schema/evolution_evidence_reference.schema.json
+    - spec/p3/governed_evolution/schema/evolution_idempotency_record.schema.json
+    - spec/p3/governed_evolution/schema/evolution_outcome.schema.json
+    - spec/p3/governed_evolution/schema/evolution_receipt.schema.json
+    - spec/p3/governed_evolution/schema/evolution_trial_pointer.schema.json
+    - spec/p3/governed_evolution/schema/evolution_validation.schema.json
+    - spec/p3/governed_evolution/schema/impact_graph_reference.schema.json
+    - src/p3/governed_evolution/activate_candidate/handler.ts
+    - src/p3/governed_evolution/approve_candidate/handler.ts
+    - src/p3/governed_evolution/authorization_consumption_store.ts
+    - src/p3/governed_evolution/authorization_trust_store.ts
+    - src/p3/governed_evolution/authorization_verifier.ts
+    - src/p3/governed_evolution/component_owner_receipt_verifier.ts
+    - src/p3/governed_evolution/coordination_authorization_contract.ts
+    - src/p3/governed_evolution/coordination_port_contract.ts
+    - src/p3/governed_evolution/coordination_port_provider.ts
+    - src/p3/governed_evolution/create_candidate/handler.ts
+    - src/p3/governed_evolution/domain_state_resolver.ts
+    - src/p3/governed_evolution/evaluate_candidate/handler.ts
+    - src/p3/governed_evolution/evolution_idempotency_store.ts
+    - src/p3/governed_evolution/evolution_lease_store.ts
+    - src/p3/governed_evolution/evolution_persistence_binding.ts
+    - src/p3/governed_evolution/evolution_receipt_store.ts
+    - src/p3/governed_evolution/evolution_registry.ts
+    - src/p3/governed_evolution/evolution_runtime_binding.ts
+    - src/p3/governed_evolution/evolution_state_store.ts
+    - src/p3/governed_evolution/evolution_validation_dependencies.ts
+    - src/p3/governed_evolution/impact_graph_verifier.ts
+    - src/p3/governed_evolution/inspect_change/handler.ts
+    - src/p3/governed_evolution/outcome_evaluation_handler.ts
+    - src/p3/governed_evolution/read_receipt/handler.ts
+    - src/p3/governed_evolution/receipt_verifier.ts
+    - src/p3/governed_evolution/rollback_candidate/handler.ts
+    - src/p3/governed_evolution/stable_errors.ts
+    - src/p3/governed_evolution/stage_extension_contract.ts
+    - src/p3/governed_evolution/validate_candidate/handler.ts
+    - standards/authority/stages/p3/contract/P3.CONTRACT.V0144.yaml
+    - standards/authority/stages/p3/desc/P3.DESC.V0144.txt
+    - standards/authority/stages/p3/drt/P3.DRT.V0144.txt
+    - tests/p3/governed_evolution/activate_candidate/handler.test.ts
+    - tests/p3/governed_evolution/approve_candidate/handler.test.ts
+    - tests/p3/governed_evolution/create_candidate/handler.test.ts
+    - tests/p3/governed_evolution/evaluate_candidate/handler.test.ts
+    - tests/p3/governed_evolution/inspect_change/handler.test.ts
+    - tests/p3/governed_evolution/p3_authorization_security.test.ts
+    - tests/p3/governed_evolution/p3_authorization_trust_rotation.test.ts
+    - tests/p3/governed_evolution/p3_contract_conformance.test.ts
+    - tests/p3/governed_evolution/p3_domain_state_closure.test.ts
+    - tests/p3/governed_evolution/p3_evidence_case_impact.test.ts
+    - tests/p3/governed_evolution/p3_evolution_integration.test.ts
+    - tests/p3/governed_evolution/p3_idempotency_replay.test.ts
+    - tests/p3/governed_evolution/p3_persistence_recovery.test.ts
+    - tests/p3/governed_evolution/p3_port_parity.test.ts
+    - tests/p3/governed_evolution/p3_receipt_tamper.test.ts
+    - tests/p3/governed_evolution/p3_trial_evaluation.test.ts
+    - tests/p3/governed_evolution/p3_validation_runtime_closure.test.ts
+    - tests/p3/governed_evolution/read_receipt/handler.test.ts
+    - tests/p3/governed_evolution/rollback_candidate/handler.test.ts
+    - tests/p3/governed_evolution/validate_candidate/handler.test.ts
+baseline_release:
+  mode: TRIAL_SINGLE_BASELINE
+  normalized_semantic_source_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  semantic_reduction_forbidden: true
+  field_structure_alignment_required: true
+  database_single_active_projection_required: true
+  intermediate_candidate_identity_retained_only_as_repository_history: true
+coevolution_case_binding:
+  case_ref: case:q-ss-std-p3-business-evolution-capability-operation-scope@V0100
+  case_hash: sha256:817a4a020da3976e56257c26a0bcbf67ad4b4a2537949a9b6039dea9cb3b2751
+  predicted_impact_graph_ref:
+  predicted_impact_graph_hash:
+  routing_owner: P4
+  current_authority_lock_unchanged: true
+  candidate_activation_implied: false
+  impact_resolution_source: Q_STANDARD_REVERSE_DEPENDENCY_FACTS
+  impact_not_precomputed: true
+implementation_closure_requirements:
+  inspect_change_shared_scope_routes_to_p4: false
+  verified_impact_graph_must_be_newly_recomputed_from_complete_candidate: true
+  predicted_graph_alias_as_verified_forbidden: true
+  production_persistence_requires_restart_and_crash_safe_binding: true
+  in_memory_persistence_reference_or_test_only: true
+  production_profile_must_reject_reference_validation_resolver: true
+  production_profile_must_reject_reference_in_memory_persistence: true
+  inspect_standard_or_skeleton_root_routes_to_p4: true
+  inspect_business_root_routes_to_local_p3: true
+acceptance:
+  - V0144 supersedes exactly V0143 under the governed manual change case; V0143 remains immutable lineage and registration alone does not imply Q.Gate PASS or Q.Activation.
+  - P3 is the Business Evolution Plane for one Domain per execution, covering Domain/Capability/Operation Contract semantics; business changes affecting multiple Domains propagate 
+    through P2 and execute as independent P3 transitions, while only Standard/Skeleton roots route to P4 execution.
+  - All live upstream normative standard dependencies use stable Contract q_id @${CURRENT} and resolve to exact Contract refs before semantic use.
+  - P3 consumes only governed P2 Provider Publication Fact and P2 Consumer Mount Fact and does not treat P2 as a runtime.
+  - The P3 Coordination Port remains exactly four methods with Contract/Provider owned by P3 and Client/Binding owned by P4; request/response/StableError parity is preserved.
+  - All active P3 Interfaces remain CALL/M1 with complete disjoint PATH, STATIC_MOUNT and DYNAMIC_MOUNT fields from the current Field Dictionary.
+  - Persistence remains vendor-neutral, restart/crash safe and locally owned; database state is not semantic authority and cross-Domain SQL or cross-owner FK business coupling is 
+    forbidden.
+  - The candidate physical projection contains no local Gate script or parallel protocol-translation layer; Q.Gate remains external verdict authority and P3 contributes governed 
+    Rules/Evidence only.
+  - Contract and DRT RuleSets remain importable, stamped and exact to the successor Source; filesystem projection must match the successor physical model with zero undeclared 
+    paths.
+  - Stage-local GitHub verification workflow launcher is absent; Q.Workflow System Interface owns verification execution and Q.Gate remains final verdict authority.
+validation_runtime_boundary:
+  inspection_scope_resolver:
+    input_authority:
+      - accepted_evolution_case
+      - predicted_impact_graph
+    shared_scope_result: route_by_contract_class
+    single_domain_result: create_candidate
+    raw_request_field_inference_forbidden: true
+    business_multi_domain_result: local_p3_with_p2_propagation
+    standard_or_skeleton_root_result: route_to_P4
+  verified_impact_resolver:
+    input_required:
+      - complete_domain_state_ref
+      - candidate_ref
+      - candidate_hash
+      - predicted_impact_graph_ref
+      - owner_preparation_receipt_refs
+    new_verified_ref_required: true
+    predicted_ref_alias_forbidden: true
+    expanded_or_unresolved_scope_rejected: true
+    owner_authority_absorption_forbidden: true
+  persistence_profile:
+    production_profile_explicit: true
+    production_requires_restart_crash_safe_binding: true
+    reference_in_memory_profile_explicit: true
+    reference_in_memory_production_use_forbidden: true
+field_dictionary_alignment:
+  authority_ref: Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  canonical_unique_field_count: 103
+  operation_specific_business_fields_are_nested_inside_input_context_runtime_result: true
+  new_global_standard_field_introduced: false
+interfaces:
+  inspect_change_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: inspect_change
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/inspect_change_invoke
+    operation_ref: q.p3.operation.inspect_change
+  create_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: create_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/create_candidate_invoke
+    operation_ref: q.p3.operation.create_candidate
+  validate_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: validate_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/validate_candidate_invoke
+    operation_ref: q.p3.operation.validate_candidate
+  approve_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: approve_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/approve_candidate_invoke
+    operation_ref: q.p3.operation.approve_candidate
+  activate_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: activate_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/activate_candidate_invoke
+    operation_ref: q.p3.operation.activate_candidate
+  evaluate_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: evaluate_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/evaluate_candidate_invoke
+    operation_ref: q.p3.operation.evaluate_candidate
+  rollback_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: rollback_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/rollback_candidate_invoke
+    operation_ref: q.p3.operation.rollback_candidate
+  read_receipt_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: read_receipt
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/read_receipt_invoke
+    operation_ref: q.p3.operation.read_receipt
+  coordination_request_candidate_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: request_candidate
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_request_candidate_invoke
+    operation_ref: q.p3.operation.create_candidate
+  coordination_request_activation_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: request_activation
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_request_activation_invoke
+    operation_ref: q.p3.operation.activate_candidate
+  coordination_request_rollback_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: request_rollback
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_request_rollback_invoke
+    operation_ref: q.p3.operation.rollback_candidate
+  coordination_read_receipt_invoke:
+    surface: CALL
+    kind_code: M1
+    kind: CALL_INVOKE
+    method_ref: read_receipt
+    path:
+      - route_key
+      - operation_id
+      - trace_id
+      - request_id
+    static_mount:
+      - operation_contract
+      - policy_refs
+      - receipt_contract_ref
+    dynamic_mount:
+      - input
+      - context
+      - outcome_type
+      - runtime_result
+      - stable_error
+      - execution_receipt
+      - evidence_ref
+    interface_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}#/interfaces/coordination_read_receipt_invoke
+    operation_ref: q.p3.operation.read_receipt
+current_source_alignment:
+  selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+  source_status: active
+  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  predecessor_content_hash: sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9
+  older_versions: ARCHIVE_ONLY
+  database_projection_role: NON_AUTHORITATIVE_LOCATOR_AND_FACT_PROJECTION
+  gate_verdict_role: CONFORMANCE_ONLY_NOT_VERSION_SELECTION
+  alignment_class: P3_BUSINESS_EVOLUTION_PLANE
+  business_semantics_redefined: false
+capability_granular_evolution:
+  capability_semantic_change_authority: owning Domain P3
+  one_capability_contract_may_change_independently: true
+  candidate_output_remains_complete_domain_state_not_patch: true
+  domain_state_capability_map_required: true
+  domain_state_capability_map_entry:
+    - capability_ref
+    - capability_contract_ref
+    - capability_contract_content_hash
+    - compatibility_status
+  unchanged_capabilities_preserve_exact_refs_and_hashes: true
+  changed_capability_requires_successor_capability_contract: true
+  cross_capability_dependency_and_compatibility_revalidated_before_activation: true
+  multi_domain_impact_routes_to_p4: false
+  capability_contract_content_hash_is_external_exact_artifact_binding: true
+  self_hash_literal_from_capability_contract_source_forbidden: true
+  candidate_domain_state_must_resolve_all_capability_hashes_before_validation: true
+  operation_semantic_change_is_expressed_in_owning_capability_contract_successor: true
+  operation_level_impact_targeting_required: true
+  multi_domain_business_impact_uses_p2_propagation_and_independent_p3: true
+  p4_case_exists_for_every_contract_transition_but_business_execution_routes_to_p3: true
+  unchanged_capability_operation_and_leaf_hashes_are_reused: true
+capability_evolution_delta_rule_set:
+  rule_set_id: q.p3.evolution.capability_contract_delta
+  rule_set_version: V0140
+  rule_count: 7
+  gate_decision_authority: false
+  rules:
+    P3-CAP-001:
+      assertion: A capability semantic change produces an exact successor Capability Contract owned by the same Domain.
+      rule_id: P3-CAP-001
+      rule_version: V0139
+    P3-CAP-002:
+      assertion: Candidate remains one complete Domain State including exact refs/hashes for all changed and unchanged Capability Contracts.
+      rule_id: P3-CAP-002
+      rule_version: V0139
+    P3-CAP-003:
+      assertion: Activation rejects moving CURRENT aliases inside the composed active Domain State.
+      rule_id: P3-CAP-003
+      rule_version: V0139
+    P3-CAP-004:
+      assertion: Cross-capability dependency and compatibility closure validates before activation even when each Capability is individually valid.
+      rule_id: P3-CAP-004
+      rule_version: V0139
+    P3-CAP-005:
+      assertion: Multi-Domain business impact does not invoke P4 business-evolution execution; exact change/dependency facts propagate through P2 and each affected Domain executes 
+        its own P3 transition, while cross-Domain write authority remains forbidden.
+      rule_id: P3-CAP-005
+      rule_version: V0140
+    P3-CAP-006:
+      assertion: Operation semantic change is governed as part of the owning Capability Contract successor and P3 may target only the affected Operation while composing one 
+        complete candidate Domain State.
+      rule_id: P3-CAP-006
+      rule_version: V0140
+    P3-CAP-007:
+      assertion: Implementation-only changes that preserve all governed Contract semantics are outside the P3 evolution root and remain ordinary implementation/verification work.
+      rule_id: P3-CAP-007
+      rule_version: V0140
+  authority_kind: CONTRACT
+  rule_identity_key:
+    - rule_set_id
+    - rule_id
+    - rule_version
+  machine_identity_normalized: true
+  semantic_rule_body_changed: true
+production_closure:
+  closure_basis: CURRENT_ACTIVE_GOOGLE_DRIVE_SOURCE_ONLY
+  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  predecessor_content_hash: sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9
+  change_authority: explicit_user_directed_business_evolution_plane_upgrade
+  historical_repository_or_deleted_content_used: false
+  database_projection_is_not_semantic_authority: true
+  closure_items:
+    - correct hierarchy terminology
+    - require external exact Capability Contract hash binding before candidate validation
+    - preserve complete Domain State semantics
+    - make DRT exact physical path projection
+    - route stage verification execution through the exact Q.Workflow System Interface and remove any stage-local workflow launcher
+  status: PRODUCTION_SEMANTIC_CLOSURE
+governed_manual_change_case:
+  case_ref: case:q-ss-std-p3-business-evolution-capability-operation-scope@V0100
+  case_kind: governed_manual_change_case
+  selection_mode: governed_manual_change_case_from_explicit_user_instruction
+  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  predecessor_content_hash: sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9
+  proposed_successor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  proposed_successor_desc_ref: Q.SS.STD.P3.DESC.EVOLUTION@V0144
+  proposed_successor_drt_ref: Q.SS.STD.P3.DRT.EVOLUTION@V0144
+  change_scope:
+    - make exact Contract transition the only P3 evolution root
+    - make Domain Capability and Operation business semantics P3 evolution subjects
+    - route multi-Domain business changes through P2 propagation plus independent P3 execution
+    - reserve P4 execution for Meta or P0-P4 Standard/Skeleton Contract roots
+    - target evolution by exact hash delta and preserve unchanged refs/hashes
+  numeric_increment_used_as_authority: false
+  latest_or_highest_version_inference_used: false
+  database_state_used_as_identity_authority: false
+  repository_state_used_as_identity_authority: false
+  workflow_state_used_as_identity_authority: false
+  selection_before_successor_bytes_generated: true
+  case_content_hash_basis: canonical_json_of_case_fields_excluding_case_content_hash
+  case_content_hash: sha256:817a4a020da3976e56257c26a0bcbf67ad4b4a2537949a9b6039dea9cb3b2751
+evolution_authority:
+  evolution_case_ref: case:q-ss-std-p3-business-evolution-capability-operation-scope@V0100
+  evolution_case_hash: sha256:817a4a020da3976e56257c26a0bcbf67ad4b4a2537949a9b6039dea9cb3b2751
+  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  predecessor_content_hash: sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9
+  successor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  successor_identity_source: governed_manual_change_case_explicit_identity
+  numeric_increment_used_as_authority: false
+  latest_or_max_version_inference_used: false
+  database_state_used_as_identity_authority: false
+  repository_state_used_as_identity_authority: false
+  workflow_state_used_as_identity_authority: false
+  activation_claimed: false
+successor_identity_binding:
+  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
+  predecessor_content_hash: sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9
+  successor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  update_classification: INCOMPATIBLE
+  change_kind: business_evolution_plane_capability_operation_scope_and_contract_class_routing
+  selection_mode: governed_manual_change_case_from_explicit_user_instruction
+  evolution_case_ref: case:q-ss-std-p3-business-evolution-capability-operation-scope@V0100
+  evolution_case_hash: sha256:817a4a020da3976e56257c26a0bcbf67ad4b4a2537949a9b6039dea9cb3b2751
+  numeric_increment_used_as_authority: false
+  raw_latest_or_highest_version_inference_used: false
+  database_max_version_inference_used: false
+  repository_state_used_as_identity_authority: false

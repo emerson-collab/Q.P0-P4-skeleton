@@ -1,0 +1,54 @@
+projection:
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  source_contract_hash: sha256:91eaf449a9faea21d7334fc96439c60c546a262efe225cb29f6a1a7fbfa4cd7c
+  role: consumer
+  role_dimension: N2
+  direction: INWARD
+  capability_id: external_capability_mounting
+  canonical_name: external_capability_mounting
+  stable_code: EXTERNAL_CAPABILITY_MOUNTING
+  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114#/role_capability_catalog/consumer/capabilities/external_capability_mounting
+  purpose: consume verified provider publication, resolve implementation material, create/activate/rollback Binding/Mount and invoke exact published
+    Q Interface
+  semantic_authority: false
+  projection_only: true
+operations:
+- operation_id: consume_publication
+  canonical_name: consume_publication
+  stable_code: CONSUME_PUBLICATION
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114#/operation_catalog/consumer/external_capability_mounting
+  source_leaf: src/p2/consumer/external_capability_mounting/consume_publication/handler.ts
+  test_leaf: tests/p2/consumer/external_capability_mounting/consume_publication/handler.test.ts
+- operation_id: create_mount
+  canonical_name: create_mount
+  stable_code: CREATE_MOUNT
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114#/operation_catalog/consumer/external_capability_mounting
+  source_leaf: src/p2/consumer/external_capability_mounting/create_mount/handler.ts
+  test_leaf: tests/p2/consumer/external_capability_mounting/create_mount/handler.test.ts
+- operation_id: activate_mount
+  canonical_name: activate_mount
+  stable_code: ACTIVATE_MOUNT
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114#/operation_catalog/consumer/external_capability_mounting
+  source_leaf: src/p2/consumer/external_capability_mounting/activate_mount/handler.ts
+  test_leaf: tests/p2/consumer/external_capability_mounting/activate_mount/handler.test.ts
+- operation_id: rollback_mount
+  canonical_name: rollback_mount
+  stable_code: ROLLBACK_MOUNT
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114#/operation_catalog/consumer/external_capability_mounting
+  source_leaf: src/p2/consumer/external_capability_mounting/rollback_mount/handler.ts
+  test_leaf: tests/p2/consumer/external_capability_mounting/rollback_mount/handler.test.ts
+- operation_id: execute_mounted_capability
+  canonical_name: execute_mounted_capability
+  stable_code: EXECUTE_MOUNTED_CAPABILITY
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114#/operation_catalog/consumer/external_capability_mounting
+  source_leaf: src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts
+  test_leaf: tests/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.test.ts
+boundaries:
+  single_p2_stage_identity: true
+  provider_consumer_parallel_independence: true
+  module_forbidden: true
+  p2a_p2b_stage_identity_forbidden: true
+  direct_cross_domain_p1_read_forbidden: true
+  p2_stage_database_ownership: false
+  p2_gate_or_activation_authority: false
+  verification_execution_owner: Q.WORKFLOW

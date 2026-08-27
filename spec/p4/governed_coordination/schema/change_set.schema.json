@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "change_set_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "change_set_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "changed_leaf_hash_set_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "changed_leaf_hash_set_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "changed_stable_contract_q_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "current_contract_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "current_exact_contract_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "domain_objectives": {
+      "type": "object"
+    },
+    "domains": {
+      "items": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "candidate_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "candidate_ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "change_ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "domain_state_ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "expected_active_version": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "local_approval_ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "target_domain_ref": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "verified_impact_graph_ref": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_domain_ref",
+          "change_ref",
+          "expected_active_version",
+          "candidate_ref",
+          "candidate_hash",
+          "domain_state_ref",
+          "local_approval_ref",
+          "verified_impact_graph_ref"
+        ],
+        "title": "P4 Change Set Domain",
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "evolution_case_refs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "predicted_impact_graph_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "previous_contract_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "previous_exact_contract_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "q_prompt_artifact_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "q_prompt_artifact_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "reverse_dependency_fact_set_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "reverse_dependency_fact_set_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "risk_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "root_contract_class": {
+      "enum": [
+        "BUSINESS_DOMAIN_CONTRACT",
+        "CAPABILITY_CONTRACT",
+        "META_STANDARD_CONTRACT",
+        "P0_STAGE_STANDARD_CONTRACT",
+        "P1_STAGE_STANDARD_CONTRACT",
+        "P2_STAGE_STANDARD_CONTRACT",
+        "P3_STAGE_STANDARD_CONTRACT",
+        "P4_STAGE_STANDARD_CONTRACT"
+      ],
+      "type": "string"
+    },
+    "rule_delta_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "rule_delta_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "success_metric_refs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "target_domain_refs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "change_set_ref",
+    "change_set_hash",
+    "evolution_case_refs",
+    "root_contract_class",
+    "changed_stable_contract_q_id",
+    "previous_exact_contract_ref",
+    "previous_contract_hash",
+    "current_exact_contract_ref",
+    "current_contract_hash",
+    "target_domain_refs",
+    "predicted_impact_graph_ref",
+    "domain_objectives",
+    "success_metric_refs",
+    "risk_ref",
+    "domains"
+  ],
+  "title": "P4 Change Set",
+  "type": "object"
+}

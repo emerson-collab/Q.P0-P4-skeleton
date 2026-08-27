@@ -1,0 +1,35 @@
+q_header: '1'
+q_id: Q.SS.STD.P3.DESC.EVOLUTION
+q_version: V0144
+q_title: P3 Governed Evolution Description Projection
+q_stage: P3
+q_role: domain_evolution_description
+q_status: active
+q_refs:
+  contract: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+summary:
+  hierarchy: DOMAIN > CAPABILITY > OPERATION
+  domain_ref: q.p3.domain.domain_evolution
+  capability_ref: q.p3.capability.governed_evolution
+  operations: inspect_change, create_candidate, validate_candidate, approve_candidate, activate_candidate, evaluate_candidate, rollback_candidate, read_receipt
+  decisive_authority: transition_one_complete_governed_business_domain_state_for_domain_capability_or_operation_contract_change
+  domain_write_owner: P3
+  runtime_model: local_p0_runtime_only
+  multi_domain_or_shared_scope_routes_to: P4_ONLY_FOR_STANDARD_OR_SKELETON_CONTRACT_ROOT
+  business_cross_domain_change_propagates_via: P2
+  business_cross_domain_execution_model: INDEPENDENT_P3_PER_AFFECTED_DOMAIN
+  implementation_change_without_contract_change_is_not_evolution: true
+  coordination_port_methods: request_candidate, request_activation, request_rollback, read_receipt
+  public_surface: CALL/M1/CALL_INVOKE
+  layers: PATH, STATIC_MOUNT, DYNAMIC_MOUNT
+  production_persistence: vendor-neutral, restart-safe, crash-safe
+  workflow_execution_owner: Q.WORKFLOW
+  gate_verdict_owner: Q.Gate
+  implementation_activation_implied: false
+physical_projection:
+  exact_path_count: 71
+  exact_paths_source: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144#/physical_model/exact_paths

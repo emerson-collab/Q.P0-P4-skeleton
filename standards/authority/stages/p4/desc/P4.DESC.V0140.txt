@@ -1,0 +1,42 @@
+q_header: '1'
+q_id: Q.SS.STD.P4.DESC.COORDINATION
+q_version: V0140
+q_title: P4 Contract-Change Case Intake and Standard/Skeleton Co-evolution Coordination
+q_stage: P4
+q_role: standard_alignment
+q_status: active
+q_refs:
+  supersedes:
+  - Q.SS.STD.P4.DESC.COORDINATION@V0139
+  contract: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+  drt: Q.SS.STD.P4.DRT.COORDINATION@V0140
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+alignment_projection:
+  evolution_case_ref: case:q-ss-std-p4-contract-change-case-standard-skeleton-coevolution@V0100
+  evolution_case_hash: sha256:e1290dd1814dac4cc3100bebafae369f5f7a9d76577df23d058c7be3993bfb20
+  predecessor_contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0139
+  predecessor_contract_hash: sha256:f31783c1f9e829e893633612c50dc36db2b0a21f3e378657dc85b4a0737f82ec
+  successor_contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+  successor_contract_hash: sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b
+  selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+  physical_exact_path_count: 75
+  business_semantics_changed: false
+  contract_rule_predicates_changed: true
+  gate_pass_implied: false
+  activation_implied: false
+---
+# V0140 P4 Contract-Change Case Intake and Standard/Skeleton Co-evolution Coordination
+
+- V0140 supersedes exactly V0139 under the governed manual change case; V0139 remains immutable lineage and registration alone does not imply Q.Gate PASS or Q.Activation.
+- P4 is the universal governed Contract-change Case intake/classification plane and the execution coordinator only for Meta and P0-P4 Standard/Skeleton Contract co-evolution; business Contract Cases route to P3 regardless of affected-domain count.
+- All live upstream normative standard dependencies use stable Contract q_id @${CURRENT} and resolve to exact Contract refs before semantic use.
+- The P3 Coordination Port remains the only Domain mutation path: Contract/Provider ownership stays in P3 and Client/Binding ownership stays in P4 with exact four-method parity.
+- All active P4 Interfaces remain CALL/M1 with complete disjoint PATH, STATIC_MOUNT and DYNAMIC_MOUNT fields from the current Field Dictionary.
+- P4 continues to seed standard-upgrade co-evolution from governed reverse-dependency/current-change facts without direct q_standard SQL or mechanical successor propagation.
+- Persistence remains P4-local, vendor-neutral, restart/crash safe and subject to current DATABASE_PERSISTENCE and DATABASE_TOPOLOGY boundaries; no cross-Domain SQL transaction or cross-owner FK business dependency is authorized.
+- The candidate physical projection contains no local Gate script or parallel protocol-translation layer; Q.Gate remains external verdict authority and P4 contributes governed Rules/Evidence only.
+- Contract and DRT RuleSets remain importable, stamped and exact to the successor Source; filesystem projection must match the successor physical model with zero undeclared paths.
+- Stage-local GitHub verification workflow launcher is absent; Q.Workflow System Interface owns verification execution and Q.Gate remains final verdict authority.

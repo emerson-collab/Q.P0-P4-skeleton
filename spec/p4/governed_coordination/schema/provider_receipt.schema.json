@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "canonical_request_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "provider_contract_hash": {
+      "const": "sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9"
+    },
+    "provider_contract_ref": {
+      "const": "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143"
+    },
+    "provider_receipt_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "provider_receipt_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "request_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "subject_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "trace_id": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_contract_ref",
+    "provider_contract_hash",
+    "provider_receipt_ref",
+    "provider_receipt_hash",
+    "canonical_request_hash",
+    "trace_id",
+    "request_id",
+    "subject_ref"
+  ],
+  "title": "P4 Verified Provider Receipt",
+  "type": "object"
+}

@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "claims": {
+      "additionalProperties": false,
+      "properties": {
+        "activation_plan": {
+          "type": "string"
+        },
+        "authorization_ref": {
+          "type": "string"
+        },
+        "change_set": {
+          "type": "string"
+        },
+        "domain": {
+          "type": "string"
+        },
+        "exact_semantic_request_hash": {
+          "type": "string"
+        },
+        "expected_version": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "fencing_token": {
+          "type": "string"
+        },
+        "issued_at": {
+          "type": "string"
+        },
+        "key_id": {
+          "type": "string"
+        },
+        "key_version": {
+          "type": "integer"
+        },
+        "lease_epoch": {
+          "type": "integer"
+        },
+        "method": {
+          "enum": [
+            "request_activation",
+            "request_rollback"
+          ]
+        },
+        "method_specific_subject": {},
+        "nonce": {
+          "type": "string"
+        },
+        "revocation_epoch": {
+          "type": "integer"
+        },
+        "step": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "authorization_ref",
+        "method",
+        "change_set",
+        "activation_plan",
+        "domain",
+        "step",
+        "expected_version",
+        "lease_epoch",
+        "fencing_token",
+        "exact_semantic_request_hash",
+        "key_id",
+        "key_version",
+        "revocation_epoch",
+        "issued_at",
+        "expires_at",
+        "nonce",
+        "method_specific_subject"
+      ],
+      "type": "object"
+    },
+    "signature": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "claims",
+    "signature"
+  ],
+  "title": "P3 Coordination Authorization",
+  "type": "object"
+}

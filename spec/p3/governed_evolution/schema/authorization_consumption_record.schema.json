@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "authorization_ref": {
+      "type": "string"
+    },
+    "consumed_at": {
+      "type": "string"
+    },
+    "nonce": {
+      "type": "string"
+    },
+    "request_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "authorization_ref",
+    "nonce",
+    "consumed_at",
+    "request_hash"
+  ],
+  "title": "P3 Authorization Consumption Record",
+  "type": "object"
+}

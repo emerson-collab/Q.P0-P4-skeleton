@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "content_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "declared_usage": {},
+    "evidence_ref": {
+      "type": "string"
+    },
+    "lineage": {},
+    "time_window": {}
+  },
+  "required": [
+    "evidence_ref",
+    "content_hash",
+    "lineage",
+    "time_window",
+    "declared_usage"
+  ],
+  "title": "P3 Evolution Evidence Reference",
+  "type": "object"
+}

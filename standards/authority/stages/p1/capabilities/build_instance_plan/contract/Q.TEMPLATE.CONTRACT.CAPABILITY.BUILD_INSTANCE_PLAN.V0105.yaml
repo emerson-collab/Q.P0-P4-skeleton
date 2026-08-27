@@ -1,0 +1,1018 @@
+q_header: '1'
+q_id: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN
+q_version: V0105
+q_title: Q.Template Build Instance Plan Exact Domain Composition and Prompt-Authority Alignment Contract
+q_stage: P1
+q_role: capability_contract
+q_status: active
+q_refs:
+  supersedes:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+  owner_domain_contract: Q.TEMPLATE.CONTRACT.DOMAIN@V0120
+  caller_capability_contract: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  depends_on:
+  - Q.SS.STD.META.CONTRACT.ARTIFACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.GOVERNED_DATA_MATERIAL@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@${CURRENT}
+  - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  - Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  - Q.SS.STD.P4.CONTRACT.COORDINATION@${CURRENT}
+artifact_scope:
+  profile: CAPABILITY_IMPLEMENTATION_CONTRACT
+  semantic_authority: true
+  source_of_truth: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  normative_unit:
+  - DESC
+  - CONTRACT
+  - DRT
+  claims_implementation_exists: false
+  gate_pass_implied: false
+  activation_implied: false
+  steady_state_ai_required: false
+schema: q.template.capability.build_instance_plan.contract.v0105
+identity:
+  capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  capability_id: build_instance_plan
+  capability_version: V0105
+  capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  contract_version_equals_capability_version: true
+  one_exact_contract_for_this_capability_version: true
+  capability_contract_integrity_binding_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/capability_composition/build_instance_plan
+ownership:
+  domain_contract_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120
+  domain_contract_resolution_mode: EXACT_CURRENT_DOMAIN_COMPOSITION
+  caller_capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114
+  caller_facade_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/build_instance_plan
+  exact_parent_or_caller_version_pin_embedded: true
+  exact_parent_or_caller_hash_pin_embedded: false
+  stage_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  domain_ref: q.p1.domain.q_template
+applicable_standard_alignment:
+  selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+  live_normative_refs:
+  - Q.SS.STD.META.CONTRACT.ARTIFACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.GOVERNED_DATA_MATERIAL@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@${CURRENT}
+  - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  - Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  - Q.SS.STD.P4.CONTRACT.COORDINATION@${CURRENT}
+  resolved_current_snapshot:
+  - Q.SS.STD.META.CONTRACT.ARTIFACT@V0109
+  - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@V0110
+  - Q.SS.STD.META.CONTRACT.GOVERNED_DATA_MATERIAL@V0104
+  - Q.SS.STD.META.CONTRACT.CONTRACT@V0116
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0103
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@V0120
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@V0104
+  - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@V0114
+  - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@V0114
+  - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@V0106
+  - Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@V0105
+  - Q.SS.STD.META.CONTRACT.CONNECTION_MODE@V0105
+  - Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@V0101
+  - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0112
+  - Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@V0113
+  - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+  - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174
+  - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  - Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  - Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+  resolved_stage_snapshot:
+    P0:
+      contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+      contract_hash: sha256:292c0919b471bfa1f725fae2c836571cbffe2bdb0900a70d6c0bbb9e4abb2340
+    P1:
+      contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174
+      contract_hash: sha256:c006aaab07492912c6dda26b95aab2e8c25f1eb6b4fb46cbc15f776a560cd6ff
+    P2:
+      contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+      contract_hash: sha256:91eaf449a9faea21d7334fc96439c60c546a262efe225cb29f6a1a7fbfa4cd7c
+    P3:
+      contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+      contract_hash: sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502
+    P4:
+      contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+      contract_hash: sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b
+  explicit_non_applicable_current_refs:
+    Q.SS.STD.META.CONTRACT.GENERATION_LIFECYCLE: legacy q_generation RuleSet replay or migration only; ordinary current Q.Template implementation
+      generation is governed by PROMPT_STANDARD
+authority_resolution:
+  live_reference_expression: <stable_contract_q_id>@${CURRENT}
+  resolved_exact_ref_and_hash_required_before_semantic_use: true
+  raw_newest_file_selection_forbidden: true
+  numeric_highest_selection_forbidden: true
+  database_max_selection_forbidden: true
+  missing_or_ambiguous_authority_fails_closed: true
+governed_input_resolution:
+  steady_state_resolution_model: PREDECLARED_P1_DEPENDENCY_REALIZED_BY_P2_CONSUMER
+  caller_preassembled_current_locator_required: false
+  caller_preassembled_template_authority_set_required: false
+  caller_preassembled_binding_input_set_required: false
+  legacy_exact_governed_inputs_may_be_supplied: true
+  legacy_exact_governed_inputs_are_never_business_semantic_authority: true
+  direct_cross_domain_read_lookup_scan_or_database_query_forbidden: true
+  current_locator_resolution:
+    selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+    local_dependency_ref: q.template.build_instance_plan.governed_current_authority_material
+    connection_mode: CROSS_DOMAIN
+    p2_realization_authority_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+    p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+    required_provider_data_category: STATIC
+    resolved_exact_ref_and_hash_required_before_semantic_use: true
+    caller_payload_is_not_required: true
+    raw_newest_numeric_highest_database_max_or_repository_order_selection_forbidden: true
+  template_authority_resolution:
+    ownership_model: Q_TEMPLATE_GOVERNED_TEMPLATE_AUTHORITY
+    connection_mode: INTRA_DOMAIN
+    exact_template_ref_hash_and_bytes_required: true
+    selection_must_be_governed: true
+    caller_payload_is_not_required: true
+    raw_newest_numeric_highest_filesystem_order_or_ai_selection_forbidden: true
+  binding_resolution:
+    resolution_order:
+    - EXACT_CONTRACT_FACT
+    - GOVERNED_BINDING_DECLARATION
+    binding_declaration_material_must_be_part_of_exact_activated_contract_closure_or_exact_governed_input: true
+    caller_payload_is_not_required: true
+    inferred_default_provider_port_policy_secret_instance_identity_or_business_value_forbidden: true
+p1_local_dependency_declarations:
+  authority_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+  p2_realization_authority_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  connection_mode_ref: Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  dependency_count: 1
+  dependencies:
+    governed_current_authority_material:
+      local_dependency_ref: q.template.build_instance_plan.governed_current_authority_material
+      receiving_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+      receiving_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_authority_snapshot
+      connection_mode: CROSS_DOMAIN
+      p1_framework_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+      realization_path:
+      - source_domain.P2.Provider.governed_data_exposure
+      - receiving_domain.P2.Consumer.governed_data_consumption
+      - receiving_domain.P2.Consumer.p1_dependency_realization
+      - receiving_P1.dependency_invoke
+      provider_data_category: STATIC
+      selected_state_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+      required_material:
+      - exact_authority_contract_ref
+      - exact_authority_contract_hash
+      - exact_authority_contract_bytes_or_verified_material_locator
+      source_fact_ownership_preserved: true
+      provider_identity_selected_by_p2_binding_not_by_p1: true
+      direct_foreign_p1_read_forbidden: true
+      adapter_or_translation_layer_forbidden: true
+  p1_formal_dependency_on_p2_stage_forbidden: true
+  p2_only_realizes_predeclared_dependency_slot: true
+standard_instantiation_field_connection:
+  parent_child_version_coupling: DECOUPLED
+  composition_resolution: GOVERNED_CURRENT_RESOLUTION
+  fixed_instantiation_field_authority_refs:
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@${CURRENT}
+  field_set_is_owned_by_current_standards: true
+  parent_or_child_contract_may_redefine_instantiation_field_set: false
+  exact_child_ref_and_hash_resolved_at_instantiation_boundary: true
+  parent_embeds_child_exact_version: false
+  parent_embeds_child_content_hash: false
+  child_private_implementation_change_requires_parent_successor: false
+responsibilities:
+- compile an exact deterministic repository projection plan from one compiled business Contract without requiring caller-preassembled authority
+  template or binding sets
+- resolve the exact applicable Meta and P0-P4 authority snapshot only through the predeclared P1 dependency slot realized by P2.Consumer or through
+  an exact governed legacy input
+- resolve exact physical file manifest only from Contract-declared physical semantics and selected Stage physical authorities
+- resolve one exact governed template for every renderable file role from Q.Template-owned governed template authority
+- resolve all template bindings first from exact Contract facts and then from governed binding declarations in the exact activated Contract closure
+  without inferred defaults
+- render exact target file bytes without LLM model AI interpretation or semantic invention
+- compute exact per-file SHA-256 template and binding integrity bindings
+- validate path template binding authority interface payload and hash closure before returning exact Instance Plan
+non_responsibilities:
+- write target repository files
+- verify repository bytes after write
+- directly read Q.Standard another Domain P1 implementation database Drive repository or provider outside a governed Q connection path
+- implement P2.Provider or P2.Consumer lifecycle inside this P1 Capability
+- claim Q.Gate PASS Q.Activation publication deployment or runtime ACTIVE
+- choose business semantics providers ports policies secrets or Capability Instance identity not explicitly governed
+- invent paths templates bindings target files or Q-wide fields
+- act as Q.Prompt or invoke any LLM model or AI in steady-state execution
+capability_model:
+  purpose: deterministically compile one governed compiled business Contract into an exact repository Instance Plan while internally resolving
+    governed authority template and binding inputs
+  execution_mode: STEADY_STATE_NON_AI
+  public_external_surface: false
+  same_domain_only: true
+  facade_owned_by: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@${CURRENT}#/operations/build_instance_plan
+  entry_operation_id: build_instance_plan
+  result_role: EXACT_INSTANCE_PLAN
+  caller_preassembly_required: false
+interface_and_payload_boundary:
+  system_interface_authority_ref: Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  field_dictionary_authority_ref: Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  payload_schema_boundary_ref: Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  surface_layer_mount_ref: Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  dimension_interface_classification_ref: Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  connection_mode_ref: Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  p1_internal_call_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke
+  interface_layers:
+  - PATH
+  - STATIC_MOUNT
+  - DYNAMIC_MOUNT
+  interface_layer_sets_disjoint: true
+  canonical_interface_primary_bindings:
+    input: request_contract_ref
+    runtime_result: response_contract_ref
+    stable_error: stable_error_contract_ref
+    outcome: outcome_contract_ref
+  nonstandard_internal_payload_allowed: true
+  nonstandard_internal_payload_is_not_q_wide_field_extension: true
+  owner_local_payload_schema_mode: INLINE_OWNER_CONTRACT_SCHEMA
+  owner_local_payload_schema_required_when_canonical_interface_is_insufficient: true
+  instance_local_payload_grammar_extension_forbidden: true
+  direct_handler_import_forbidden: true
+  internal_http_or_custom_internal_api_forbidden: true
+  p1_dependency_invoke_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+  cross_domain_connection_mode: CROSS_DOMAIN
+  cross_domain_realization_owner: P2.Consumer
+  interface_kind_code: M1
+  interface_kind: CALL_INVOKE
+  surface: CALL
+operations:
+  build_instance_plan:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/build_instance_plan
+    semantic_role: DETERMINISTIC_INSTANCE_PLAN_ORCHESTRATION
+    requires:
+    - COMPILED_CONTRACT
+    produces: EXACT_INSTANCE_PLAN
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/build_instance_plan_invoke
+    requirements:
+    - invoke the six internal suboperations strictly in execution_pipeline.internal_suboperation_order
+    - allow execution from COMPILED_CONTRACT alone by obtaining selected authority material through the exact predeclared P1 dependency slot and
+      resolving Q.Template-owned templates locally
+    - if legacy exact governed inputs are supplied validate them and use them only as governed resolution material not as business semantic authority
+    - pass only standard interface envelope fields plus owner-local schema-bound input payload
+    - return only after exact Instance Plan closure is verified
+    - fail closed without invoking AI bypassing P1 dependency_invoke or bypassing an internal interface
+    optional_legacy_governed_inputs:
+    - GOVERNED_CURRENT_LOCATOR_STATE
+    - GOVERNED_TEMPLATE_AUTHORITY_SET
+    - EXPLICIT_GOVERNED_BINDING_INPUTS
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  resolve_authority_snapshot:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_authority_snapshot
+    semantic_role: GOVERNED_CURRENT_AUTHORITY_RESOLUTION
+    requires:
+    - COMPILED_CONTRACT
+    produces: EXACT_AUTHORITY_SNAPSHOT
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_authority_snapshot_invoke
+    requirements:
+    - derive all stable CURRENT references required by the compiled Contract and applicable Meta and P0-P4 authorities
+    - invoke only the predeclared governed_current_authority_material local dependency through the current P1 dependency_invoke framework interface
+      when selected-state material is not already present as an exact governed legacy input
+    - require P2.Consumer realization of that dependency before any cross-domain authority material is consumed
+    - resolve every required stable CURRENT reference from Q_STANDARD_SELECTED_ACTIVE_POINTER material to one exact Contract ref and SHA-256
+    - preserve Q.Standard as selected-state locator authority rather than semantic authority
+    - forbid direct Q.Standard database Drive repository or foreign-P1 reads from this P1 Operation
+    - fail closed on unresolved duplicate inconsistent stale inactive or integrity-invalid authority
+    optional_legacy_governed_inputs:
+    - GOVERNED_CURRENT_LOCATOR_STATE
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  resolve_physical_manifest:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_physical_manifest
+    semantic_role: EXACT_PHYSICAL_PROJECTION_RESOLUTION
+    requires:
+    - COMPILED_CONTRACT
+    - EXACT_AUTHORITY_SNAPSHOT
+    produces: EXACT_PHYSICAL_MANIFEST
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_physical_manifest_invoke
+    requirements:
+    - derive target file paths from both Contract-declared physical semantics and the exact selected P0-P4 Stage physical authorities in EXACT_AUTHORITY_SNAPSHOT
+    - include every required fixed Stage skeleton file and every Contract-owned variable projection file required by those exact authorities
+    - forbid inferred relocated convenience or undeclared paths
+    - preserve exact Stage physical closure
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  resolve_template_set:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_template_set
+    semantic_role: GOVERNED_TEMPLATE_RESOLUTION
+    requires:
+    - EXACT_PHYSICAL_MANIFEST
+    - EXACT_AUTHORITY_SNAPSHOT
+    produces: EXACT_TEMPLATE_SET
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_template_set_invoke
+    requirements:
+    - resolve exactly one governed template identity content hash and bytes for every renderable manifest file role from Q.Template-owned governed
+      template authority
+    - select templates only by governed profile role and exact authority bindings
+    - forbid raw-newest numeric-highest filesystem-order AI-selected or foreign-provider-selected templates
+    - fail closed when zero or more than one eligible exact template remains
+    optional_legacy_governed_inputs:
+    - GOVERNED_TEMPLATE_AUTHORITY_SET
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  resolve_binding_set:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_binding_set
+    semantic_role: EXACT_BINDING_RESOLUTION
+    requires:
+    - COMPILED_CONTRACT
+    - EXACT_PHYSICAL_MANIFEST
+    - EXACT_TEMPLATE_SET
+    produces: EXACT_BINDING_SET
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_binding_set_invoke
+    requirements:
+    - bind every template variable first to one exact Contract fact and otherwise to one exact governed Binding Declaration carried in the exact
+      activated Contract closure or exact governed legacy input
+    - preserve Capability Instance and Binding Declaration authority boundaries
+    - forbid inferred default provider port policy secret instance identity or business semantic value
+    - forbid direct cross-domain binding lookup from this P1 Operation unless a future successor predeclares a dedicated dependency slot
+    - fail closed on unresolved ambiguous or undeclared binding input
+    optional_legacy_governed_inputs:
+    - EXPLICIT_GOVERNED_BINDING_INPUTS
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  render_file_set:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/render_file_set
+    semantic_role: DETERMINISTIC_TEMPLATE_RENDERING
+    requires:
+    - EXACT_TEMPLATE_SET
+    - EXACT_BINDING_SET
+    - EXACT_PHYSICAL_MANIFEST
+    produces: EXACT_RENDERED_FILE_SET
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/render_file_set_invoke
+    requirements:
+    - render only governed template bytes plus exact resolved binding values
+    - perform no LLM model AI code synthesis interpretation semantic completion or free-form repair
+    - produce identical bytes for identical template hashes binding hashes authority snapshot and capability version
+    - forbid unresolved template tokens
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  compile_instance_plan:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/compile_instance_plan
+    semantic_role: EXACT_INSTANCE_PLAN_FINALIZATION
+    requires:
+    - COMPILED_CONTRACT
+    - EXACT_AUTHORITY_SNAPSHOT
+    - EXACT_PHYSICAL_MANIFEST
+    - EXACT_TEMPLATE_SET
+    - EXACT_BINDING_SET
+    - EXACT_RENDERED_FILE_SET
+    produces: EXACT_INSTANCE_PLAN
+    primary_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/compile_instance_plan_invoke
+    requirements:
+    - compute SHA-256 for every rendered target file
+    - bind every file to exact template ref hash and binding-set hash
+    - verify rendered file set equals exact physical manifest
+    - compute deterministic replay identity
+    - return final files mapping with content and SHA-256 already closed
+    - fail closed on path template binding authority interface file-set or hash mismatch
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+execution_pipeline:
+  order:
+  - build_instance_plan
+  - resolve_authority_snapshot
+  - resolve_physical_manifest
+  - resolve_template_set
+  - resolve_binding_set
+  - render_file_set
+  - compile_instance_plan
+  entry_operation: build_instance_plan
+  internal_suboperation_order:
+  - resolve_authority_snapshot
+  - resolve_physical_manifest
+  - resolve_template_set
+  - resolve_binding_set
+  - render_file_set
+  - compile_instance_plan
+  internal_suboperation_calls_use_p1_internal_call: true
+  direct_handler_chaining_forbidden: true
+  reordering_forbidden: true
+  partial_plan_acceptance_forbidden: true
+  steady_state_model_or_llm_call_forbidden: true
+  q_prompt_runtime_dependency_forbidden: true
+input_contract:
+  required:
+  - compiled_contract
+  optional_legacy_governed_inputs:
+  - governed_current_locator_state
+  - governed_template_authority_set
+  - explicit_governed_binding_inputs
+  caller_preassembly_required: false
+  final_target_file_content_as_caller_input_forbidden: true
+  caller_may_supply_governed_template_bytes_only_with_exact_template_ref_and_hash: true
+  caller_may_supply_binding_values_only_with_declared_binding_identity_and_authority: true
+output_contract:
+  result_kind: INSTANCE_PLAN
+  required:
+  - source_contract_ref
+  - source_contract_hash
+  - authority_snapshot
+  - physical_manifest_hash
+  - template_input_hash
+  - binding_input_hash
+  - files
+  - replay_identity_hash
+  files_entry_required:
+  - content
+  - sha256
+  - template_ref
+  - template_hash
+  - binding_hash
+  repository_bytes_already_final: true
+  authoritative_business_semantics: false
+  gate_pass_generated: false
+  activation_generated: false
+deterministic_replay_identity:
+  inputs:
+  - exact_source_contract_ref_hash_and_content
+  - exact_governed_current_authority_snapshot
+  - exact_template_ref_hash_and_bytes_set
+  - exact_binding_declaration_and_value_set
+  - Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  invariant: identical replay identity inputs produce the same exact physical manifest rendered file bytes file hashes and Instance Plan
+runtime_internal_connection:
+  mode: INTRA_DOMAIN
+  caller_facade_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@${CURRENT}#/operations/build_instance_plan
+  entry_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/build_instance_plan
+  entry_interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/build_instance_plan_invoke
+  system_interface_authority_ref: Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  field_dictionary_authority_ref: Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  payload_schema_boundary_ref: Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  surface_layer_mount_ref: Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  dimension_interface_classification_ref: Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  connection_mode_ref: Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  p1_internal_call_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke
+  interface_layers:
+  - PATH
+  - STATIC_MOUNT
+  - DYNAMIC_MOUNT
+  interface_layer_sets_disjoint: true
+  canonical_interface_primary_bindings:
+    input: request_contract_ref
+    runtime_result: response_contract_ref
+    stable_error: stable_error_contract_ref
+    outcome: outcome_contract_ref
+  nonstandard_internal_payload_allowed: true
+  nonstandard_internal_payload_is_not_q_wide_field_extension: true
+  owner_local_payload_schema_mode: INLINE_OWNER_CONTRACT_SCHEMA
+  owner_local_payload_schema_required_when_canonical_interface_is_insufficient: true
+  instance_local_payload_grammar_extension_forbidden: true
+  direct_handler_import_forbidden: true
+  internal_http_or_custom_internal_api_forbidden: true
+  p1_dependency_invoke_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+stable_error_contract:
+  reuse_existing_codes:
+  - TEMPLATE_INVALID_INPUT
+  - TEMPLATE_BUSINESS_CONTRACT_INVALID
+  - TEMPLATE_AUTHORITY_SNAPSHOT_INVALID
+  - TEMPLATE_PLAN_INPUT_INVALID
+  - TEMPLATE_FORBIDDEN_PATH
+  - TEMPLATE_UNRESOLVED_VARIABLE
+  - TEMPLATE_GENERATED_HASH_CLOSURE_FAILURE
+  silent_fallback_forbidden: true
+physical_model:
+  capability_contract_authority_root: standards/authority/stages/p1/capabilities/build_instance_plan/contract
+  capability_contract_file: standards/authority/stages/p1/capabilities/build_instance_plan/contract/Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN.V0105.yaml
+  spec_root: spec/p1/build_instance_plan
+  capability_spec_files:
+  - spec/p1/build_instance_plan/capability_profile.qcon.yaml
+  - spec/p1/build_instance_plan/capability_objects.qreg
+  - spec/p1/build_instance_plan/capability_policy.qconfig
+  - spec/p1/build_instance_plan/capability_interfaces.json
+  source_root_expression: src/p1/build_instance_plan/<operation_id>
+  required_source_leaf: handler.ts
+  test_root_expression: tests/p1/build_instance_plan/<operation_id>
+  required_test_leaf: handler.test.ts
+  domain_id_directory_level_forbidden: true
+  module_and_operations_intermediate_directories_forbidden: true
+  empty_placeholder_forbidden: true
+  path_name_inference_forbidden: true
+  stage_local_workflow_launcher_forbidden: true
+compatibility_boundary:
+  existing_domain_instantiation_capability_preserved: true
+  existing_facade_operation_identity_preserved: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@${CURRENT}#/operations/build_instance_plan
+  materialize_repository_semantics_changed: false
+  verify_instance_semantics_changed: false
+  compile_contract_semantics_changed: false
+  facade_implementation_change_required: true
+  owner_domain_composition_successor_required: false
+  caller_capability_successor_required: true
+  p2_realized_authority_dependency_added: true
+  operation_catalog_changed: false
+forbidden:
+- new P5 or alternative Stage creation
+- target Stage generator Capabilities that duplicate P0 P1 P2 P3 P4 ownership
+- caller-preassembled CURRENT locator template authority or binding sets as mandatory steady-state inputs
+- direct cross-domain read lookup scan database query Drive read repository read or foreign-P1 introspection from this P1 Capability
+- P2 Provider Consumer implementation inside this P1 Capability
+- Adapter bridge wrapper translation mapping gateway or second protocol inside any governed Q connection path
+- final target file content supplied as opaque caller-authored generation result
+- AI LLM model or Q.Prompt invocation in steady-state plan compilation
+- semantic inference from prose when exact Contract field or governed binding is absent
+- template selection by newest file numeric-highest version filesystem order or AI choice
+- path inference outside Contract and selected Stage physical authority
+- direct target repository writes from this Capability
+- direct handler chaining between Operations
+- owner-local payload schema used to expand Q-wide field catalog
+- instance-local payload grammar extension
+- Q.Gate verdict activation publication deployment or runtime ACTIVE claim
+- direct AI implementation mutation without an exact bound Q.Prompt Prompt Artifact for this Contract
+acceptance:
+- build_instance_plan remains one Q.Template P1 Capability and does not create a new Stage or sibling planning Capability
+- all seven existing Operation identities are preserved and no new Operation is added inside BUILD_INSTANCE_PLAN
+- Domain parent and caller Capability resolve this child only through stable CURRENT identity
+- resolve_authority_snapshot consumes selected-state authority material only through the predeclared P1 dependency slot realized by P2.Consumer
+  or an exact governed legacy input
+- no BUILD_INSTANCE_PLAN Operation directly reads Q.Standard another Domain P1 database Drive or repository state
+- entry build_instance_plan can execute from COMPILED_CONTRACT without caller-preassembled CURRENT template or binding sets
+- all seven CALL Interfaces use M1 CALL_INVOKE and complete disjoint PATH STATIC_MOUNT DYNAMIC_MOUNT field sets from the current Field Dictionary
+  including input in DYNAMIC_MOUNT
+- all six deterministic suboperations execute in declared order through standard P1 internal-call interfaces
+- resolve_physical_manifest combines Contract physical semantics with selected P0-P4 Stage physical authorities and preserves exact Stage closure
+- resolve_template_set obtains exactly one Q.Template-governed template per renderable manifest role without newest or AI selection
+- resolve_binding_set closes every token from exact Contract facts or governed Binding Declaration material without inferred defaults
+- exact Instance Plan contains final bytes and hashes before materialize_repository
+- identical replay identity inputs produce byte-identical Instance Plans
+- any unresolved authority path template binding interface token or hash condition fails closed without AI fallback
+- no Q.Gate PASS activation publication deployment or runtime ACTIVE status is implied
+- implementation code generation for this Capability requires a Q.Prompt Prompt Artifact compiled from this exact ACTIVE Contract and frozen Q.Standard
+  Rule snapshot before any AI repository materialization
+interfaces:
+  build_instance_plan_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: build_instance_plan
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/build_instance_plan
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/build_instance_plan_invoke
+  resolve_authority_snapshot_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: resolve_authority_snapshot
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_authority_snapshot
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_authority_snapshot_invoke
+  resolve_physical_manifest_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: resolve_physical_manifest
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_physical_manifest
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_physical_manifest_invoke
+  resolve_template_set_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: resolve_template_set
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_template_set
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_template_set_invoke
+  resolve_binding_set_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: resolve_binding_set
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_binding_set
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_binding_set_invoke
+  render_file_set_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: render_file_set
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/render_file_set
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/render_file_set_invoke
+  compile_instance_plan_invoke:
+    surface: CALL
+    kind: CALL_INVOKE
+    method_ref: compile_instance_plan
+    path:
+    - request_id
+    - trace_id
+    static_mount:
+    - operation_contract
+    dynamic_mount:
+    - input
+    - runtime_context
+    - outcome_type
+    - runtime_result
+    - stable_error
+    request_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_request_contract
+    response_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_response_contract
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+    payload_boundary_key: input
+    payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+    payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_request_contract
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/compile_instance_plan
+    kind_code: M1
+    interface_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/compile_instance_plan_invoke
+contracts:
+  build_instance_plan_request_contract:
+    required_payload_roles:
+    - COMPILED_CONTRACT
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  build_instance_plan_response_contract:
+    required_result_role: EXACT_INSTANCE_PLAN
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_authority_snapshot_request_contract:
+    required_payload_roles:
+    - COMPILED_CONTRACT
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_authority_snapshot_response_contract:
+    required_result_role: EXACT_AUTHORITY_SNAPSHOT
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_physical_manifest_request_contract:
+    required_payload_roles:
+    - COMPILED_CONTRACT
+    - EXACT_AUTHORITY_SNAPSHOT
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_physical_manifest_response_contract:
+    required_result_role: EXACT_PHYSICAL_MANIFEST
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_template_set_request_contract:
+    required_payload_roles:
+    - EXACT_PHYSICAL_MANIFEST
+    - EXACT_AUTHORITY_SNAPSHOT
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_template_set_response_contract:
+    required_result_role: EXACT_TEMPLATE_SET
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_binding_set_request_contract:
+    required_payload_roles:
+    - COMPILED_CONTRACT
+    - EXACT_PHYSICAL_MANIFEST
+    - EXACT_TEMPLATE_SET
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  resolve_binding_set_response_contract:
+    required_result_role: EXACT_BINDING_SET
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  render_file_set_request_contract:
+    required_payload_roles:
+    - EXACT_TEMPLATE_SET
+    - EXACT_BINDING_SET
+    - EXACT_PHYSICAL_MANIFEST
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  render_file_set_response_contract:
+    required_result_role: EXACT_RENDERED_FILE_SET
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  compile_instance_plan_request_contract:
+    required_payload_roles:
+    - COMPILED_CONTRACT
+    - EXACT_AUTHORITY_SNAPSHOT
+    - EXACT_PHYSICAL_MANIFEST
+    - EXACT_TEMPLATE_SET
+    - EXACT_BINDING_SET
+    - EXACT_RENDERED_FILE_SET
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+  compile_instance_plan_response_contract:
+    required_result_role: EXACT_INSTANCE_PLAN
+    owner_local_payload_schema: true
+    q_wide_field_catalog_extension: false
+payload_schema_bindings:
+  binding_ids:
+  - build_instance_plan_input
+  - resolve_authority_snapshot_input
+  - resolve_physical_manifest_input
+  - resolve_template_set_input
+  - resolve_binding_set_input
+  - render_file_set_input
+  - compile_instance_plan_input
+  bindings:
+    build_instance_plan_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/build_instance_plan_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_request_contract
+    resolve_authority_snapshot_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_authority_snapshot_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_request_contract
+    resolve_physical_manifest_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_physical_manifest_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_request_contract
+    resolve_template_set_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_template_set_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_request_contract
+    resolve_binding_set_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/resolve_binding_set_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_request_contract
+    render_file_set_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/render_file_set_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_request_contract
+    compile_instance_plan_input:
+      payload_boundary_key: input
+      payload_owner_context_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/interfaces/compile_instance_plan_invoke
+      payload_schema_authority_mode: INLINE_OWNER_CONTRACT_SCHEMA
+      payload_schema_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_request_contract
+      payload_schema_fragment_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_request_contract
+  canonical_interface_primary_bindings:
+    input: request_contract_ref
+    runtime_result: response_contract_ref
+    stable_error: stable_error_contract_ref
+    outcome: outcome_contract_ref
+  instance_local_grammar_extension_forbidden: true
+  binding_count: 7
+release_boundary:
+  predecessor: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+  update_classification: ADD_ONLY
+  existing_version_immutable: true
+  predecessor_semantics_preserved: true
+  backward_compatibility_required: true
+  change_scope:
+  - P2_REALIZED_AUTHORITY_DEPENDENCY_BOUNDARY
+  - META_INTERFACE_FIELD_CLOSURE
+  - NO_ADAPTER_STEADY_STATE_AI_BOUNDARY
+  - CURRENT_PROMPT_AUTHORITY_ALIGNMENT
+  - EXACT_DOMAIN_COMPOSITION_BINDING
+  - CONTRACT_TO_Q_PROMPT_TO_ARTIFACT_GENERATION_PROVENANCE
+dependencies:
+  governed_current_authority_material:
+    local_dependency_ref: q.template.build_instance_plan.governed_current_authority_material
+    classification: CROSS_DOMAIN
+    receiving_operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/operations/resolve_authority_snapshot
+    p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke
+    p2_consumer_authority_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer
+    p2_governed_data_consumption_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/governed_data_consumption
+    p1_dependency_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization
+    consumer_to_receiving_p1_boundary_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary
+    required_data_category: STATIC
+    exact_active_binding_required: true
+    direct_cross_domain_read_or_import_forbidden: true
+  implicit_dependency_forbidden: true
+  p2_creates_receiving_p1_dependency_forbidden: true
+  p1_formal_dependency_on_p2_stage_forbidden: true
+type_closure:
+  closure_mode: EXACT_REFERENCED_AND_OWNER_LOCAL
+  request_contract_refs:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_request_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_request_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_request_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_request_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_request_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_request_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_request_contract
+  response_contract_refs:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/build_instance_plan_response_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_authority_snapshot_response_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_physical_manifest_response_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_template_set_response_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/resolve_binding_set_response_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/render_file_set_response_contract
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/contracts/compile_instance_plan_response_contract
+  stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+  outcome_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract
+  owner_local_payload_schema_mode: INLINE_OWNER_CONTRACT_SCHEMA
+  undeclared_type_inference_forbidden: true
+  q_wide_field_dictionary_count: 103
+stable_errors:
+  build_instance_plan:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  resolve_authority_snapshot:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  resolve_physical_manifest:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  resolve_template_set:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  resolve_binding_set:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  render_file_set:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  compile_instance_plan:
+    stable_error_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105#/stable_error_contract
+    carrier_field: stable_error
+  silent_fallback_forbidden: true
+extraction:
+  publication_eligible: false
+  p2_provider_semantics_created: false
+  reason: same-domain deterministic planning capability; no cross-domain Provider publication is owned by this Contract
+  source_operation_reexecution_for_extraction_forbidden: true
+compatibility:
+  predecessor_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+  stable_capability_identity_preserved: true
+  operation_count: 7
+  existing_operation_identities_preserved: true
+  new_capability_created: false
+  new_operation_created: false
+  parent_domain_successor_required: true
+  backward_compatibility_required: true
+  parent_domain_alignment_basis: same alignment batch refreshes exact current Domain composition without changing Operation identities
+source_integrity:
+  contract_body_embeds_own_final_content_hash: false
+  final_content_hash_computed_after_exact_bytes_finalized: true
+  external_integrity_binding_declaration_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/capability_composition/build_instance_plan
+  resolved_external_binding_owners:
+  - ACTIVATED_DOMAIN_STATE
+  - GOVERNED_GENERATION_SNAPSHOT
+  resolved_external_binding_must_capture_exact_capability_contract_ref_and_hash: true
+  moving_current_alias_forbidden_in_resolved_runtime_or_generation_snapshot: true
+  q_standard_or_database_projection_is_not_semantic_authority: true
+  immutable_source_required: true
+  implementation_or_runtime_evidence_claimed: false
+persistence_requirements:
+  database_objects_owned_by_capability: false
+  persistence_required: false
+  domain_persistence_contract_required: false
+  cross_domain_database_ownership_created: false
+capability_rules:
+  operation_count: 7
+  interface_count: 7
+  minimum_operation_count_satisfied: true
+  every_operation_owned_by_exact_capability: true
+  every_interface_owned_by_capability_operation: true
+  request_response_stable_error_closure_explicit: true
+  every_dependency_explicit_and_classified: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  p2_dependency_creation_forbidden: true
+  steady_state_ai_or_model_call_forbidden: true
+  adapter_or_alternate_connection_mode_forbidden: true
+  exact_instance_plan_required_before_repository_write: true
+  new_q_wide_field_surface_kind_layer_stage_or_module_created: false
+naming_alignment:
+  authority_ref: Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+  resolved_authority_ref: Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@V0110
+  canonical_name_style: lower_snake_case
+  existing_exact_operation_names_reused: true
+  new_operation_verb_selection_performed: false
+  interface_surface: CALL
+  interface_action: invoke
+  module_object_or_directory_created: false
+  invented_approved_verb_catalog_forbidden: true
+implementation_generation_boundary:
+  ordinary_code_generation_authority_ref: Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@${CURRENT}
+  resolved_prompt_standard_ref: Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@V0113
+  subject_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0105
+  exact_subject_contract_ref_hash_and_bytes_required_before_prompt_compilation: true
+  q_standard_selected_active_rule_snapshot_required: true
+  q_prompt_compilation_required_before_ai_repository_materialization: true
+  prompt_artifact_exact_ref_and_content_hash_required_for_downstream_code_materialization: true
+  structured_contract_input_must_not_be_reinterpreted_by_model: true
+  model_output_is_not_semantic_authority: true
+  direct_ai_code_mutation_from_natural_language_audit_or_unbound_contract_forbidden: true
+  steady_state_q_template_runtime_must_not_depend_on_model_or_q_prompt: true
+  generation_lifecycle_legacy_projection_not_used_for_current_code_generation: true

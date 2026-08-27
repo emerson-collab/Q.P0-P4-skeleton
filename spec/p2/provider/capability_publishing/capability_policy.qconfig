@@ -1,0 +1,22 @@
+projection:
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  role: provider
+  capability_id: capability_publishing
+rules:
+  operation_set_exact:
+  - create_material_set
+  - publish_capability
+  operation_count: 2
+  cross_domain_direct_p1_read_forbidden: true
+  protocol_translation_mapping_wrapper_second_protocol_forbidden: true
+  new_global_field_surface_layer_interface_kind_forbidden: true
+  p2_stage_database_ownership_forbidden: true
+  p2_evidence_observation_gate_activation_authority_forbidden: true
+  stage_local_workflow_launcher_forbidden: true
+  local_p0_is_only_runtime_when_execution_required: true
+  exact_source_and_test_leaf_per_operation_required: true
+  unlisted_p2_path_forbidden: true
+  exact_capability_contract_ref_and_hash_required: true
+  publication_immutable: true
+  provider_business_runtime_forbidden: true
+  consumer_mount_or_binding_ownership_forbidden: true

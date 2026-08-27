@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "candidate_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "candidate_ref": {
+      "type": "string"
+    },
+    "domain_state_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "domain_state_ref": {
+      "type": "string"
+    },
+    "evolution_case_ref": {
+      "type": "string"
+    },
+    "expected_active_version": {
+      "type": "string"
+    },
+    "predicted_impact_graph_ref": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "candidate_ref",
+    "candidate_hash",
+    "domain_state_ref",
+    "domain_state_hash",
+    "expected_active_version",
+    "evolution_case_ref",
+    "predicted_impact_graph_ref"
+  ],
+  "title": "P3 Evolution Candidate",
+  "type": "object"
+}

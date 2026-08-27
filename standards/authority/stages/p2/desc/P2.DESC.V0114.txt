@@ -1,0 +1,46 @@
+q_header: '1'
+q_id: Q.SS.STD.P2.DESC.CROSS_DOMAIN_REALIZATION
+q_version: V0114
+q_title: P2 Fixed Cross-Domain Connection Skeleton and Business Change Propagation Boundary Description
+q_stage: P2
+q_role: description
+q_status: active
+q_refs:
+  contract: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  drt: Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0114
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  readiness: active_current_source
+projection:
+  stage_model: single P2 Stage with exactly Provider and Consumer parallel role partitions
+  provider_capabilities:
+  - capability_publishing
+  - governed_data_exposure
+  consumer_capabilities:
+  - external_capability_mounting
+  - governed_data_consumption
+  - p1_dependency_realization
+  operation_count: 15
+  physical_exact_path_count: 53
+  operation_catalog_changed: false
+  business_semantics_redefined: false
+  change_kind: fixed_cross_domain_connection_skeleton_and_business_change_propagation_boundary
+  update_classification: INCOMPATIBLE
+  fixed_p2_connection_skeleton_formalized: true
+  business_change_propagation_boundary_formalized: true
+  revised_rule_ids:
+  - P2-CON-015
+  new_rule_ids:
+  - P2-CON-029
+  - P2-CON-030
+  - P2-CON-031
+  - P2-CON-032
+boundary:
+  p2a_p2b_stage_identity_forbidden: true
+  direct_cross_domain_p1_read_forbidden: true
+  stage_level_database_ownership: false
+  local_p0_only_runtime_for_mounted_execution: true
+  verification_execution_owner: Q.WORKFLOW
+  gate_verdict_authority: Q.Gate

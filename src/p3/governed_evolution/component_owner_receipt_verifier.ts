@@ -1,0 +1,3 @@
+import { P3Fault } from "./stage_extension_contract.ts";
+export interface ComponentOwnerReceiptVerifier{verify(receiptRef:string,ownerRef:string,contentHash:string):Promise<boolean>;}
+export async function requireComponentOwnerReceipts(components:readonly {owner_ref:string;content_hash:string;owner_preparation_receipt_ref:string}[],verifier:ComponentOwnerReceiptVerifier):Promise<readonly string[]>{const refs:string[]=[];for(const c of components){if(!await verifier.verify(c.owner_preparation_receipt_ref,c.owner_ref,c.content_hash))throw new P3Fault("P3_OWNER_RECEIPT_INVALID","component owner preparation receipt invalid");refs.push(c.owner_preparation_receipt_ref);}return Object.freeze(refs);}

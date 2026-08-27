@@ -1,0 +1,148 @@
+projection:
+  source_contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  semantic_authority: false
+  projection_only: true
+authority:
+  contract_is_machine_source_of_truth: true
+  desc_is_non_authoritative_projection: true
+  drt_is_non_authoritative_projection: true
+  contract_rule_set_is_importable_authority: true
+  drt_rule_set_is_drt_artifact_projection_authority: true
+  hand_written_parallel_authority_forbidden: true
+  local_upstream_semantic_redefinition_forbidden: true
+  fail_closed_on_missing_or_ambiguous_authority: true
+  current_selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+  database_projection_is_not_current_selection_authority: true
+  gate_verdict_is_not_current_selection_authority: true
+  capability_contract_standard_ref: Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  current_contract_is_self_contained: true
+  predecessor_is_lineage_only_not_current_semantic_source: true
+inheritance_boundary:
+  dependency_direction: P0 -> P1 -> P2 -> P3 -> P4
+  imported_semantics:
+    P0:
+      ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+      role: only_runtime_provider
+    P1:
+      ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+      role: business_and_capability_semantic_owner
+    P2:
+      ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+      role: provider_publication_fact_and_consumer_mount_fact_owner
+  import_mode: exact_versioned_reference
+  copy_restate_override_or_widen_forbidden: true
+  conflict_resolution: fail_closed
+  direct_runtime_consumption_of_p1_p2a_p2b: false
+  accepted_p2_facts:
+  - P2.Provider Publication Fact
+  - P2.Consumer Mount Fact
+  reverse_dependency_forbidden: true
+  unversioned_or_undeclared_dependency_forbidden: true
+  direct_runtime_consumption_of_p1_or_p2: false
+coordination_authorization:
+  required_for:
+  - request_activation
+  - request_rollback
+  forbidden_for:
+  - request_candidate
+  - read_receipt
+  issuer: P4
+  verifier_and_consumer: P3
+  single_use: true
+  signature_profile:
+    algorithm: ECDSA_P256_SHA256
+    canonicalization: RFC8785_JCS
+    encoding: base64url_without_padding
+  binds:
+  - method
+  - change_set
+  - activation_plan
+  - domain
+  - step
+  - expected_version
+  - lease_epoch
+  - fencing_token
+  - exact_semantic_request_hash
+  - key_id
+  - key_version
+  - revocation_epoch
+  - issued_at
+  - expires_at
+  - nonce
+  - method_specific_subject
+  trust_boundary:
+    p4_private_signing_key_handle_only: true
+    p3_public_trust_anchor_and_revocation_state_only: true
+    shared_symmetric_secret_forbidden: true
+    downgrade_substitution_replay_or_reuse_forbidden: true
+    verification_nonce_consumption_lease_fencing_and_domain_write_atomic: true
+persistence_and_receipts:
+  production_store_properties:
+    vendor_neutral: true
+    restart_safe: true
+    crash_safe: true
+    in_memory_only_for_test_or_reference: true
+  stores:
+  - evolution_state
+  - immutable_receipt
+  - idempotency
+  - lease_and_fencing
+  - authorization_consumption
+  - public_trust_anchor
+  pointer_cas_required:
+  - trial_pointer
+  - active_pointer
+  idempotency_contract:
+    canonical_request_hash_required: true
+    same_key_same_request_same_result: true
+    same_key_different_request_rejected: true
+    max_effective_executions_per_key: 1
+  partial_commit_forbidden: true
+  authorization_consumption_and_domain_write_atomic: true
+  receipt:
+    immutable: true
+    hash_chained: true
+    required_semantics:
+    - trace_and_request_identity
+    - canonical_request_hash
+    - evolution_case_ref
+    - evidence_refs
+    - predicted_and_verified_impact_graph_refs_when_applicable
+    - complete_domain_state_ref_and_hash
+    - component_owner_receipt_refs
+    - trial_and_evaluation_refs_when_used
+    - previous_receipt_ref
+    - primary_stable_error_identity_when_failed
+  persistence_standard_ref: Q.SS.STD.META.CONTRACT.DATABASE_PERSISTENCE@${CURRENT}
+  topology_standard_ref: Q.SS.STD.META.CONTRACT.DATABASE_TOPOLOGY@${CURRENT}
+  database_is_not_semantic_authority: true
+  live_database_catalog_is_observation_only: true
+  cross_domain_direct_sql_business_dependency_forbidden: true
+  cross_owner_foreign_key_business_dependency_forbidden: true
+  artifact_result_evidence_receipt_body_externalization_follows_persistence_standard: true
+  exact_persistence_contract_required_before_relational_materialization: true
+  relational_materialization_claimed_by_this_candidate: false
+verification_execution_boundary:
+  execution_owner: Q.WORKFLOW
+  system_interface_declaration_ref: Q.WORKFLOW.CONTRACT.DOMAIN@V0116#/system_interface_declarations/workflow_execution_invoke
+  base_interface_ref: Q.WORKFLOW.CONTRACT.CAPABILITY.WORKFLOW@V0101#/interfaces/workflow_execution_invoke
+  operation_ref: Q.WORKFLOW.CONTRACT.CAPABILITY.WORKFLOW@V0101#/operations/execute_workflow
+  stage_local_workflow_launcher_forbidden: true
+  github_actions_stage_verification_launcher_forbidden: true
+  stage_owned_verification_assets_preserved: true
+  tests_remain_stage_owned: true
+  evidence_execution_owner: Q.WORKFLOW
+  gate_verdict_authority_ref: Q.SS.STD.P1.CONTRACT.GATE_CAPABILITY@${CURRENT}
+  q_gate_remains_only_verdict_authority: true
+  workflow_success_is_not_gate_pass: true
+  q_workflow_reference_is_execution_routing_not_stage_semantic_authority: true
+implementation_closure_requirements:
+  inspect_change_shared_scope_routes_to_p4: false
+  verified_impact_graph_must_be_newly_recomputed_from_complete_candidate: true
+  predicted_graph_alias_as_verified_forbidden: true
+  production_persistence_requires_restart_and_crash_safe_binding: true
+  in_memory_persistence_reference_or_test_only: true
+  production_profile_must_reject_reference_validation_resolver: true
+  production_profile_must_reject_reference_in_memory_persistence: true
+  inspect_standard_or_skeleton_root_routes_to_p4: true
+  inspect_business_root_routes_to_local_p3: true

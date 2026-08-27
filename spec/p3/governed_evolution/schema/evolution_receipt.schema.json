@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "canonical_request_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "component_owner_receipt_refs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "domain_state_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "domain_state_ref": {
+      "type": "string"
+    },
+    "evaluation_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "evidence_refs": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "evolution_case_ref": {
+      "type": "string"
+    },
+    "predicted_impact_graph_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "previous_receipt_ref": {
+      "type": "string"
+    },
+    "receipt_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "receipt_ref": {
+      "type": "string"
+    },
+    "request_id": {
+      "type": "string"
+    },
+    "stable_error_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "trial_pointer_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "verified_impact_graph_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "receipt_ref",
+    "receipt_hash",
+    "trace_id",
+    "request_id",
+    "canonical_request_hash",
+    "evolution_case_ref",
+    "evidence_refs",
+    "domain_state_ref",
+    "domain_state_hash",
+    "component_owner_receipt_refs",
+    "previous_receipt_ref"
+  ],
+  "title": "P3 Immutable Evolution Receipt",
+  "type": "object"
+}

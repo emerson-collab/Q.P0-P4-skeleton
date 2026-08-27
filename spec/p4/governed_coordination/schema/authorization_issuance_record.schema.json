@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authorization_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "exact_semantic_request_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "expires_at": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "issuance_receipt_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "issued_at": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "key_id": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "key_version": {
+      "type": "integer"
+    },
+    "method": {
+      "enum": [
+        "request_activation",
+        "request_rollback"
+      ]
+    },
+    "nonce": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "revocation_epoch": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "authorization_ref",
+    "method",
+    "exact_semantic_request_hash",
+    "key_id",
+    "key_version",
+    "revocation_epoch",
+    "issued_at",
+    "expires_at",
+    "nonce",
+    "issuance_receipt_ref"
+  ],
+  "title": "P4 Authorization Issuance Record",
+  "type": "object"
+}

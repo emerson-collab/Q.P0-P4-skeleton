@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": true,
+  "properties": {
+    "canonical_request_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "type": "string"
+    },
+    "result": {},
+    "result_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    }
+  },
+  "required": [
+    "idempotency_key",
+    "canonical_request_hash",
+    "result_hash"
+  ],
+  "title": "P3 Idempotency Record",
+  "type": "object"
+}

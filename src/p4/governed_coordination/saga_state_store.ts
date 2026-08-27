@@ -1,0 +1,5 @@
+import type { ExecutionPhase, RecoveryCursor, SagaState } from "./stage_extension_contract.ts";
+import type { ReferenceInMemorySagaPersistenceBinding, SnapshotParticipant } from "./saga_persistence_binding.ts";
+export interface SagaStateRecord{readonly change_set_ref:string;readonly saga_state:SagaState;readonly execution_phase:ExecutionPhase|null;readonly plan_ref:string|null;readonly journal_ref:string|null;readonly recovery_cursor:RecoveryCursor|null;readonly lease_epoch:number;readonly fencing_token:string;readonly updated_at:string;}
+export interface SagaStateStore{get(changeSetRef:string):Promise<SagaStateRecord|null>;put(record:SagaStateRecord):Promise<void>;}
+export class ReferenceInMemorySagaStateStore implements SagaStateStore,SnapshotParticipant{private m=new Map<string,SagaStateRecord>();constructor(binding?:ReferenceInMemorySagaPersistenceBinding){binding?.register(this);}async get(k:string){return this.m.get(k)??null;}async put(r:SagaStateRecord){this.m.set(r.change_set_ref,Object.freeze({...r}));}snapshot(){return new Map(this.m);}restore(s:unknown){this.m=new Map(s as Map<string,SagaStateRecord>);}}

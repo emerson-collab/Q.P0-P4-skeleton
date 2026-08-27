@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "canonical_request_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "created_at": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "idempotency_key": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "result": {},
+    "status": {
+      "enum": [
+        "PREPARED",
+        "COMMITTED",
+        "FAILED"
+      ]
+    },
+    "updated_at": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "idempotency_key",
+    "canonical_request_hash",
+    "status",
+    "result",
+    "created_at",
+    "updated_at"
+  ],
+  "title": "P4 Saga Idempotency Record",
+  "type": "object"
+}

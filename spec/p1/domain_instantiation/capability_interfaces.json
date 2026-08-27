@@ -1,0 +1,381 @@
+{
+  "authority": {
+    "capability_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114",
+    "semantic_authority": false
+  },
+  "identity": {
+    "capability_ref": "Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0114",
+    "capability_id": "domain_instantiation",
+    "capability_version": "V0114",
+    "capability_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114",
+    "contract_version_equals_capability_version": true,
+    "one_exact_contract_for_this_capability_version": true,
+    "capability_contract_integrity_binding_ref": "Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/capability_composition/domain_instantiation"
+  },
+  "interfaces": {
+    "instantiate_repository_invoke": {
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "instantiate_repository",
+      "path": [
+        "request_id",
+        "trace_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error"
+      ],
+      "request_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/instantiate_repository_request_contract",
+      "response_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/instantiate_repository_response_contract",
+      "stable_error_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract",
+      "payload_boundary_key": "input",
+      "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+      "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/instantiate_repository_request_contract",
+      "operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/instantiate_repository",
+      "interface_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/instantiate_repository_invoke"
+    },
+    "compile_contract_invoke": {
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "compile_contract",
+      "path": [
+        "request_id",
+        "trace_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error"
+      ],
+      "request_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/compile_contract_request_contract",
+      "response_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/compile_contract_response_contract",
+      "stable_error_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract",
+      "payload_boundary_key": "input",
+      "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+      "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/compile_contract_request_contract",
+      "operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/compile_contract",
+      "interface_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/compile_contract_invoke"
+    },
+    "build_instance_plan_invoke": {
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "build_instance_plan",
+      "path": [
+        "request_id",
+        "trace_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error"
+      ],
+      "request_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/build_instance_plan_request_contract",
+      "response_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/build_instance_plan_response_contract",
+      "stable_error_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract",
+      "payload_boundary_key": "input",
+      "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+      "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/build_instance_plan_request_contract",
+      "operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/build_instance_plan",
+      "interface_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/build_instance_plan_invoke"
+    },
+    "materialize_repository_invoke": {
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "materialize_repository",
+      "path": [
+        "request_id",
+        "trace_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error"
+      ],
+      "request_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/materialize_repository_request_contract",
+      "response_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/materialize_repository_response_contract",
+      "stable_error_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract",
+      "payload_boundary_key": "input",
+      "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+      "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/materialize_repository_request_contract",
+      "operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/materialize_repository",
+      "interface_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/materialize_repository_invoke"
+    },
+    "verify_instance_invoke": {
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "verify_instance",
+      "path": [
+        "request_id",
+        "trace_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error"
+      ],
+      "request_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/verify_instance_request_contract",
+      "response_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/verify_instance_response_contract",
+      "stable_error_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/contracts/outcome_contract",
+      "payload_boundary_key": "input",
+      "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+      "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/verify_instance_request_contract",
+      "operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/verify_instance",
+      "interface_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/verify_instance_invoke"
+    }
+  },
+  "contracts": {
+    "instantiate_repository_request_contract": {
+      "required_payload_roles": [
+        "ACTIVATED_CONTRACT_BINDING",
+        "TARGET_REPOSITORY_REQUIREMENT"
+      ],
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "instantiate_repository_response_contract": {
+      "required_result_role": "VERIFIED_REPOSITORY_INSTANCE",
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "compile_contract_request_contract": {
+      "required_payload_roles": [
+        "EXACT_INPUT_CONTRACT"
+      ],
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "compile_contract_response_contract": {
+      "required_result_role": "COMPILED_CONTRACT_REPRESENTATION",
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "build_instance_plan_request_contract": {
+      "required_payload_roles": [
+        "COMPILED_CONTRACT_REPRESENTATION"
+      ],
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "build_instance_plan_response_contract": {
+      "required_result_role": "EXACT_INSTANCE_PLAN",
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "materialize_repository_request_contract": {
+      "required_payload_roles": [
+        "EXACT_INSTANCE_PLAN"
+      ],
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "materialize_repository_response_contract": {
+      "required_result_role": "MATERIALIZED_REPOSITORY",
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "verify_instance_request_contract": {
+      "required_payload_roles": [
+        "EXACT_INSTANCE_PLAN",
+        "MATERIALIZED_REPOSITORY"
+      ],
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    },
+    "verify_instance_response_contract": {
+      "required_result_role": "VERIFICATION_REPORT",
+      "owner_local_payload_schema": true,
+      "q_wide_field_catalog_extension": false
+    }
+  },
+  "payload_schema_bindings": {
+    "binding_ids": [
+      "instantiate_repository_input",
+      "compile_contract_input",
+      "build_instance_plan_input",
+      "materialize_repository_input",
+      "verify_instance_input"
+    ],
+    "bindings": {
+      "instantiate_repository_input": {
+        "payload_boundary_key": "input",
+        "payload_owner_context_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/instantiate_repository_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/instantiate_repository_request_contract",
+        "payload_schema_fragment_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/instantiate_repository_request_contract"
+      },
+      "compile_contract_input": {
+        "payload_boundary_key": "input",
+        "payload_owner_context_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/compile_contract_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/compile_contract_request_contract",
+        "payload_schema_fragment_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/compile_contract_request_contract"
+      },
+      "build_instance_plan_input": {
+        "payload_boundary_key": "input",
+        "payload_owner_context_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/build_instance_plan_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/build_instance_plan_request_contract",
+        "payload_schema_fragment_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/build_instance_plan_request_contract"
+      },
+      "materialize_repository_input": {
+        "payload_boundary_key": "input",
+        "payload_owner_context_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/materialize_repository_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/materialize_repository_request_contract",
+        "payload_schema_fragment_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/materialize_repository_request_contract"
+      },
+      "verify_instance_input": {
+        "payload_boundary_key": "input",
+        "payload_owner_context_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/interfaces/verify_instance_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/verify_instance_request_contract",
+        "payload_schema_fragment_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/contracts/verify_instance_request_contract"
+      }
+    },
+    "canonical_interface_primary_bindings": {
+      "input": "request_contract_ref",
+      "runtime_result": "response_contract_ref",
+      "stable_error": "stable_error_contract_ref",
+      "outcome": "outcome_contract_ref"
+    },
+    "instance_local_grammar_extension_forbidden": true,
+    "binding_count": 5
+  },
+  "dependencies": {
+    "build_instance_plan": {
+      "classification": "INTRA_DOMAIN",
+      "capability_contract_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}",
+      "operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@${CURRENT}#/operations/build_instance_plan",
+      "connection_mode": "INTRA_DOMAIN",
+      "p1_internal_call_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke",
+      "exact_target_ref_and_hash_resolved_before_call": true,
+      "direct_handler_import_forbidden": true
+    },
+    "activated_contract_material": {
+      "local_dependency_ref": "q.template.domain_instantiation.activated_contract_material",
+      "classification": "CROSS_DOMAIN",
+      "receiving_operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/instantiate_repository",
+      "p1_dependency_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke",
+      "p2_consumer_authority_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer",
+      "p2_governed_data_consumption_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/governed_data_consumption",
+      "p1_dependency_realization_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization",
+      "consumer_to_receiving_p1_boundary_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary",
+      "required_data_category": "STATIC",
+      "exact_selected_active_contract_ref_hash_and_material_required": true,
+      "direct_foreign_p1_read_forbidden": true
+    },
+    "repository_materialization": {
+      "local_dependency_ref": "q.template.domain_instantiation.repository_materialization",
+      "classification": "CROSS_DOMAIN",
+      "receiving_operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/materialize_repository",
+      "p1_dependency_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke",
+      "p2_consumer_authority_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer",
+      "p2_external_capability_mounting_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/external_capability_mounting",
+      "p1_dependency_realization_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization",
+      "consumer_to_receiving_p1_boundary_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary",
+      "exact_active_provider_publication_and_mount_required": true,
+      "provider_operation_identity_not_owned_by_q_template": true,
+      "direct_repository_api_bypass_forbidden": true
+    },
+    "repository_readback": {
+      "local_dependency_ref": "q.template.domain_instantiation.repository_readback",
+      "classification": "CROSS_DOMAIN",
+      "receiving_operation_ref": "Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0114#/operations/verify_instance",
+      "p1_dependency_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke",
+      "p2_consumer_authority_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer",
+      "p2_external_capability_mounting_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/external_capability_mounting",
+      "p1_dependency_realization_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/role_capability_catalog/consumer/capabilities/p1_dependency_realization",
+      "consumer_to_receiving_p1_boundary_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}#/consumer_to_receiving_p1_boundary",
+      "exact_resulting_revision_readback_required": true,
+      "provider_operation_identity_not_owned_by_q_template": true,
+      "direct_repository_api_bypass_forbidden": true
+    },
+    "implicit_dependency_forbidden": true,
+    "p2_creates_receiving_p1_dependency_forbidden": true,
+    "p1_formal_dependency_on_p2_stage_forbidden": true
+  },
+  "interface_and_payload_boundary": {
+    "system_interface_authority_ref": "Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}",
+    "field_dictionary_authority_ref": "Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}",
+    "payload_schema_boundary_ref": "Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}",
+    "surface_layer_mount_ref": "Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}",
+    "dimension_interface_classification_ref": "Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}",
+    "connection_mode_ref": "Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}",
+    "p1_internal_call_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke",
+    "interface_layers": [
+      "PATH",
+      "STATIC_MOUNT",
+      "DYNAMIC_MOUNT"
+    ],
+    "interface_layer_sets_disjoint": true,
+    "canonical_interface_primary_bindings": {
+      "input": "request_contract_ref",
+      "runtime_result": "response_contract_ref",
+      "stable_error": "stable_error_contract_ref",
+      "outcome": "outcome_contract_ref"
+    },
+    "nonstandard_internal_payload_allowed": true,
+    "nonstandard_internal_payload_is_not_q_wide_field_extension": true,
+    "owner_local_payload_schema_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+    "owner_local_payload_schema_required_when_canonical_interface_is_insufficient": true,
+    "instance_local_payload_grammar_extension_forbidden": true,
+    "direct_handler_import_forbidden": true,
+    "internal_http_or_custom_internal_api_forbidden": true,
+    "p1_dependency_invoke_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/dependency_invoke",
+    "surface": "CALL",
+    "interface_kind_code": "M1",
+    "interface_kind": "CALL_INVOKE",
+    "cross_domain_connection_mode": "CROSS_DOMAIN",
+    "cross_domain_realization_owner": "P2.Consumer"
+  },
+  "stable_error_contract": {
+    "reuse_existing_codes": [
+      "TEMPLATE_INVALID_INPUT",
+      "TEMPLATE_BUSINESS_CONTRACT_INVALID",
+      "TEMPLATE_AUTHORITY_SNAPSHOT_INVALID",
+      "TEMPLATE_PLAN_INPUT_INVALID",
+      "TEMPLATE_FORBIDDEN_PATH",
+      "TEMPLATE_UNRESOLVED_VARIABLE",
+      "TEMPLATE_GENERATED_HASH_CLOSURE_FAILURE"
+    ],
+    "dependency_provider_stable_error_identity_preserved_end_to_end": true,
+    "silent_fallback_forbidden": true,
+    "new_q_wide_error_code_created": false
+  }
+}

@@ -1,0 +1,25 @@
+projection:
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  role: consumer
+  capability_id: external_capability_mounting
+rules:
+  operation_set_exact:
+  - consume_publication
+  - create_mount
+  - activate_mount
+  - rollback_mount
+  - execute_mounted_capability
+  operation_count: 5
+  cross_domain_direct_p1_read_forbidden: true
+  protocol_translation_mapping_wrapper_second_protocol_forbidden: true
+  new_global_field_surface_layer_interface_kind_forbidden: true
+  p2_stage_database_ownership_forbidden: true
+  p2_evidence_observation_gate_activation_authority_forbidden: true
+  stage_local_workflow_launcher_forbidden: true
+  local_p0_is_only_runtime_when_execution_required: true
+  exact_source_and_test_leaf_per_operation_required: true
+  unlisted_p2_path_forbidden: true
+  verified_publication_required: true
+  resolver_owner: P2.Consumer
+  pointer_mutation_verify_then_atomic_last: true
+  receiving_local_p0_only_execution_runtime: true

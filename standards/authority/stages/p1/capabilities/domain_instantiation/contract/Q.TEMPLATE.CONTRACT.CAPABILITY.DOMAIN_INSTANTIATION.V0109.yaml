@@ -1,0 +1,199 @@
+q_header: '1'
+q_id: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION
+q_version: V0109
+q_title: Q.Template Domain Instantiation Capability Contract — Deterministic Non-AI Instance Automation Chain
+q_stage: P1
+q_role: capability_contract
+q_status: active
+q_refs:
+  supersedes:
+    - Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0108
+  owner_domain_contract: Q.TEMPLATE.CONTRACT.DOMAIN@${CURRENT}
+  depends_on:
+    - Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+    - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}
+    - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+    - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+    - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+    - Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+    - Q.SS.STD.P4.CONTRACT.COORDINATION@${CURRENT}
+artifact_scope:
+  profile: CAPABILITY_IMPLEMENTATION_CONTRACT
+  semantic_authority: true
+  source_of_truth: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+  claims_implementation_exists: false
+  gate_pass_implied: false
+  activation_implied: false
+schema: q.template.capability.domain_instantiation.contract.v0109
+
+identity:
+  capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+  capability_id: domain_instantiation
+  capability_version: V0109
+  capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+  contract_version_equals_capability_version: true
+  one_exact_contract_for_this_capability_version: true
+
+ownership:
+  domain_contract_ref: Q.TEMPLATE.CONTRACT.DOMAIN@${CURRENT}
+  domain_contract_resolution_mode: GOVERNED_CURRENT_RESOLUTION
+  exact_parent_version_pin_embedded: false
+  exact_parent_content_hash_embedded: false
+  resolved_exact_parent_ref_and_hash_required_when_parent_identity_is_materialized: true
+  stage_contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  p2_realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+
+applicable_standard_alignment:
+  P1:
+    contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174
+    contract_hash: sha256:c006aaab07492912c6dda26b95aab2e8c25f1eb6b4fb46cbc15f776a560cd6ff
+    capability_contract_authority_separate_from_spec_closure: true
+    parent_child_version_coupling_reduced_to_governed_resolution_state: true
+  P2:
+    contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+    contract_hash: sha256:91eaf449a9faea21d7334fc96439c60c546a262efe225cb29f6a1a7fbfa4cd7c
+  P3:
+    contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+    contract_hash: sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502
+    selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+  P4:
+    contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+    contract_hash: sha256:a671222eacec0ba6c5a7858498c8ec10c88ccb66ee6587b23713dbe4083d66bd
+    selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
+
+operations:
+  compile_contract:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0109#/operations/compile_contract
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+    semantic_role: DETERMINISTIC_CONTRACT_COMPILATION
+    input_authority: EXACT_INPUT_CONTRACT
+    requirements:
+      - preserve the exact input Contract as business semantic authority
+      - compile only Contract-declared machine-readable semantics into a deterministic compiled representation
+      - perform no LLM, model, AI interpretation, semantic completion, or business-semantic invention
+      - fail closed when required semantics are unresolved, ambiguous, unsupported, or integrity-invalid
+    output_role: COMPILED_CONTRACT_REPRESENTATION
+  build_instance_plan:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0109#/operations/build_instance_plan
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+    semantic_role: DETERMINISTIC_INSTANCE_PLANNING
+    requires:
+      - COMPILED_CONTRACT_REPRESENTATION
+      - EXACT_GOVERNED_CURRENT_AUTHORITY_SNAPSHOT
+    requirements:
+      - derive the exact repository materialization plan from the compiled Contract and governed CURRENT authorities
+      - bind exact target paths, governed template selections, and declared variable or binding values needed for materialization
+      - infer no business semantics, repository paths, template identities, or undeclared bindings
+      - fail closed when any required plan element cannot be deterministically resolved
+    output_role: EXACT_INSTANCE_PLAN
+  materialize_repository:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0109#/operations/materialize_repository
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+    semantic_role: DETERMINISTIC_REPOSITORY_MATERIALIZATION
+    requires:
+      - EXACT_INSTANCE_PLAN
+      - GOVERNED_TEMPLATE_AND_BINDING_INPUTS
+    requirements:
+      - materialize repository files only from the exact instance plan and governed template or binding inputs
+      - preserve Contract and Stage authority without reinterpretation
+      - invoke no LLM, model, or AI in steady-state instance materialization
+      - produce deterministic repository bytes for identical exact inputs and authority snapshots
+      - fail closed rather than substitute, infer, or improvise missing generation material
+    output_role: MATERIALIZED_REPOSITORY
+  verify_instance:
+    operation_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0109#/operations/verify_instance
+    owner_capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0109
+    semantic_role: FAIL_CLOSED_INSTANCE_VERIFICATION
+    requires:
+      - EXACT_INSTANCE_PLAN
+      - MATERIALIZED_REPOSITORY
+    requirements:
+      - verify repository output against the exact instance plan and resolved Contract and Stage authorities
+      - verify declared path, binding, integrity, and authority closure before accepting the instance result
+      - fail closed on any mismatch, missing artifact, unresolved authority, or nondeterministic deviation
+      - do not claim Q.Gate PASS, Q.Activation, publication, or runtime ACTIVE
+
+deterministic_instance_automation:
+  execution_mode: STEADY_STATE_NON_AI
+  chain_order:
+    - compile_contract
+    - build_instance_plan
+    - materialize_repository
+    - verify_instance
+  semantic_authority_preserved: true
+  model_or_llm_required: false
+  model_or_llm_call_inside_chain_forbidden: true
+  q_prompt_artifact_required_for_steady_state_execution: false
+  bootstrap_or_evolution_code_authoring_is_runtime_dependency: false
+  q_prompt_boundary: Q.Prompt may support bootstrap or evolution code-generation workflows, but is not a mandatory runtime dependency of steady-state domain instantiation
+  deterministic_replay_identity:
+    inputs:
+      - exact_input_contract_ref_hash_and_content
+      - exact_governed_current_authority_snapshot
+      - q_template_capability_version
+      - governed_template_and_binding_input_hashes
+    invariant: identical replay identity inputs produce the same exact instance plan and materialized repository bytes
+  fail_closed_conditions:
+    - exact input Contract identity or integrity cannot be resolved
+    - governed CURRENT authority snapshot is incomplete or inconsistent
+    - required template, path, variable, or binding input is unresolved
+    - any step would require model inference or semantic invention to continue
+    - verification does not reproduce the planned authority and integrity closure
+
+operation_semantic_change_boundary:
+  predecessor: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0108
+  operation_identities_changed: false
+  operation_business_semantics_changed: true
+  interface_semantics_changed: false
+  change_scope:
+    - preserve the four existing Operation identities and their fixed execution order
+    - define compile_contract as deterministic Contract-to-machine-compilable semantic compilation with no AI interpretation
+    - define build_instance_plan as deterministic resolution of paths, templates, variables, bindings, and governed CURRENT authority inputs
+    - define materialize_repository as deterministic non-AI repository byte materialization from the exact instance plan
+    - define verify_instance as fail-closed verification of plan, authority, path, binding, and integrity closure
+    - make Q.Prompt or an LLM non-required for steady-state instance materialization while leaving bootstrap or evolution code-authoring outside this runtime chain
+
+runtime_internal_connection:
+  mode: INTRA_DOMAIN
+  p1_internal_call_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke
+  direct_handler_import_forbidden: true
+  internal_http_or_custom_internal_api_forbidden: true
+
+physical_model:
+  capability_contract_authority_root: standards/authority/stages/p1/capabilities/domain_instantiation/contract
+  capability_contract_file: standards/authority/stages/p1/capabilities/domain_instantiation/contract/Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION.V0109.yaml
+  spec_root: spec/p1/domain_instantiation
+  source_root_expression: src/p1/domain_instantiation/<operation_id>
+  required_source_leaf: handler.ts
+  test_root_expression: tests/p1/domain_instantiation/<operation_id>
+  required_test_leaf: handler.test.ts
+  domain_id_directory_level_forbidden: true
+  module_and_operations_intermediate_directories_forbidden: true
+  empty_placeholder_forbidden: true
+  path_name_inference_forbidden: true
+
+forbidden:
+  - exact owner Domain Contract version pin
+  - exact owner Domain Contract content hash pin
+  - parent Domain semantic duplication inside the Capability Contract
+  - direct handler import or custom internal HTTP/API bypass
+  - inferred P1 source or test paths
+  - LLM, model, or AI interpretation inside the steady-state domain-instantiation execution chain
+  - business-semantic invention beyond the exact input Contract
+  - Q.Prompt as a mandatory steady-state runtime dependency of domain instantiation
+  - silent fallback when compilation, planning, materialization, or verification inputs are incomplete
+
+acceptance:
+  - the Capability Contract has an independent version lineage from the parent Domain Contract
+  - owner Domain resolution uses Q.TEMPLATE.CONTRACT.DOMAIN@${CURRENT} rather than a fixed parent version
+  - the four existing Operation identities are preserved
+  - steady-state execution order is compile_contract then build_instance_plan then materialize_repository then verify_instance
+  - steady-state instance materialization requires no LLM, model, AI, or Q.Prompt Artifact
+  - identical replay identity inputs deterministically produce the same exact instance plan and repository bytes
+  - unresolved semantic, authority, template, binding, path, integrity, or verification inputs fail closed rather than invoke inference
+  - parent Q.Template Domain Contract remains independently versioned and does not require a successor for this child semantic evolution
+  - P1 physical placement follows V0174 concrete Capability projection
+  - P2, P3, and P4 remain aligned to V0114, V0144, and V0140 respectively
+  - no Gate PASS or runtime Activation claim is implied by this Contract

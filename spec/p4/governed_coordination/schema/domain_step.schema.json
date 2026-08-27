@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "activation_mode": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "active_pointer_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "approval_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "candidate_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "candidate_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "change_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "depends_on": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "evaluation_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "expected_active_version": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "receipt_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "rollback_target_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "step_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "step_type": {
+      "enum": [
+        "REQUEST_CANDIDATE",
+        "TRIAL_ACTIVATION",
+        "EVALUATION_WAIT",
+        "FINAL_ACTIVATION",
+        "ROLLBACK",
+        "COMPENSATION",
+        "READ_RECEIPT"
+      ]
+    },
+    "target_domain_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "trial_profile_ref": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "step_ref",
+    "step_type",
+    "target_domain_ref",
+    "depends_on",
+    "expected_active_version"
+  ],
+  "title": "P4 Domain Step",
+  "type": "object"
+}

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "change_set_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "coordination_receipt_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "coordination_receipt_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "journal_head_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "plan_ref": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "previous_receipt_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provider_receipt_refs": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "recorded_at": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "coordination_receipt_ref",
+    "coordination_receipt_hash",
+    "previous_receipt_hash",
+    "change_set_ref",
+    "plan_ref",
+    "journal_head_hash",
+    "provider_receipt_refs",
+    "recorded_at"
+  ],
+  "title": "P4 Coordination Receipt",
+  "type": "object"
+}

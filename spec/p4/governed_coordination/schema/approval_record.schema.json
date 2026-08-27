@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "approval_status": {
+      "enum": [
+        "APPROVED"
+      ]
+    },
+    "approved_at": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "approver_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "plan_hash": {
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "plan_ref": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "verified_impact_graph_ref": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "required": [
+    "plan_ref",
+    "plan_hash",
+    "verified_impact_graph_ref",
+    "approver_ref",
+    "approval_status",
+    "approved_at"
+  ],
+  "title": "P4 Approval Record",
+  "type": "object"
+}
