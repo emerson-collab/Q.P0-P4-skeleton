@@ -1,6 +1,0 @@
-import assert from "node:assert/strict";
-import test from "node:test";
-const ctx={stage_contract_ref:"Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174",operation_ref:"op",trace_id:"t",request_id:"r"} as const;
-
-import { handler, CHILD_INTERFACE_REF, P1_INTERNAL_CALL_INTERFACE_REF } from "../../../../src/p1/domain_instantiation/build_instance_plan/handler.ts";
-test("domain planning facade uses P1 internal_call and does not require preassembled governed inputs",async()=>{ let called=false; const response=await handler({input:{COMPILED_CONTRACT_REPRESENTATION:{source_contract_ref:"X@V0001"}},runtime_context:ctx,trace_id:"t",request_id:"r"},{exact_contract_ref:"Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0106",exact_contract_hash:`sha256:${"a".repeat(64)}`},async(framework,target,_authority,req)=>{called=true;assert.equal(framework,P1_INTERNAL_CALL_INTERFACE_REF);assert.equal(target,CHILD_INTERFACE_REF);assert.ok("COMPILED_CONTRACT" in req.input);assert.ok(!("GOVERNED_CURRENT_LOCATOR_STATE" in req.input));return{outcome_type:"response",runtime_result:{EXACT_INSTANCE_PLAN:{files:{}}},trace_id:"t",request_id:"r"};}); assert.ok(called); assert.ok("EXACT_INSTANCE_PLAN" in response.runtime_result);});

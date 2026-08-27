@@ -1,34 +1,28 @@
-# Q.P0 — Runtime Core Baseline Skeleton
+# Q.P0-P4 Skeleton
 
-This repository materializes the current P0 runtime skeleton defined by
-`Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134` and its current V0134 physical projection.
+This repository is the reusable Q five-stage skeleton extracted from the original combined materialization.
 
-P0 owns one shared local `RuntimeProvider`, one `RuntimePipeline`, one `HookAnchor`,
-three local runtime interfaces (M1/M2/M3), `StageExtensionContract`, and in-memory
-runtime result/error/hook evidence semantics.
+## Extraction boundary
 
-P0 does **not** own business Capability or business Operation semantics, system-level
-entry, cross-domain P2 realization, repository Gate verdict, Activation, persistent
-database state, artifact storage, or later-stage implementation content.
+The repository keeps the fixed Stage-owned assets that already belong to the reusable P0/P2/P3/P4 skeleton and removes Q.Template-specific Domain and concrete P1 Capability material.
 
-Stable Stage identities are `P0`, `P1`, `P2`, `P3`, and `P4`. P2 Provider and Consumer
-are role profiles inside Stage P2.
+P1 concrete business Capability content is intentionally absent. It is the governed fill area for later materialization from an exact P1 Capability Contract / Prompt Artifact.
 
-The current P0 initial template contains exactly 14 files: five shared root toolchain
-files and nine P0-owned assets. The P0-owned slice is four specification files, four
-source files, and one test file. No Stage-local verification workflow, no `tools/p0`
-directory, and no P1-P4 placeholder directories are part of this baseline.
+The applicable repository skeleton projection requires the P1 variable business path to be:
 
-P0 owns its build/test/smoke verification assets, but verification execution is routed
-through `Q.WORKFLOW.CONTRACT.DOMAIN@V0116#/system_interface_declarations/workflow_execution_invoke`.
-Q.Workflow execution success is evidence/execution status only; final repository verdict
-authority remains Q.Gate.
+- `spec/p1/<capability_id>/...`
+- `src/p1/<capability_id>/<operation_id>/handler.ts`
+- `tests/p1/<capability_id>/<operation_id>/handler.test.ts`
 
-## Commands
+No Module layer is introduced between Capability and Operation.
 
-```bash
-npm ci
-npm run build
-npm run test:p0
-npm run smoke:p0
-```
+## Preserved fixed skeleton
+
+- P0 runtime core
+- P2 Provider / Consumer cross-domain realization
+- P3 governed evolution
+- P4 governed coordination
+- shared root TypeScript toolchain files
+- Stage-owned specification and verification assets required by the extracted Stage projections
+
+Stage-local verification workflow launchers are not introduced here. Verification execution remains external to the Stage code, and repository verdict authority remains outside this skeleton.
