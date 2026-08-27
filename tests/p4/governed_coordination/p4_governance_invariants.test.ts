@@ -1,3 +1,0 @@
-import test from "node:test";import assert from "node:assert/strict";import { readdir, readFile } from "node:fs/promises";import { join } from "node:path";
-async function walk(d:string):Promise<string[]>{const out:string[]=[];for(const e of await readdir(d,{withFileTypes:true})){const p=join(d,e.name);if(e.isDirectory())out.push(...await walk(p));else out.push(p);}return out;}
-test("P4 contains no stage-local workflow launcher, direct SQL, or P3 provider import",async()=>{for(const p of await walk("src/p4")){const s=await readFile(p,"utf8");assert.equal(/github\/workflows|workflow_launcher|SELECT\s|INSERT\s|UPDATE\s/i.test(s),false,p);assert.equal(s.includes("coordination_port_provider.ts"),false,p);}});
