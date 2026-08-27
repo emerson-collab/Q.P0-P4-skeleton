@@ -1,0 +1,314 @@
+q_header: '1'
+q_id: Q.TEMPLATE.CONTRACT.DOMAIN
+q_version: V0120
+q_title: Q.Template Exact Capability Composition, P2 Dependency Boundary and Prompt-Authority Alignment Domain Contract
+q_stage: P1
+q_role: business
+q_status: active
+q_refs:
+  supersedes:
+  - Q.TEMPLATE.CONTRACT.DOMAIN@V0119
+  depends_on:
+  - Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@${CURRENT}
+  - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  - Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  - Q.SS.STD.P4.CONTRACT.COORDINATION@${CURRENT}
+artifact_scope:
+  profile: DOMAIN_IMPLEMENTATION_CONTRACT
+  semantic_authority: true
+  source_of_truth: Q.TEMPLATE.CONTRACT.DOMAIN@V0120
+  claims_implementation_exists: false
+  gate_pass_implied: false
+  activation_implied: false
+schema: q.template.domain.contract.v0120
+applicable_standard_alignment:
+  live_normative_refs:
+  - Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@${CURRENT}
+  - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  - Q.SS.STD.P3.CONTRACT.EVOLUTION@${CURRENT}
+  - Q.SS.STD.P4.CONTRACT.COORDINATION@${CURRENT}
+  resolved_current_snapshot:
+  - Q.SS.STD.META.CONTRACT.CONTRACT@V0116
+  - Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@V0110
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0103
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@V0120
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@V0104
+  - Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@V0114
+  - Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@V0114
+  - Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@V0106
+  - Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@V0105
+  - Q.SS.STD.META.CONTRACT.CONNECTION_MODE@V0105
+  - Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@V0101
+  - Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0112
+  - Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@V0113
+  - Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+  - Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174
+  - Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  - Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  - Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+  resolved_stage_snapshot:
+    P0:
+      contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+      contract_hash: sha256:292c0919b471bfa1f725fae2c836571cbffe2bdb0900a70d6c0bbb9e4abb2340
+    P1:
+      contract_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174
+      contract_hash: sha256:c006aaab07492912c6dda26b95aab2e8c25f1eb6b4fb46cbc15f776a560cd6ff
+    P2:
+      contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+      contract_hash: sha256:91eaf449a9faea21d7334fc96439c60c546a262efe225cb29f6a1a7fbfa4cd7c
+    P3:
+      contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+      contract_hash: sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502
+    P4:
+      contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+      contract_hash: sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b
+  explicit_non_applicable_current_refs:
+    Q.SS.STD.META.CONTRACT.GENERATION_LIFECYCLE: legacy q_generation RuleSet replay or migration only; ordinary current Q.Template implementation
+      generation is governed by PROMPT_STANDARD
+authority_resolution:
+  live_reference_expression: <stable_contract_q_id>@${CURRENT}
+  q_standard_is_locator_not_semantic_authority: true
+  resolved_exact_contract_and_hash_required_before_semantic_use: true
+  raw_newest_file_selection_forbidden: true
+  numeric_highest_selection_forbidden: true
+  database_max_selection_forbidden: true
+responsibilities:
+- own q_template Domain identity and Domain-wide Capability composition policy
+- compose child Capabilities only by stable Contract identity and governed CURRENT resolution
+- preserve parent-child version and content-hash decoupling while requiring exact resolved child authority before instantiation
+- preserve Q.Template generation as deterministic non-decisional repository projection
+- bind target P0-P4 generation to governed CURRENT Stage authorities without redefining Stage semantics
+- own exact current child Capability composition refs and hashes while keeping child Operation semantics out of the Domain Contract
+- require Q.Template implementation code generation to pass through Prompt Standard and one exact Q.Prompt Prompt Artifact before AI repository
+  materialization
+- keep child cross-Domain dependencies as P1-declared slots realized only by P2 without direct Provider-specific business coupling
+non_responsibilities:
+- define or duplicate child Capability Operation semantics
+- embed exact child versions or child content hashes as composition authority
+- invent Capability Instance or Binding field sets owned by Meta standards
+- create a second Runtime
+- claim Q.Gate PASS Q.Activation publication deployment or runtime ACTIVE
+- generate Q.Template implementation code directly from natural-language audit conclusions without a Q.Prompt Prompt Artifact
+- own GitHub or any repository-provider-specific business semantics
+capability_composition:
+  domain_instantiation:
+    capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+    capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+    capability_contract_content_hash: sha256:378b4cf89ef49b2c1a4f956fa34285d3d396e78707242c077e98447c90e0d361
+    compatibility_status:
+      basis: EXACT_CURRENT_DOMAIN_COMPOSITION
+      capability_ref: Q.TEMPLATE.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+      capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+      global_enum_inferred: false
+    semantic_definition_copied_into_domain: false
+  build_instance_plan:
+    capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+    capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+    capability_contract_content_hash: sha256:74ae3ad2b4543345a4c9b50af5670a852154b0e4f5f60ee57ca419ede603c6ac
+    compatibility_status:
+      basis: EXACT_CURRENT_DOMAIN_COMPOSITION
+      capability_ref: Q.TEMPLATE.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+      capability_contract_ref: Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+      global_enum_inferred: false
+    semantic_definition_copied_into_domain: false
+standard_instantiation_field_connection:
+  parent_child_version_coupling: EXACT_CURRENT_DOMAIN_COMPOSITION
+  composition_resolution: EXACT_CURRENT_DOMAIN_COMPOSITION
+  fixed_instantiation_field_authority_refs:
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_INSTANCE@${CURRENT}
+  - Q.SS.STD.META.CONTRACT.CAPABILITY_BINDING_DECLARATION@${CURRENT}
+  field_set_is_owned_by_current_standards: true
+  parent_or_child_contract_may_redefine_instantiation_field_set: false
+  exact_child_ref_and_hash_bound_in_domain_composition: true
+  child_private_implementation_change_requires_parent_successor: false
+p1_parent_child_boundary:
+  parent_domain_contract_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120
+  authority_separation: true
+  same_domain_connection_mode: INTRA_DOMAIN
+  system_interface_authority_ref: Q.SS.STD.META.CONTRACT.SYSTEM_INTERFACE@${CURRENT}
+  field_dictionary_authority_ref: Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}
+  payload_schema_boundary_ref: Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}
+  surface_layer_mount_ref: Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}
+  dimension_interface_classification_ref: Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}
+  connection_mode_ref: Q.SS.STD.META.CONTRACT.CONNECTION_MODE@${CURRENT}
+  p1_internal_call_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/internal_call_invoke
+  interface_layers:
+  - PATH
+  - STATIC_MOUNT
+  - DYNAMIC_MOUNT
+  interface_layer_sets_disjoint: true
+  canonical_interface_primary_bindings:
+    input: request_contract_ref
+    runtime_result: response_contract_ref
+    stable_error: stable_error_contract_ref
+    outcome: outcome_contract_ref
+  nonstandard_internal_payload_allowed: true
+  nonstandard_internal_payload_is_not_q_wide_field_extension: true
+  owner_local_payload_schema_mode: INLINE_OWNER_CONTRACT_SCHEMA
+  owner_local_payload_schema_required_when_canonical_interface_is_insufficient: true
+  instance_local_payload_grammar_extension_forbidden: true
+  direct_handler_import_forbidden: true
+  internal_http_or_custom_internal_api_forbidden: true
+  child_capability_contract_refs:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+operations_projection:
+  child_semantic_authority_refs:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+  parent_redefinition_forbidden: true
+  parent_operation_semantic_copy_forbidden: true
+physical_model:
+  domain_authority_root: standards/authority/domain/q_template
+  domain_contract_file: standards/authority/domain/q_template/contract/Q.TEMPLATE.CONTRACT.DOMAIN.V0120.yaml
+  child_capability_contract_roots:
+    domain_instantiation: standards/authority/stages/p1/capabilities/domain_instantiation/contract
+    build_instance_plan: standards/authority/stages/p1/capabilities/build_instance_plan/contract
+  path_inference_or_relocation_forbidden: true
+  stage_local_workflow_launcher_forbidden: true
+forbidden:
+- exact child Contract version pin embedded in parent composition
+- child Contract content hash embedded in parent composition authority
+- child Operation or Interface semantic duplication in parent Domain Contract
+- direct handler import between child Capabilities
+- custom internal HTTP or bypass API for same-Domain calls
+- unstandardized Q-wide field invention from owner-local payload schemas
+- P2A or P2B namespace creation
+- local Gate or parallel verdict authority
+- direct AI implementation mutation without an exact bound Q.Prompt Prompt Artifact
+- GENERATION_LIFECYCLE used as ordinary current code-generation authority
+acceptance:
+- Domain and both child Capability Contracts keep independent version lineages
+- child Capabilities resolve only through stable CURRENT references and exact runtime resolution
+- Capability Instance and Binding field sets remain owned by current Meta standards
+- same-Domain calls use the P1 internal-call interface and standard interface field model
+- owner-local internal payload schemas are allowed only inside PAYLOAD_SCHEMA_BOUNDARY and FIELD_DICTIONARY constraints
+- no child exact version or content hash is embedded in the Domain Contract
+- no Gate PASS Activation publication deployment or runtime ACTIVE status is implied
+- both child Capability composition entries are exact-versioned and carry exact content hashes
+- Domain required semantic sections for the current DOMAIN_IMPLEMENTATION_CONTRACT profile are present
+- ordinary Q.Template implementation generation is governed by PROMPT_STANDARD and exact Prompt Artifact provenance rather than GENERATION_LIFECYCLE
+- P2 remains the sole realization owner for cross-Domain dependency slots declared by child P1 Capabilities
+release_boundary:
+  predecessor: Q.TEMPLATE.CONTRACT.DOMAIN@V0119
+  update_classification: ADD_ONLY
+  existing_version_immutable: true
+  predecessor_semantics_preserved: true
+  backward_compatibility_required: true
+  change_scope:
+  - DOMAIN_IMPLEMENTATION_PROFILE_CLOSURE
+  - EXACT_CAPABILITY_COMPOSITION_BINDING
+  - CURRENT_PROMPT_AUTHORITY_ALIGNMENT
+  - P2_DEPENDENCY_BOUNDARY_ALIGNMENT
+  - CONTRACT_TO_Q_PROMPT_TO_ARTIFACT_GENERATION_PROVENANCE
+stage:
+  stage_id: P1
+  domain_id: q_template
+  scope: deterministic_contract_to_repository_implementation_planning_and_materialization
+  runtime_owner: P0
+  runtime_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@${CURRENT}
+  p1_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}
+  second_runtime_forbidden: true
+object_catalog:
+- object_id: q.p1.domain.q_template
+  object_type: domain
+  stable_code: Q_TEMPLATE
+  canonical_name: q_template
+  parent_object_ref: null
+  status: active
+  rule_version_ref: Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}
+object_relationships:
+- from_ref: q.p1.domain.q_template
+  relation: OWNS
+  to_refs:
+  - q.p1.capability.domain_instantiation
+  - q.p1.capability.build_instance_plan
+  target_semantic_authority_refs:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104
+interface_profile:
+  domain_owned_interface_semantic_definition_count: 0
+  system_entry_claimed: false
+  child_interfaces_remain_capability_owned: true
+  surface_kind_method_and_three_layers_redefined_by_domain: false
+interfaces:
+  domain_owned_interfaces: []
+  not_applicable_reason: Q.Template Domain declares no separate Domain-owned System Interface; executable CALL Interfaces remain owned by exact
+    child Capability Contracts.
+dependencies:
+  domain_owned_runtime_dependencies: []
+  capability_dependency_semantics_owned_by_exact_capability_contracts:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113#/dependencies
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104#/dependencies
+  cross_domain_realization_owner_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@${CURRENT}
+  domain_may_not_create_or_redefine_child_dependency_slots: true
+  direct_cross_domain_handler_or_repository_api_dependency_forbidden: true
+ports:
+  domain_owned_ports: []
+  not_applicable_reason: Cross-Domain Provider/Consumer realization is owned by P2 and declared as local dependency slots in exact child Capability
+    Contracts.
+receipt_rules:
+  capability_receipt_semantics_refs:
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.DOMAIN_INSTANTIATION@V0113#/operations
+  - Q.TEMPLATE.CONTRACT.CAPABILITY.BUILD_INSTANCE_PLAN@V0104#/operations
+  domain_does_not_rederive_child_or_p2_receipt_identity: true
+  gate_or_activation_receipt_not_created_by_q_template_domain: true
+static_objects:
+  definition_mode: REFERENCE_SET
+  refs:
+  - Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/capability_composition
+  - Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/dependencies
+  - Q.TEMPLATE.CONTRACT.DOMAIN@V0120#/implementation_generation_boundary
+  new_formal_business_object_created: false
+dynamic_objects:
+  domain_owned_dynamic_object_semantics: []
+  reason: Q.Template Domain owns deterministic generation semantics but no independent Domain-level durable runtime state in this Contract.
+not_applicable:
+  call_methods: No Domain-owned CALL Interface is declared; call semantics are owned by exact child Capability Contracts.
+  persistence_contract: No Domain-owned relational persistence object is declared by this Contract.
+  system_interface_declarations: Q.Template currently claims no separate system-level external entry in the Domain Contract.
+  governed_data_material_contract: Governed input material dependency semantics are declared by exact child Capability Contracts and realized
+    by P2.Consumer.
+  generation_lifecycle: Q.SS.STD.META.CONTRACT.GENERATION_LIFECYCLE is legacy q_generation replay/migration only and is not applicable to ordinary
+    current Q.Template code generation.
+implementation_generation_boundary:
+  ordinary_code_generation_authority_ref: Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@${CURRENT}
+  resolved_prompt_standard_ref: Q.SS.STD.META.CONTRACT.PROMPT_STANDARD@V0113
+  subject_contract_ref: Q.TEMPLATE.CONTRACT.DOMAIN@V0120
+  exact_subject_contract_ref_hash_and_bytes_required_before_prompt_compilation: true
+  q_standard_selected_active_rule_snapshot_required: true
+  q_prompt_compilation_required_before_ai_repository_materialization: true
+  prompt_artifact_exact_ref_and_content_hash_required_for_downstream_code_materialization: true
+  structured_contract_input_must_not_be_reinterpreted_by_model: true
+  model_output_is_not_semantic_authority: true
+  direct_ai_code_mutation_from_natural_language_audit_or_unbound_contract_forbidden: true
+  steady_state_q_template_runtime_must_not_depend_on_model_or_q_prompt: true
+  generation_lifecycle_legacy_projection_not_used_for_current_code_generation: true
