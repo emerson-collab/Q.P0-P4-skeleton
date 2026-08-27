@@ -27,3 +27,6 @@ jobs:
             spec
             src
             tests
+            standards/authority/stages/p2
+            standards/authority/stages/p3
+            standards/authority/stages/p4
