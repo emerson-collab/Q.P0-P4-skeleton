@@ -1,0 +1,29 @@
+name: Export skeleton artifact
+
+on:
+  push:
+    branches:
+      - export-skeleton-artifact
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Upload fixed skeleton bytes
+        uses: actions/upload-artifact@v4
+        with:
+          name: q-p0-p4-skeleton-fixed
+          if-no-files-found: error
+          include-hidden-files: true
+          path: |
+            .gitignore
+            package.json
+            package-lock.json
+            tsconfig.json
+            spec
+            src
+            tests
