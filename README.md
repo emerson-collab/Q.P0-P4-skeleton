@@ -1,6 +1,6 @@
 # Q.P0-P4 Skeleton
 
-This repository is the reusable Q five-stage skeleton extracted from the original combined materialization.
+This repository is the reusable Q five-stage skeleton extracted from governed Q materializations.
 
 ## Extraction boundary
 
@@ -17,16 +17,17 @@ No Module layer is introduced between Capability and Operation.
 
 ## P1 parent and fixed-framework boundary
 
-The P1 parent / Domain authority is part of the reusable skeleton and is retained from the original repository bytes. It is not regenerated or reinterpreted in this extraction.
+The P1 parent / Domain authority is part of the reusable skeleton and is retained from governed source bytes. It is not regenerated or reinterpreted in this extraction.
 
-Separately, the active `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0174` defines a fixed `business_runtime` framework under `spec/p1/business_runtime` and `src/p1/business_runtime`.
+The active `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0174` defines the fixed `business_runtime` framework under `spec/p1/business_runtime` and `src/p1/business_runtime`. The ten fixed framework files required by that projection are materialized in this repository from the governed `Q.Prompt` P1 business-runtime materialization.
 
-Those exact fixed-framework implementation bytes were not present in the source `Q.P0-P4-skeleton` repository, and no authoritative implementation files were found in the connected Sources. They are therefore not synthesized here. Before later LLM-generated concrete P1 Capability code is accepted, the exact authoritative fixed P1 `business_runtime` framework must be materialized from a governed source.
+Concrete P1 Capability contracts, specs, operation handlers, and tests remain outside the fixed framework and are intentionally absent until separately governed materialization.
 
 ## Preserved fixed assets
 
 - P0 runtime core
 - P1 parent / Domain contract authority
+- P1 fixed `business_runtime` framework
 - P2 Provider / Consumer cross-domain realization
 - P3 governed evolution
 - P4 governed coordination
