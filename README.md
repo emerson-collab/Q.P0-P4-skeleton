@@ -1,37 +1,37 @@
 # Q.P0-P4 Skeleton
 
-This repository is the reusable Q five-stage skeleton extracted from governed Q materializations.
+This repository is the reusable Q five-stage implementation skeleton.
 
-## Extraction boundary
+## Authority boundary
 
-The skeleton retains the P1 parent / Domain-level contract authority that already existed in the source repository under `standards/authority/domain/q_template`.
+Authoritative Contract bytes are not stored in this implementation repository. They are resolved from Q Cloud Storage. Repository-side bindings preserve the exact Contract ref and content hash required by the applicable Q standards.
 
-Concrete P1 Capability child overlays are intentionally removed. Future Capability materialization must use the governed P1 overlay shape:
+DESC and DRT projections may remain in the repository when they are part of the owning Stage physical projection. They are projections only and are not Contract authority.
 
-- `spec/p1/<capability_id>/...`
-- `src/p1/<capability_id>/<operation_id>/handler.ts`
-- `tests/p1/<capability_id>/<operation_id>/handler.test.ts`
-- `standards/authority/stages/p1/capabilities/<capability_id>/contract/...`
+The reusable skeleton does not carry a standalone product/vendor Domain authority root. Concrete Domain and Capability Contract authority remains external to the implementation repository.
 
-No Module layer is introduced between Capability and Operation.
+## Current five-stage baseline
 
-## P1 parent and fixed-framework boundary
+The current Repository Directory Skeleton selection is:
 
-The P1 parent / Domain authority is part of the reusable skeleton and is retained from governed source bytes. It is not regenerated or reinterpreted in this extraction.
+- P0: `Q.SS.STD.P0.DRT.RUNTIME_CORE@V0134`
+- P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0175`
+- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0114`
+- P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0144`
+- P4: `Q.SS.STD.P4.DRT.COORDINATION@V0140`
 
-The active `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0174` defines the fixed `business_runtime` framework under `spec/p1/business_runtime` and `src/p1/business_runtime`. The ten fixed framework files required by that projection are materialized in this repository from the governed `Q.Prompt` P1 business-runtime materialization.
+Generated-code roots are:
 
-Concrete P1 Capability contracts, specs, operation handlers, and tests remain outside the fixed framework and are intentionally absent until separately governed materialization.
+- P0: `spec/p0`, `src/p0`, `tests/p0`
+- P1 framework: `spec/p1/business_runtime`, `src/p1/business_runtime`
+- P1 concrete Capability: `spec/p1/<capability_id>`, `src/p1/<capability_id>/<operation_id>/handler.ts`, `tests/p1/<capability_id>/<operation_id>/handler.test.ts`
+- P2 Provider: `spec/p2/provider`, `src/p2/provider`, `tests/p2/provider`
+- P2 Consumer: `spec/p2/consumer`, `src/p2/consumer`, `tests/p2/consumer`
+- P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
+- P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
 
-## Preserved fixed assets
+## P1 overlay boundary
 
-- P0 runtime core
-- P1 parent / Domain contract authority
-- P1 fixed `business_runtime` framework
-- P2 Provider / Consumer cross-domain realization
-- P3 governed evolution
-- P4 governed coordination
-- shared root TypeScript toolchain files
-- Stage-owned specification and verification assets already present in the extracted fixed Stage projections
+The fixed `business_runtime` framework is the reusable P1 skeleton. Concrete P1 Capability implementations are add-only overlays and remain separate from the fixed framework. No Module layer is introduced between Capability and Operation, and each concrete Operation is projected directly to `<operation_id>/handler.ts`.
 
-Stage-local verification workflow launchers are not introduced here. Verification execution remains external to the Stage code, and repository verdict authority remains outside this skeleton.
+Stage-local verification workflow launchers are not part of this skeleton. Verification execution remains externally governed, and Q.Gate remains the verdict authority.
