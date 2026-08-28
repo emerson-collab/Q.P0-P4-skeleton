@@ -21,6 +21,7 @@ jobs:
           include-hidden-files: true
           path: |
             .gitignore
+            README.md
             package.json
             package-lock.json
             tsconfig.json
