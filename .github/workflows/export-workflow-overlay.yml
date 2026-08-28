@@ -1,0 +1,30 @@
+name: Export Q.Workflow overlay
+
+on:
+  push:
+    branches:
+      - export-workflow-overlay
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download governed overlay parts
+        run: |
+          set -euo pipefail
+          curl -fL 'https://raw.githubusercontent.com/emerson-collab/Q.Workflow/rebuild-q-workflow-v0118-v0106/.q-bootstrap/overlay.part01?token=BWA5CKDCE7U5UPYW2FN3U3DKSDYFHAA' -o /tmp/p01
+          curl -fL 'https://raw.githubusercontent.com/emerson-collab/Q.Workflow/rebuild-q-workflow-v0118-v0106/.q-bootstrap/overlay.part02?token=BWA5CKB4UA2M7OTOUGF7OXTKSDYFHAA' -o /tmp/p02
+          curl -fL 'https://raw.githubusercontent.com/emerson-collab/Q.Workflow/rebuild-q-workflow-v0118-v0106/.q-bootstrap/overlay.part03?token=BWA5CKGGAXNOD4XLDG6W7ZTKSDYFHAA' -o /tmp/p03
+          curl -fL 'https://raw.githubusercontent.com/emerson-collab/Q.Workflow/rebuild-q-workflow-v0118-v0106/.q-bootstrap/overlay.part04?token=BWA5CKFVFPRSXRKHVA76VHDKSDYFHAA' -o /tmp/p04
+          curl -fL 'https://raw.githubusercontent.com/emerson-collab/Q.Workflow/rebuild-q-workflow-v0118-v0106/.q-bootstrap/overlay.part05?token=BWA5CKBSIKTJAIQN4EJLTJLKSDYFHAA' -o /tmp/p05
+          curl -fL 'https://raw.githubusercontent.com/emerson-collab/Q.Workflow/rebuild-q-workflow-v0118-v0106/.q-bootstrap/overlay.part06?token=BWA5CKF5YSQKR5RD5GWESOLKSDYFHAA' -o /tmp/p06
+          cat /tmp/p0{1,2,3,4,5,6} | tr -d '[:space:]' | base64 -d > /tmp/workflow-overlay.zip
+          echo '236cc6e96082175971b44ae2b4b6b3aa46b859887125fc394cfae8ab368b97ef  /tmp/workflow-overlay.zip' | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: q-workflow-overlay-v0106
+          path: /tmp/workflow-overlay.zip
+          if-no-files-found: error
