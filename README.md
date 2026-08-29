@@ -12,7 +12,7 @@ The reusable skeleton does not carry a standalone product/vendor Domain authorit
 
 ## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0115`.
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0116`.
 
 The current Stage projections are:
 
@@ -32,10 +32,15 @@ Generated-code roots are:
 - P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
 - P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
 
-Repository Skeleton V0115 also permits an optional top-level `runtime/` support root for repository deployment support such as runtime bootstrap, transport binding, or Port binding. It is not a P0-P4 Stage, carries no business semantic authority, may not define Capability/Operation/Interface semantics, and is not materialized as an empty placeholder when no governed deployment support binding requires it.
+Repository Skeleton V0116 preserves the V0115 `runtime/` repository deployment-support boundary and closes the governed Q.Workflow repository event transport projection with exactly:
+
+- `.github/workflows/q-workflow-system-interface.yml`
+- `runtime/github_transport.ts`
+
+These paths are repository deployment support only. They are not P0-P4 Stage material, carry no business semantic authority, define no Capability/Operation/Interface semantics, own no Workflow orchestration semantics, and own no Q.Gate verdict logic. The launcher and transport only forward repository event context to the existing Q.Workflow `workflow_execution_invoke` System Interface.
 
 ## P1 overlay boundary
 
 The fixed `business_runtime` framework is the reusable P1 skeleton. Concrete P1 Capability implementations are add-only overlays and remain separate from the fixed framework. No Module layer is introduced between Capability and Operation, and each concrete Operation is projected directly to `<operation_id>/handler.ts`.
 
-Stage-local verification workflow launchers are not part of this skeleton. Verification execution remains externally governed, and Q.Gate remains the verdict authority.
+Stage-local verification workflow launchers remain forbidden. Verification execution remains owned by Q.Workflow, and Q.Gate remains the final verdict authority.
