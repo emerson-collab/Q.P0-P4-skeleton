@@ -12,7 +12,7 @@ The reusable skeleton does not carry a standalone product/vendor Domain authorit
 
 ## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0116`.
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0117`.
 
 The current Stage projections are:
 
@@ -32,12 +32,11 @@ Generated-code roots are:
 - P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
 - P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
 
-Repository Skeleton V0116 preserves the V0115 `runtime/` repository deployment-support boundary and closes the governed Q.Workflow repository event transport projection with exactly:
+Repository Skeleton V0117 closes the governed Q.Workflow repository-event trigger binding with one repository-level launcher:
 
 - `.github/workflows/q-workflow-system-interface.yml`
-- `runtime/github_transport.ts`
 
-These paths are repository deployment support only. They are not P0-P4 Stage material, carry no business semantic authority, define no Capability/Operation/Interface semantics, own no Workflow orchestration semantics, and own no Q.Gate verdict logic. The launcher and transport only forward repository event context to the existing Q.Workflow `workflow_execution_invoke` System Interface.
+The launcher is repository deployment support only. It contains no Q.Workflow transport implementation and delegates trigger handling to the Q.Workflow-owned reusable workflow entry. Per-repository `runtime/github_transport.ts`, System Interface URL, and System Interface token configuration are not part of this trigger binding.
 
 ## P1 overlay boundary
 
