@@ -1,0 +1,276 @@
+q_header: '1'
+q_id: Q.SS.STD.P3.DRT.EVOLUTION
+q_version: V0145
+q_title: P3 Business Evolution Plane — Domain, Capability and Operation Physical Projection Evolution — Q Cloud Storage Contract Authority Boundary
+q_stage: P3
+q_role: directory_tree
+q_status: active
+q_refs:
+  supersedes:
+  - Q.SS.STD.P3.DRT.EVOLUTION@V0144
+  contract: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145
+  desc: Q.SS.STD.P3.DESC.EVOLUTION@V0145
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145
+  tree_source: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145#/physical_model
+projection:
+  projection_order:
+  - standard_library
+  - template
+  standard_library:
+    standards/authority/stages/p3:
+      desc:
+      - P3.DESC.V0145.txt
+      contract:
+      - P3.CONTRACT.V0145.yaml
+      drt:
+      - P3.DRT.V0145.txt
+  template:
+    spec/p3:
+      qcon:
+      - evolution.qcon.yaml
+      qreg:
+      - evolution.qreg
+      qconfig:
+      - evolution.qconfig
+      interface:
+      - evolution_interfaces.json
+      schema:
+      - evolution_case_reference.schema.json
+      - evolution_evidence_reference.schema.json
+      - impact_graph_reference.schema.json
+      - domain_state_manifest.schema.json
+      - evolution_candidate.schema.json
+      - evolution_validation.schema.json
+      - evolution_approval.schema.json
+      - evolution_trial_pointer.schema.json
+      - evolution_active_pointer.schema.json
+      - evolution_outcome.schema.json
+      - evolution_receipt.schema.json
+      - evolution_idempotency_record.schema.json
+      - coordination_authorization.schema.json
+      - authorization_consumption_record.schema.json
+      - authorization_trust_anchor.schema.json
+    src/p3:
+    - stage_extension_contract.ts
+    - coordination_port_contract.ts
+    - coordination_authorization_contract.ts
+    - coordination_port_provider.ts
+    - evolution_runtime_binding.ts
+    - evolution_registry.ts
+    - evolution_state_store.ts
+    - evolution_receipt_store.ts
+    - evolution_idempotency_store.ts
+    - evolution_lease_store.ts
+    - authorization_consumption_store.ts
+    - authorization_trust_store.ts
+    - evolution_persistence_binding.ts
+    - receipt_verifier.ts
+    - authorization_verifier.ts
+    - domain_state_resolver.ts
+    - impact_graph_verifier.ts
+    - outcome_evaluation_handler.ts
+    - component_owner_receipt_verifier.ts
+    - stable_errors.ts
+    tests/p3:
+    - p3_contract_conformance.test.ts
+    - p3_evolution_integration.test.ts
+    - p3_evidence_case_impact.test.ts
+    - p3_domain_state_closure.test.ts
+    - p3_trial_evaluation.test.ts
+    - p3_authorization_security.test.ts
+    - p3_authorization_trust_rotation.test.ts
+    - p3_idempotency_replay.test.ts
+    - p3_persistence_recovery.test.ts
+    - p3_receipt_tamper.test.ts
+    - p3_port_parity.test.ts
+  constraints:
+    drt_header_contains_governed_drt_rule_set: true
+    drt_body_is_directory_tree_only: true
+    drt_exactly_matches_this_projection: true
+    every_declared_target_path_must_exist_for_implementation_conformance: true
+    unlisted_stage_file_forbidden: true
+    module_object_and_module_directory_forbidden: true
+    empty_placeholder_forbidden: true
+    hidden_path_forbidden_unless_declared: true
+    inferred_or_undeclared_path_forbidden: true
+    drt_implementation_activation_freeze_or_current_pointer_claim_forbidden: true
+    local_gate_script_or_parallel_gate_authority_forbidden: true
+    runtime_and_persistence_bindings_must_not_create_protocol_translation_authority: true
+    drt_summary_only_projection_forbidden: true
+    drt_must_project_exact_paths_from_this_contract: true
+    stage_local_workflow_launcher_forbidden: true
+  hierarchy_projection:
+    carrier_kind: CAPABILITY
+    carrier_id: governed_evolution
+    spec_root: spec/p3/governed_evolution
+    source_root: src/p3/governed_evolution
+    test_root: tests/p3/governed_evolution
+    operation_ids:
+    - inspect_change
+    - create_candidate
+    - validate_candidate
+    - approve_candidate
+    - activate_candidate
+    - evaluate_candidate
+    - rollback_candidate
+    - read_receipt
+    operation_source_expression: src/p3/governed_evolution/<operation_id>/handler.ts
+    module_directory_forbidden: true
+    operations_intermediate_directory_forbidden: true
+    empty_placeholder_forbidden: true
+    path_name_inference_forbidden: true
+  trial_coexistence:
+    predecessor_candidate_bytes_retained_in_git_and_receipt_history: true
+    current_tree_projects_only_latest_unactivated_candidate_for_this_lineage: false
+    same_commit_same_path_two_authorities_forbidden: true
+    current_authority_lock_selects_locked_predecessor_until_governed_activation: false
+  candidate_exact_paths:
+  - spec/p3/governed_evolution/capability_interfaces.json
+  - spec/p3/governed_evolution/capability_objects.qreg
+  - spec/p3/governed_evolution/capability_policy.qconfig
+  - spec/p3/governed_evolution/capability_profile.qcon.yaml
+  - spec/p3/governed_evolution/schema/authorization_consumption_record.schema.json
+  - spec/p3/governed_evolution/schema/authorization_trust_anchor.schema.json
+  - spec/p3/governed_evolution/schema/coordination_authorization.schema.json
+  - spec/p3/governed_evolution/schema/domain_state_manifest.schema.json
+  - spec/p3/governed_evolution/schema/evolution_active_pointer.schema.json
+  - spec/p3/governed_evolution/schema/evolution_approval.schema.json
+  - spec/p3/governed_evolution/schema/evolution_candidate.schema.json
+  - spec/p3/governed_evolution/schema/evolution_case_reference.schema.json
+  - spec/p3/governed_evolution/schema/evolution_evidence_reference.schema.json
+  - spec/p3/governed_evolution/schema/evolution_idempotency_record.schema.json
+  - spec/p3/governed_evolution/schema/evolution_outcome.schema.json
+  - spec/p3/governed_evolution/schema/evolution_receipt.schema.json
+  - spec/p3/governed_evolution/schema/evolution_trial_pointer.schema.json
+  - spec/p3/governed_evolution/schema/evolution_validation.schema.json
+  - spec/p3/governed_evolution/schema/impact_graph_reference.schema.json
+  - src/p3/governed_evolution/activate_candidate/handler.ts
+  - src/p3/governed_evolution/approve_candidate/handler.ts
+  - src/p3/governed_evolution/authorization_consumption_store.ts
+  - src/p3/governed_evolution/authorization_trust_store.ts
+  - src/p3/governed_evolution/authorization_verifier.ts
+  - src/p3/governed_evolution/component_owner_receipt_verifier.ts
+  - src/p3/governed_evolution/coordination_authorization_contract.ts
+  - src/p3/governed_evolution/coordination_port_contract.ts
+  - src/p3/governed_evolution/coordination_port_provider.ts
+  - src/p3/governed_evolution/create_candidate/handler.ts
+  - src/p3/governed_evolution/domain_state_resolver.ts
+  - src/p3/governed_evolution/evaluate_candidate/handler.ts
+  - src/p3/governed_evolution/evolution_idempotency_store.ts
+  - src/p3/governed_evolution/evolution_lease_store.ts
+  - src/p3/governed_evolution/evolution_persistence_binding.ts
+  - src/p3/governed_evolution/evolution_receipt_store.ts
+  - src/p3/governed_evolution/evolution_registry.ts
+  - src/p3/governed_evolution/evolution_runtime_binding.ts
+  - src/p3/governed_evolution/evolution_state_store.ts
+  - src/p3/governed_evolution/evolution_validation_dependencies.ts
+  - src/p3/governed_evolution/impact_graph_verifier.ts
+  - src/p3/governed_evolution/inspect_change/handler.ts
+  - src/p3/governed_evolution/outcome_evaluation_handler.ts
+  - src/p3/governed_evolution/read_receipt/handler.ts
+  - src/p3/governed_evolution/receipt_verifier.ts
+  - src/p3/governed_evolution/rollback_candidate/handler.ts
+  - src/p3/governed_evolution/stable_errors.ts
+  - src/p3/governed_evolution/stage_extension_contract.ts
+  - src/p3/governed_evolution/validate_candidate/handler.ts
+  - standards/authority/stages/p3/desc/P3.DESC.V0145.txt
+  - standards/authority/stages/p3/drt/P3.DRT.V0145.txt
+  - tests/p3/governed_evolution/activate_candidate/handler.test.ts
+  - tests/p3/governed_evolution/approve_candidate/handler.test.ts
+  - tests/p3/governed_evolution/create_candidate/handler.test.ts
+  - tests/p3/governed_evolution/evaluate_candidate/handler.test.ts
+  - tests/p3/governed_evolution/inspect_change/handler.test.ts
+  - tests/p3/governed_evolution/p3_authorization_security.test.ts
+  - tests/p3/governed_evolution/p3_authorization_trust_rotation.test.ts
+  - tests/p3/governed_evolution/p3_contract_conformance.test.ts
+  - tests/p3/governed_evolution/p3_domain_state_closure.test.ts
+  - tests/p3/governed_evolution/p3_evidence_case_impact.test.ts
+  - tests/p3/governed_evolution/p3_evolution_integration.test.ts
+  - tests/p3/governed_evolution/p3_idempotency_replay.test.ts
+  - tests/p3/governed_evolution/p3_persistence_recovery.test.ts
+  - tests/p3/governed_evolution/p3_port_parity.test.ts
+  - tests/p3/governed_evolution/p3_receipt_tamper.test.ts
+  - tests/p3/governed_evolution/p3_trial_evaluation.test.ts
+  - tests/p3/governed_evolution/p3_validation_runtime_closure.test.ts
+  - tests/p3/governed_evolution/read_receipt/handler.test.ts
+  - tests/p3/governed_evolution/rollback_candidate/handler.test.ts
+  - tests/p3/governed_evolution/validate_candidate/handler.test.ts
+  exact_paths:
+  - spec/p3/governed_evolution/capability_interfaces.json
+  - spec/p3/governed_evolution/capability_objects.qreg
+  - spec/p3/governed_evolution/capability_policy.qconfig
+  - spec/p3/governed_evolution/capability_profile.qcon.yaml
+  - spec/p3/governed_evolution/schema/authorization_consumption_record.schema.json
+  - spec/p3/governed_evolution/schema/authorization_trust_anchor.schema.json
+  - spec/p3/governed_evolution/schema/coordination_authorization.schema.json
+  - spec/p3/governed_evolution/schema/domain_state_manifest.schema.json
+  - spec/p3/governed_evolution/schema/evolution_active_pointer.schema.json
+  - spec/p3/governed_evolution/schema/evolution_approval.schema.json
+  - spec/p3/governed_evolution/schema/evolution_candidate.schema.json
+  - spec/p3/governed_evolution/schema/evolution_case_reference.schema.json
+  - spec/p3/governed_evolution/schema/evolution_evidence_reference.schema.json
+  - spec/p3/governed_evolution/schema/evolution_idempotency_record.schema.json
+  - spec/p3/governed_evolution/schema/evolution_outcome.schema.json
+  - spec/p3/governed_evolution/schema/evolution_receipt.schema.json
+  - spec/p3/governed_evolution/schema/evolution_trial_pointer.schema.json
+  - spec/p3/governed_evolution/schema/evolution_validation.schema.json
+  - spec/p3/governed_evolution/schema/impact_graph_reference.schema.json
+  - src/p3/governed_evolution/activate_candidate/handler.ts
+  - src/p3/governed_evolution/approve_candidate/handler.ts
+  - src/p3/governed_evolution/authorization_consumption_store.ts
+  - src/p3/governed_evolution/authorization_trust_store.ts
+  - src/p3/governed_evolution/authorization_verifier.ts
+  - src/p3/governed_evolution/component_owner_receipt_verifier.ts
+  - src/p3/governed_evolution/coordination_authorization_contract.ts
+  - src/p3/governed_evolution/coordination_port_contract.ts
+  - src/p3/governed_evolution/coordination_port_provider.ts
+  - src/p3/governed_evolution/create_candidate/handler.ts
+  - src/p3/governed_evolution/domain_state_resolver.ts
+  - src/p3/governed_evolution/evaluate_candidate/handler.ts
+  - src/p3/governed_evolution/evolution_idempotency_store.ts
+  - src/p3/governed_evolution/evolution_lease_store.ts
+  - src/p3/governed_evolution/evolution_persistence_binding.ts
+  - src/p3/governed_evolution/evolution_receipt_store.ts
+  - src/p3/governed_evolution/evolution_registry.ts
+  - src/p3/governed_evolution/evolution_runtime_binding.ts
+  - src/p3/governed_evolution/evolution_state_store.ts
+  - src/p3/governed_evolution/evolution_validation_dependencies.ts
+  - src/p3/governed_evolution/impact_graph_verifier.ts
+  - src/p3/governed_evolution/inspect_change/handler.ts
+  - src/p3/governed_evolution/outcome_evaluation_handler.ts
+  - src/p3/governed_evolution/read_receipt/handler.ts
+  - src/p3/governed_evolution/receipt_verifier.ts
+  - src/p3/governed_evolution/rollback_candidate/handler.ts
+  - src/p3/governed_evolution/stable_errors.ts
+  - src/p3/governed_evolution/stage_extension_contract.ts
+  - src/p3/governed_evolution/validate_candidate/handler.ts
+  - standards/authority/stages/p3/desc/P3.DESC.V0145.txt
+  - standards/authority/stages/p3/drt/P3.DRT.V0145.txt
+  - tests/p3/governed_evolution/activate_candidate/handler.test.ts
+  - tests/p3/governed_evolution/approve_candidate/handler.test.ts
+  - tests/p3/governed_evolution/create_candidate/handler.test.ts
+  - tests/p3/governed_evolution/evaluate_candidate/handler.test.ts
+  - tests/p3/governed_evolution/inspect_change/handler.test.ts
+  - tests/p3/governed_evolution/p3_authorization_security.test.ts
+  - tests/p3/governed_evolution/p3_authorization_trust_rotation.test.ts
+  - tests/p3/governed_evolution/p3_contract_conformance.test.ts
+  - tests/p3/governed_evolution/p3_domain_state_closure.test.ts
+  - tests/p3/governed_evolution/p3_evidence_case_impact.test.ts
+  - tests/p3/governed_evolution/p3_evolution_integration.test.ts
+  - tests/p3/governed_evolution/p3_idempotency_replay.test.ts
+  - tests/p3/governed_evolution/p3_persistence_recovery.test.ts
+  - tests/p3/governed_evolution/p3_port_parity.test.ts
+  - tests/p3/governed_evolution/p3_receipt_tamper.test.ts
+  - tests/p3/governed_evolution/p3_trial_evaluation.test.ts
+  - tests/p3/governed_evolution/p3_validation_runtime_closure.test.ts
+  - tests/p3/governed_evolution/read_receipt/handler.test.ts
+  - tests/p3/governed_evolution/rollback_candidate/handler.test.ts
+  - tests/p3/governed_evolution/validate_candidate/handler.test.ts
+projection_invariants:
+  contract_authority_bytes_in_implementation_repository_forbidden: true
+  contract_authority_storage: Q Cloud Storage
+  repository_exact_contract_ref_hash_binding_allowed: true
+  path_inference_as_semantic_authority_forbidden: true

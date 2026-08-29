@@ -1,0 +1,204 @@
+q_header: '1'
+q_id: Q.SS.STD.P4.DRT.COORDINATION
+q_version: V0141
+q_title: P4 Physical Projection-Change Case Intake and Standard/Skeleton Co-evolution Coordination — Q Cloud Storage Contract Authority Boundary
+q_stage: P4
+q_role: directory_tree
+q_status: active
+q_refs:
+  supersedes:
+  - Q.SS.STD.P4.DRT.COORDINATION@V0140
+  contract: Q.SS.STD.P4.CONTRACT.COORDINATION@V0141
+  desc: Q.SS.STD.P4.DESC.COORDINATION@V0141
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P4.CONTRACT.COORDINATION@V0141
+  tree_source: Q.SS.STD.P4.CONTRACT.COORDINATION@V0141#/physical_model
+projection:
+  tree_source: exact_paths
+  exact_paths:
+  - spec/p4/governed_coordination/capability_interfaces.json
+  - spec/p4/governed_coordination/capability_objects.qreg
+  - spec/p4/governed_coordination/capability_policy.qconfig
+  - spec/p4/governed_coordination/capability_profile.qcon.yaml
+  - spec/p4/governed_coordination/schema/activation_plan.schema.json
+  - spec/p4/governed_coordination/schema/activation_plan_step.schema.json
+  - spec/p4/governed_coordination/schema/approval_record.schema.json
+  - spec/p4/governed_coordination/schema/authorization_issuance_record.schema.json
+  - spec/p4/governed_coordination/schema/authorization_key_metadata.schema.json
+  - spec/p4/governed_coordination/schema/authorization_semantic_request.schema.json
+  - spec/p4/governed_coordination/schema/change_set.schema.json
+  - spec/p4/governed_coordination/schema/compensation_plan.schema.json
+  - spec/p4/governed_coordination/schema/coordination_receipt.schema.json
+  - spec/p4/governed_coordination/schema/cross_domain_impact_graph.schema.json
+  - spec/p4/governed_coordination/schema/domain_step.schema.json
+  - spec/p4/governed_coordination/schema/p3_step_authorization.schema.json
+  - spec/p4/governed_coordination/schema/provider_receipt.schema.json
+  - spec/p4/governed_coordination/schema/recovery_cursor.schema.json
+  - spec/p4/governed_coordination/schema/saga_idempotency_record.schema.json
+  - spec/p4/governed_coordination/schema/saga_journal_entry.schema.json
+  - spec/p4/governed_coordination/schema/saga_state.schema.json
+  - src/p4/governed_coordination/activation_plan_resolver.ts
+  - src/p4/governed_coordination/approval_record_verifier.ts
+  - src/p4/governed_coordination/approve_activation_plan/handler.ts
+  - src/p4/governed_coordination/authorization_issuance_store.ts
+  - src/p4/governed_coordination/authorization_key_store.ts
+  - src/p4/governed_coordination/authorization_provider.ts
+  - src/p4/governed_coordination/change_set_resolver.ts
+  - src/p4/governed_coordination/compensation_plan_resolver.ts
+  - src/p4/governed_coordination/coordination_port_binding.ts
+  - src/p4/governed_coordination/coordination_port_client.ts
+  - src/p4/governed_coordination/freeze_change_set/handler.ts
+  - src/p4/governed_coordination/impact_graph_scope_verifier.ts
+  - src/p4/governed_coordination/inspect_change_set/handler.ts
+  - src/p4/governed_coordination/journal_verifier.ts
+  - src/p4/governed_coordination/provider_receipt_verifier.ts
+  - src/p4/governed_coordination/recovery_cursor_resolver.ts
+  - src/p4/governed_coordination/recovery_operator_port_contract.ts
+  - src/p4/governed_coordination/recovery_operator_port_provider.ts
+  - src/p4/governed_coordination/resume_recovery/handler.ts
+  - src/p4/governed_coordination/saga_idempotency_store.ts
+  - src/p4/governed_coordination/saga_journal_store.ts
+  - src/p4/governed_coordination/saga_lease_store.ts
+  - src/p4/governed_coordination/saga_persistence_binding.ts
+  - src/p4/governed_coordination/saga_receipt_store.ts
+  - src/p4/governed_coordination/saga_registry.ts
+  - src/p4/governed_coordination/saga_runtime_binding.ts
+  - src/p4/governed_coordination/saga_state_store.ts
+  - src/p4/governed_coordination/saga_step_orchestrator.ts
+  - src/p4/governed_coordination/stable_errors.ts
+  - src/p4/governed_coordination/stage_extension_contract.ts
+  - standards/authority/stages/p4/desc/P4.DESC.V0141.txt
+  - standards/authority/stages/p4/drt/P4.DRT.V0141.txt
+  - tests/p4/governed_coordination/approve_activation_plan/handler.test.ts
+  - tests/p4/governed_coordination/freeze_change_set/handler.test.ts
+  - tests/p4/governed_coordination/inspect_change_set/handler.test.ts
+  - tests/p4/governed_coordination/p3_p4_port_parity.test.ts
+  - tests/p4/governed_coordination/p4_authorization_issuance.test.ts
+  - tests/p4/governed_coordination/p4_authorization_key_rotation.test.ts
+  - tests/p4/governed_coordination/p4_compensation_recovery.test.ts
+  - tests/p4/governed_coordination/p4_contract_conformance.test.ts
+  - tests/p4/governed_coordination/p4_coordination_integration.test.ts
+  - tests/p4/governed_coordination/p4_governance_invariants.test.ts
+  - tests/p4/governed_coordination/p4_idempotency_replay.test.ts
+  - tests/p4/governed_coordination/p4_impact_scope_and_replan.test.ts
+  - tests/p4/governed_coordination/p4_journal_integrity.test.ts
+  - tests/p4/governed_coordination/p4_multistep_saga_integration.test.ts
+  - tests/p4/governed_coordination/p4_persistence_recovery.test.ts
+  - tests/p4/governed_coordination/p4_persistence_runtime_closure.test.ts
+  - tests/p4/governed_coordination/p4_provider_error_identity.test.ts
+  - tests/p4/governed_coordination/p4_saga_step_orchestrator.test.ts
+  - tests/p4/governed_coordination/p4_semantic_request.test.ts
+  - tests/p4/governed_coordination/p4_trial_final_coordination.test.ts
+  - tests/p4/governed_coordination/resume_recovery/handler.test.ts
+  path_count: 74
+  constraints:
+    missing_or_unlisted_path_forbidden: true
+    hidden_module_placeholder_inferred_path_forbidden: true
+    drt_header_rule_set_then_tree_body: true
+    no_implementation_activation_freeze_current_claim: true
+    local_gate_script_or_parallel_gate_authority_forbidden: true
+    runtime_and_persistence_bindings_must_not_create_protocol_translation_authority: true
+    stage_local_workflow_launcher_forbidden: true
+  hierarchy_projection:
+    carrier_kind: CAPABILITY
+    carrier_id: governed_coordination
+    spec_root: spec/p4/governed_coordination
+    source_root: src/p4/governed_coordination
+    test_root: tests/p4/governed_coordination
+    operation_ids:
+    - inspect_change_set
+    - approve_activation_plan
+    - resume_recovery
+    - freeze_change_set
+    operation_source_expression: src/p4/governed_coordination/<operation_id>/handler.ts
+    module_directory_forbidden: true
+    operations_intermediate_directory_forbidden: true
+    empty_placeholder_forbidden: true
+    path_name_inference_forbidden: true
+  trial_coexistence:
+    predecessor_candidate_bytes_retained_in_git_and_receipt_history: true
+    current_tree_projects_only_latest_unactivated_candidate_for_this_lineage: false
+    same_commit_same_path_two_authorities_forbidden: true
+    current_authority_lock_selects_locked_predecessor_until_governed_activation: false
+  candidate_exact_paths:
+  - spec/p4/governed_coordination/capability_interfaces.json
+  - spec/p4/governed_coordination/capability_objects.qreg
+  - spec/p4/governed_coordination/capability_policy.qconfig
+  - spec/p4/governed_coordination/capability_profile.qcon.yaml
+  - spec/p4/governed_coordination/schema/activation_plan.schema.json
+  - spec/p4/governed_coordination/schema/activation_plan_step.schema.json
+  - spec/p4/governed_coordination/schema/approval_record.schema.json
+  - spec/p4/governed_coordination/schema/authorization_issuance_record.schema.json
+  - spec/p4/governed_coordination/schema/authorization_key_metadata.schema.json
+  - spec/p4/governed_coordination/schema/authorization_semantic_request.schema.json
+  - spec/p4/governed_coordination/schema/change_set.schema.json
+  - spec/p4/governed_coordination/schema/compensation_plan.schema.json
+  - spec/p4/governed_coordination/schema/coordination_receipt.schema.json
+  - spec/p4/governed_coordination/schema/cross_domain_impact_graph.schema.json
+  - spec/p4/governed_coordination/schema/domain_step.schema.json
+  - spec/p4/governed_coordination/schema/p3_step_authorization.schema.json
+  - spec/p4/governed_coordination/schema/provider_receipt.schema.json
+  - spec/p4/governed_coordination/schema/recovery_cursor.schema.json
+  - spec/p4/governed_coordination/schema/saga_idempotency_record.schema.json
+  - spec/p4/governed_coordination/schema/saga_journal_entry.schema.json
+  - spec/p4/governed_coordination/schema/saga_state.schema.json
+  - src/p4/governed_coordination/activation_plan_resolver.ts
+  - src/p4/governed_coordination/approval_record_verifier.ts
+  - src/p4/governed_coordination/approve_activation_plan/handler.ts
+  - src/p4/governed_coordination/authorization_issuance_store.ts
+  - src/p4/governed_coordination/authorization_key_store.ts
+  - src/p4/governed_coordination/authorization_provider.ts
+  - src/p4/governed_coordination/change_set_resolver.ts
+  - src/p4/governed_coordination/compensation_plan_resolver.ts
+  - src/p4/governed_coordination/coordination_port_binding.ts
+  - src/p4/governed_coordination/coordination_port_client.ts
+  - src/p4/governed_coordination/freeze_change_set/handler.ts
+  - src/p4/governed_coordination/impact_graph_scope_verifier.ts
+  - src/p4/governed_coordination/inspect_change_set/handler.ts
+  - src/p4/governed_coordination/journal_verifier.ts
+  - src/p4/governed_coordination/provider_receipt_verifier.ts
+  - src/p4/governed_coordination/recovery_cursor_resolver.ts
+  - src/p4/governed_coordination/recovery_operator_port_contract.ts
+  - src/p4/governed_coordination/recovery_operator_port_provider.ts
+  - src/p4/governed_coordination/resume_recovery/handler.ts
+  - src/p4/governed_coordination/saga_idempotency_store.ts
+  - src/p4/governed_coordination/saga_journal_store.ts
+  - src/p4/governed_coordination/saga_lease_store.ts
+  - src/p4/governed_coordination/saga_persistence_binding.ts
+  - src/p4/governed_coordination/saga_receipt_store.ts
+  - src/p4/governed_coordination/saga_registry.ts
+  - src/p4/governed_coordination/saga_runtime_binding.ts
+  - src/p4/governed_coordination/saga_state_store.ts
+  - src/p4/governed_coordination/saga_step_orchestrator.ts
+  - src/p4/governed_coordination/stable_errors.ts
+  - src/p4/governed_coordination/stage_extension_contract.ts
+  - standards/authority/stages/p4/desc/P4.DESC.V0141.txt
+  - standards/authority/stages/p4/drt/P4.DRT.V0141.txt
+  - tests/p4/governed_coordination/approve_activation_plan/handler.test.ts
+  - tests/p4/governed_coordination/freeze_change_set/handler.test.ts
+  - tests/p4/governed_coordination/inspect_change_set/handler.test.ts
+  - tests/p4/governed_coordination/p3_p4_port_parity.test.ts
+  - tests/p4/governed_coordination/p4_authorization_issuance.test.ts
+  - tests/p4/governed_coordination/p4_authorization_key_rotation.test.ts
+  - tests/p4/governed_coordination/p4_compensation_recovery.test.ts
+  - tests/p4/governed_coordination/p4_contract_conformance.test.ts
+  - tests/p4/governed_coordination/p4_coordination_integration.test.ts
+  - tests/p4/governed_coordination/p4_governance_invariants.test.ts
+  - tests/p4/governed_coordination/p4_idempotency_replay.test.ts
+  - tests/p4/governed_coordination/p4_impact_scope_and_replan.test.ts
+  - tests/p4/governed_coordination/p4_journal_integrity.test.ts
+  - tests/p4/governed_coordination/p4_multistep_saga_integration.test.ts
+  - tests/p4/governed_coordination/p4_persistence_recovery.test.ts
+  - tests/p4/governed_coordination/p4_persistence_runtime_closure.test.ts
+  - tests/p4/governed_coordination/p4_provider_error_identity.test.ts
+  - tests/p4/governed_coordination/p4_saga_step_orchestrator.test.ts
+  - tests/p4/governed_coordination/p4_semantic_request.test.ts
+  - tests/p4/governed_coordination/p4_trial_final_coordination.test.ts
+  - tests/p4/governed_coordination/resume_recovery/handler.test.ts
+projection_invariants:
+  contract_authority_bytes_in_implementation_repository_forbidden: true
+  contract_authority_storage: Q Cloud Storage
+  repository_exact_contract_ref_hash_binding_allowed: true
+  path_inference_as_semantic_authority_forbidden: true

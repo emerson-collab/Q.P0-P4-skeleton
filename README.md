@@ -10,15 +10,17 @@ DESC and DRT projections may remain in the repository when they are part of the 
 
 The reusable skeleton does not carry a standalone product/vendor Domain authority root. Concrete Domain and Capability Contract authority remains external to the implementation repository.
 
-## Current five-stage baseline
+## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is:
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0115`.
+
+The current Stage projections are:
 
 - P0: `Q.SS.STD.P0.DRT.RUNTIME_CORE@V0134`
 - P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0175`
-- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0114`
-- P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0144`
-- P4: `Q.SS.STD.P4.DRT.COORDINATION@V0140`
+- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0115`
+- P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0145`
+- P4: `Q.SS.STD.P4.DRT.COORDINATION@V0141`
 
 Generated-code roots are:
 
@@ -29,6 +31,8 @@ Generated-code roots are:
 - P2 Consumer: `spec/p2/consumer`, `src/p2/consumer`, `tests/p2/consumer`
 - P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
 - P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
+
+Repository Skeleton V0115 also permits an optional top-level `runtime/` support root for repository deployment support such as runtime bootstrap, transport binding, or Port binding. It is not a P0-P4 Stage, carries no business semantic authority, may not define Capability/Operation/Interface semantics, and is not materialized as an empty placeholder when no governed deployment support binding requires it.
 
 ## P1 overlay boundary
 
