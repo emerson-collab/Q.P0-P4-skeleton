@@ -12,41 +12,15 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  invoke-system-interface:
-    runs-on: ubuntu-latest
-    env:
-      Q_WORKFLOW_SYSTEM_INTERFACE_URL: ${{ secrets.Q_WORKFLOW_SYSTEM_INTERFACE_URL }}
-      Q_WORKFLOW_SYSTEM_INTERFACE_TOKEN: ${{ secrets.Q_WORKFLOW_SYSTEM_INTERFACE_TOKEN }}
-      Q_TARGET_COMMIT: ${{ github.event.pull_request.head.sha || github.sha }}
-      Q_BEFORE_SHA: ${{ github.event.before || '' }}
-      Q_PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number || '' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22.17.0'
-
-      - name: Invoke Q.Workflow System Interface
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "${Q_WORKFLOW_SYSTEM_INTERFACE_URL:-}" || {
-            echo 'Q_WORKFLOW_SYSTEM_INTERFACE_URL is required' >&2
-            exit 1
-          }
-          node --experimental-transform-types --input-type=module <<'NODE'
-          import {
-            githubEventFactsFromEnvironment,
-            invokeSystemInterfaceFromGitHubEvent,
-          } from './runtime/github_transport.ts';
-
-          const facts = githubEventFactsFromEnvironment(process.env);
-          const result = await invokeSystemInterfaceFromGitHubEvent(facts, {
-            system_interface_url: process.env.Q_WORKFLOW_SYSTEM_INTERFACE_URL,
-            bearer_token: process.env.Q_WORKFLOW_SYSTEM_INTERFACE_TOKEN,
-          });
-          process.stdout.write(`${JSON.stringify(result)}\n`);
-          NODE
+  invoke-q-workflow:
+    uses: emerson-collab/Q.Workflow/.github/workflows/q-workflow-system-interface.yml@main
+    with:
+      event_name: ${{ github.event_name }}
+      repository: ${{ github.repository }}
+      target_commit: ${{ github.event.pull_request.head.sha || github.sha }}
+      ref: ${{ github.ref }}
+      before_sha: ${{ github.event.before || '' }}
+      pull_request_number: ${{ format('{0}', github.event.pull_request.number || '') }}
+      sender: ${{ github.actor }}
+      source_run_id: ${{ format('{0}', github.run_id) }}
+      source_run_attempt: ${{ format('{0}', github.run_attempt) }}
