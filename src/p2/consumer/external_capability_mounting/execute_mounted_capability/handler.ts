@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "external_capability_mounting" as const;
@@ -108,6 +108,7 @@ export const OPERATION_ID = "execute_mounted_capability" as const;
 export interface MountedCapabilityExecutionDependencies {
   invoke_local_p0(input: Readonly<{
     readonly exact_interface_binding: JsonObject;
+    readonly implementation_material_binding: JsonObject;
     readonly operation_input: unknown;
     readonly runtime_context: JsonObject;
     readonly trace_id: string;
@@ -122,6 +123,19 @@ export async function handler(
   const active_mount = objectValue(request.input.active_mount, "active_mount");
   if (active_mount.status !== "ACTIVE") throw new P2StableError("P2_MOUNT_NOT_ACTIVE", "active mount required");
   sha256Value(active_mount.mount_hash, "active_mount.mount_hash");
+  const resolver_state = objectValue(active_mount.resolver_state, "active_mount.resolver_state");
+  if (resolver_state.verified !== true) throw new P2StableError("P2_RESOLVER_STATE_NOT_VERIFIED", "verified resolver state required");
+  const implementation_material_binding = objectValue(
+    resolver_state.implementation_material_binding,
+    "active_mount.resolver_state.implementation_material_binding",
+  );
+  const implementation_binding_hash = sha256Value(
+    resolver_state.implementation_binding_hash,
+    "active_mount.resolver_state.implementation_binding_hash",
+  );
+  if (implementation_binding_hash !== sha256Json(implementation_material_binding)) {
+    throw new P2StableError("P2_IMPLEMENTATION_BINDING_HASH_MISMATCH", "resolver state implementation binding hash mismatch");
+  }
   const exact_interface_binding = objectValue(request.input.exact_interface_binding, "exact_interface_binding");
   for (const forbidden of ["translation", "mapping", "wrapper", "second_protocol"]) {
     if (exact_interface_binding[forbidden] === true) {
@@ -132,6 +146,7 @@ export async function handler(
   const operation_input = request.input.operation_input;
   const runtime_result = await dependencies.invoke_local_p0({
     exact_interface_binding,
+    implementation_material_binding,
     operation_input,
     runtime_context: request.runtime_context,
     trace_id: request.trace_id,
@@ -143,6 +158,7 @@ export async function handler(
       runtime_contract_ref: "Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134",
       exact_interface_binding: stableClone(exact_interface_binding),
       interface_binding_hash: sha256Json(exact_interface_binding),
+      implementation_binding_hash,
       runtime_result: stableClone(runtime_result),
       second_runtime_used: false,
     }),
