@@ -1,6 +1,6 @@
 projection:
-  source_contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
-  source_contract_hash: sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502
+  source_contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145
+  source_contract_hash: sha256:e26f7adb3f0fd32f6ec9dd9e121c74649b1280c261da9f91e83cbb7351a91da4
   semantic_authority: false
   projection_only: true
 stage:
@@ -76,8 +76,8 @@ validation_runtime_boundary:
     reference_in_memory_production_use_forbidden: true
 production_closure:
   closure_basis: CURRENT_ACTIVE_GOOGLE_DRIVE_SOURCE_ONLY
-  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143
-  predecessor_content_hash: sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9
+  predecessor_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  predecessor_content_hash: sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502
   change_authority: explicit_user_directed_business_evolution_plane_upgrade
   historical_repository_or_deleted_content_used: false
   database_projection_is_not_semantic_authority: true
