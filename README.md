@@ -18,7 +18,7 @@ The current Stage projections are:
 
 - P0: `Q.SS.STD.P0.DRT.RUNTIME_CORE@V0134`
 - P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0175`
-- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0115`
+- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0117`
 - P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0145`
 - P4: `Q.SS.STD.P4.DRT.COORDINATION@V0141`
 
@@ -31,6 +31,8 @@ Generated-code roots are:
 - P2 Consumer: `spec/p2/consumer`, `src/p2/consumer`, `tests/p2/consumer`
 - P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
 - P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
+
+P2 V0117 preserves the fixed Provider/Consumer topology, five Capabilities, fifteen Operations, and 52 projected repository leaves. It closes executable implementation-material resolution through an immutable Provider publication binding, P2.Consumer-owned verified `resolver_state`, and exact `implementation_binding_hash`, with mounted execution delegated only to the receiving repository local P0 runtime.
 
 Repository Skeleton V0118 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
 
