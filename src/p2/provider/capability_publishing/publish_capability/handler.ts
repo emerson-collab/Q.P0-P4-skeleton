@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "provider" as const;
 export const CAPABILITY_ID = "capability_publishing" as const;
@@ -114,11 +114,26 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
   const capability_contract_hash = sha256Value(material_set.capability_contract_hash, "material_set.capability_contract_hash");
   const material_set_hash = sha256Value(material_set.material_set_hash, "material_set.material_set_hash");
   const publication_artifact_binding = objectValue(request.input.publication_artifact_binding, "publication_artifact_binding");
+  const implementation_material_binding = objectValue(request.input.implementation_material_binding, "implementation_material_binding");
+  if (implementation_material_binding.immutable !== true) {
+    throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID", "implementation material binding must be immutable");
+  }
+  stringValue(implementation_material_binding.artifact_ref, "implementation_material_binding.artifact_ref");
+  sha256Value(implementation_material_binding.content_hash, "implementation_material_binding.content_hash");
+  objectValue(implementation_material_binding.provider_neutral_locator_binding, "implementation_material_binding.provider_neutral_locator_binding");
+  stringValue(implementation_material_binding.entry_symbol_ref, "implementation_material_binding.entry_symbol_ref");
+  for (const disallowed of ["mutable_repository_path", "raw_provider_url", "launcher_owned_binding"]) {
+    if (implementation_material_binding[disallowed] !== undefined) {
+      throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID", `${disallowed} is not executable publication material`);
+    }
+  }
   const payload = stableClone({
     capability_contract_ref,
     capability_contract_hash,
     material_set_hash,
     publication_artifact_binding,
+    implementation_material_binding,
+    implementation_binding_hash: sha256Json(implementation_material_binding),
     provider_lineage: material_set.provider_lineage,
     dependency_closure: material_set.dependency_closure,
   }) as JsonObject;
