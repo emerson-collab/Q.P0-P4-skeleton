@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
-export const P3_CONTRACT_REF = "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144" as const;
-export const P3_CONTRACT_HASH = "sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502" as const;
+export const P3_CONTRACT_REF = "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145" as const;
+export const P3_CONTRACT_HASH = "sha256:e26f7adb3f0fd32f6ec9dd9e121c74649b1280c261da9f91e83cbb7351a91da4" as const;
 export const P3_CAPABILITY_ID = "governed_evolution" as const;
 export const P3_OPERATIONS = Object.freeze([
   "inspect_change", "create_candidate", "validate_candidate", "approve_candidate",
