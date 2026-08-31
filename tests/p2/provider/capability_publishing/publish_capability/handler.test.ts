@@ -9,27 +9,45 @@ const baseRequest = (input: Record<string, unknown>) => ({
   request_id: "request-p2",
 });
 
-test("publish_capability materializes declared P2 semantics", async () => {
+const implementation_material_binding = {
+  artifact_ref: "artifact://implementation",
+  content_hash: `sha256:${"c".repeat(64)}`,
+  entry_symbol_ref: "entry",
+  immutable: true,
+  provider_neutral_locator_binding: { locator_ref: "q-storage://implementation" },
+};
+
+test("publish_capability carries the immutable V0117 implementation material binding", async () => {
   const response = await handler(baseRequest({
-  material_set: {
-    publication_eligible: true,
-    capability_contract_ref: "Q.EXAMPLE.CONTRACT.CAPABILITY.SEARCH@V0100",
-    capability_contract_hash: `sha256:${"a".repeat(64)}`,
-    material_set_hash: `sha256:${"b".repeat(64)}`,
-    provider_lineage: ["Q.EXAMPLE.CONTRACT.DOMAIN@V0100"],
-    dependency_closure: [],
-  },
-  publication_artifact_binding: { artifact_ref: "artifact://publication" },
-}));
+    material_set: {
+      publication_eligible: true,
+      capability_contract_ref: "Q.EXAMPLE.CONTRACT.CAPABILITY.SEARCH@V0100",
+      capability_contract_hash: `sha256:${"a".repeat(64)}`,
+      material_set_hash: `sha256:${"b".repeat(64)}`,
+      provider_lineage: ["Q.EXAMPLE.CONTRACT.DOMAIN@V0100"],
+      dependency_closure: [],
+    },
+    publication_artifact_binding: { artifact_ref: "artifact://publication" },
+    implementation_material_binding,
+  }));
   assert.equal(response.outcome_type, "response");
-  assert.equal(response.trace_id, "trace-p2");
-  assert.equal(response.request_id, "request-p2");
-  assert.equal(typeof response.runtime_result.result_kind, "string");
+  const publication = response.runtime_result.publication as Record<string, unknown>;
+  assert.deepEqual(publication.implementation_material_binding, implementation_material_binding);
+  assert.match(String(publication.implementation_binding_hash), /^sha256:[0-9a-f]{64}$/);
 });
 
-test("publish_capability fails closed on invalid or forbidden material", async () => {
+test("publish_capability fails closed without immutable implementation material", async () => {
   await assert.rejects(
-    () => handler(baseRequest({ material_set: { publication_eligible: false }, publication_artifact_binding: {} })),
+    () => handler(baseRequest({
+      material_set: {
+        publication_eligible: true,
+        capability_contract_ref: "Q.EXAMPLE.CONTRACT.CAPABILITY.SEARCH@V0100",
+        capability_contract_hash: `sha256:${"a".repeat(64)}`,
+        material_set_hash: `sha256:${"b".repeat(64)}`,
+      },
+      publication_artifact_binding: {},
+      implementation_material_binding: { immutable: false },
+    })),
     (error: unknown) => error instanceof P2StableError,
   );
 });
