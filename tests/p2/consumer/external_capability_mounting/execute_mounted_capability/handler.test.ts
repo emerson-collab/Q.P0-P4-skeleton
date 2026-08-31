@@ -1,46 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { handler, P2StableError, STAGE_CONTRACT_REF } from "#q/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts";
 
-const baseRequest = (input: Record<string, unknown>) => ({
-  input,
-  runtime_context: { stage_contract_ref: STAGE_CONTRACT_REF },
-  trace_id: "trace-p2",
-  request_id: "request-p2",
-});
+const baseRequest = (input: Record<string, unknown>) => ({ input, runtime_context: { stage_contract_ref: STAGE_CONTRACT_REF }, trace_id: "trace-p2", request_id: "request-p2" });
+function stable(value: unknown): unknown { if (Array.isArray(value)) return value.map(stable); if (value !== null && typeof value === "object") { const source = value as Record<string, unknown>; return Object.fromEntries(Object.keys(source).sort().map((key) => [key, stable(source[key])])); } return value; }
+function sha256Json(value: unknown): string { return `sha256:${createHash("sha256").update(JSON.stringify(stable(value))).digest("hex")}`; }
+const resolverPayload = Object.freeze({ publication_hash: `sha256:${"b".repeat(64)}`, implementation_artifact_ref: "Q.EXAMPLE.CONTRACT.CAPABILITY.X@V0100#/physical_model", implementation_artifact_hash: `sha256:${"c".repeat(64)}`, provider_neutral_locator_binding: Object.freeze({ material_path: "export/x/entry.ts" }), entry_symbol_ref: "export/x/entry.ts#entry", local_material_binding_ref: "local-material:x-v0100" });
+const resolverState = Object.freeze({ ...resolverPayload, binding_hash: sha256Json(resolverPayload), verified: true });
+const activeMount = Object.freeze({ mount_hash: `sha256:${"a".repeat(64)}`, status: "ACTIVE", verified_publication: { verified: true }, resolver_state: resolverState });
+const exactInterfaceBinding = Object.freeze({ interface_ref: "Q.PROVIDER.CONTRACT.CAPABILITY.X@V0100#/interfaces/run_invoke", surface: "CALL", kind_code: "M1" });
 
-test("execute_mounted_capability uses only injected local P0 execution and preserves exact interface binding", async () => {
-  let calls = 0;
-  const response = await handler(baseRequest({
-  active_mount: {
-  mount_hash: `sha256:${"a".repeat(64)}`,
-  status: "ACTIVE",
-  verified_publication: { verified: true },
-},
-  exact_interface_binding: { interface_ref: "Q.PROVIDER.CONTRACT.CAPABILITY.X@V0100#/interfaces/run_invoke", surface: "CALL", kind_code: "M1" },
-  operation_input: { value: 1 },
-}), {
-    async invoke_local_p0(input) {
-      calls += 1;
-      assert.equal(input.exact_interface_binding.interface_ref, "Q.PROVIDER.CONTRACT.CAPABILITY.X@V0100#/interfaces/run_invoke");
-      return { ok: true };
-    },
-  });
-  assert.equal(calls, 1);
-  assert.equal(response.runtime_result.result_kind, "MOUNTED_CAPABILITY_EXECUTION");
-});
+test("execute_mounted_capability passes exact V0117 implementation_binding only to local P0 and emits bound receipt", async () => { let calls = 0; const opaqueResult = Object.freeze({ outcome_type: "OPAQUE_PROVIDER_RESULT", value: 1 }); const response = await handler(baseRequest({ active_mount: activeMount, exact_interface_binding: exactInterfaceBinding, operation_input: { value: 1 } }), { async invoke_local_p0(input) { calls += 1; assert.deepEqual(input.implementation_binding, resolverState); assert.deepEqual(input.exact_interface_binding, exactInterfaceBinding); return opaqueResult; } }); const mounted = response.runtime_result.mounted_execution as Readonly<Record<string, unknown>>; const receipt = response.runtime_result.execution_receipt as Readonly<Record<string, unknown>>; const receiptPayload = receipt.receipt_payload as Readonly<Record<string, unknown>>; assert.equal(calls, 1); assert.equal(response.runtime_result.result_kind, "MOUNTED_CAPABILITY_EXECUTION"); assert.deepEqual(mounted.runtime_result, opaqueResult); assert.equal(mounted.implementation_binding_hash, sha256Json(resolverState)); assert.equal(receiptPayload.implementation_binding_hash, mounted.implementation_binding_hash); assert.equal(receiptPayload.active_mount_hash, activeMount.mount_hash); assert.equal(receiptPayload.exact_interface_ref, exactInterfaceBinding.interface_ref); assert.match(String(receipt.receipt_hash), /^sha256:[0-9a-f]{64}$/); assert.equal(mounted.second_runtime_used, false); });
 
-test("execute_mounted_capability fails closed on protocol translation", async () => {
-  await assert.rejects(
-    () => handler(baseRequest({
-  active_mount: {
-  mount_hash: `sha256:${"a".repeat(64)}`,
-  status: "ACTIVE",
-  verified_publication: { verified: true },
-},
-  exact_interface_binding: { interface_ref: "x", translation: true },
-  operation_input: {},
-}), { async invoke_local_p0() { return {}; } }),
-    (error: unknown) => error instanceof P2StableError && error.code === "P2_PROTOCOL_TRANSLATION_FORBIDDEN",
-  );
-});
+test("execute_mounted_capability fails closed on HTTP or protocol translation substitution", async () => { await assert.rejects(() => handler(baseRequest({ active_mount: activeMount, exact_interface_binding: { ...exactInterfaceBinding, http: true }, operation_input: {} }), { async invoke_local_p0() { return {}; } }), (error: unknown) => error instanceof P2StableError && error.code === "P2_PROTOCOL_TRANSLATION_FORBIDDEN"); });

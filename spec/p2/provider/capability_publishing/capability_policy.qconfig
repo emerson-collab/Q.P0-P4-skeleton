@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117
   role: provider
   capability_id: capability_publishing
 rules:
@@ -18,5 +18,13 @@ rules:
   unlisted_p2_path_forbidden: true
   exact_capability_contract_ref_and_hash_required: true
   publication_immutable: true
+  implementation_material_binding_fields_exact:
+  - artifact_ref
+  - content_hash
+  - provider_neutral_locator_binding
+  - entry_symbol_ref
+  mutable_repository_path_as_executable_artifact_ref_forbidden: true
+  provider_url_as_executable_artifact_ref_forbidden: true
+  publish_capability_readback_hash_verification_required: true
   provider_business_runtime_forbidden: true
   consumer_mount_or_binding_ownership_forbidden: true

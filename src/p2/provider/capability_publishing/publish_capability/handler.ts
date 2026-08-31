@@ -16,6 +16,14 @@ export interface P2OperationResponse {
   readonly request_id: string;
 }
 
+export interface PublicationArtifactDependencies {
+  readback_committed_artifact(input: Readonly<{
+    artifact_ref: string;
+    provider_neutral_locator_binding: JsonObject;
+    entry_symbol_ref: string;
+  }>): Promise<Uint8Array | string>;
+}
+
 export class P2StableError extends Error {
   readonly code: string;
   constructor(code: string, message: string) {
@@ -47,30 +55,6 @@ function sha256Value(value: unknown, field: string): string {
   return text;
 }
 
-function arrayValue(value: unknown, field: string): readonly unknown[] {
-  if (!Array.isArray(value)) {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be an array`);
-  }
-  return value;
-}
-
-function optionalObject(value: unknown, field: string): JsonObject | undefined {
-  if (value === undefined) return undefined;
-  return objectValue(value, field);
-}
-
-function optionalArray(value: unknown, field: string): readonly unknown[] | undefined {
-  if (value === undefined) return undefined;
-  return arrayValue(value, field);
-}
-
-function boolValue(value: unknown, field: string): boolean {
-  if (typeof value !== "boolean") {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be boolean`);
-  }
-  return value;
-}
-
 function stableClone(value: unknown): unknown {
   if (Array.isArray(value)) return Object.freeze(value.map(stableClone));
   if (value !== null && typeof value === "object") {
@@ -90,6 +74,10 @@ function sha256Json(value: unknown): string {
   return `sha256:${createHash("sha256").update(canonical(value), "utf8").digest("hex")}`;
 }
 
+function sha256Bytes(value: Uint8Array | string): string {
+  return `sha256:${createHash("sha256").update(value).digest("hex")}`;
+}
+
 function success(request: P2OperationRequest, runtime_result: JsonObject): P2OperationResponse {
   return Object.freeze({
     outcome_type: "response" as const,
@@ -99,29 +87,68 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
-
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 export const ROLE = "provider" as const;
 export const CAPABILITY_ID = "capability_publishing" as const;
 export const OPERATION_ID = "publish_capability" as const;
 
-export async function handler(request: P2OperationRequest): Promise<P2OperationResponse> {
+export async function handler(
+  request: P2OperationRequest,
+  dependencies: PublicationArtifactDependencies,
+): Promise<P2OperationResponse> {
   const material_set = objectValue(request.input.material_set, "material_set");
   if (material_set.publication_eligible !== true) {
     throw new P2StableError("P2_PUBLICATION_INVALID", "material_set must be publication eligible");
   }
+
   const capability_contract_ref = stringValue(material_set.capability_contract_ref, "material_set.capability_contract_ref");
   const capability_contract_hash = sha256Value(material_set.capability_contract_hash, "material_set.capability_contract_hash");
   const material_set_hash = sha256Value(material_set.material_set_hash, "material_set.material_set_hash");
+
   const publication_artifact_binding = objectValue(request.input.publication_artifact_binding, "publication_artifact_binding");
+  const artifact_ref = stringValue(publication_artifact_binding.artifact_ref, "publication_artifact_binding.artifact_ref");
+  const content_hash = sha256Value(publication_artifact_binding.content_hash, "publication_artifact_binding.content_hash");
+  const provider_neutral_locator_binding = objectValue(
+    publication_artifact_binding.provider_neutral_locator_binding,
+    "publication_artifact_binding.provider_neutral_locator_binding",
+  );
+  const entry_symbol_ref = stringValue(publication_artifact_binding.entry_symbol_ref, "publication_artifact_binding.entry_symbol_ref");
+
+  if (/^https?:\/\//i.test(artifact_ref) || /^(?:\.\.\/|\.\/|src\/|tests\/|spec\/)/.test(artifact_ref)) {
+    throw new P2StableError(
+      "P2_PUBLICATION_INVALID",
+      "artifact_ref must be an exact logical artifact identity, not a provider URL or mutable repository path",
+    );
+  }
+
+  const readback = await dependencies.readback_committed_artifact({
+    artifact_ref,
+    provider_neutral_locator_binding,
+    entry_symbol_ref,
+  });
+  if (sha256Bytes(readback) !== content_hash) {
+    throw new P2StableError(
+      "P2_INTEGRITY_BINDING_INVALID",
+      "publication artifact readback hash does not match publication_artifact_binding.content_hash",
+    );
+  }
+
+  const exact_artifact_binding = Object.freeze({
+    artifact_ref,
+    content_hash,
+    provider_neutral_locator_binding: stableClone(provider_neutral_locator_binding),
+    entry_symbol_ref,
+  });
+
   const payload = stableClone({
     capability_contract_ref,
     capability_contract_hash,
     material_set_hash,
-    publication_artifact_binding,
+    publication_artifact_binding: exact_artifact_binding,
     provider_lineage: material_set.provider_lineage,
     dependency_closure: material_set.dependency_closure,
   }) as JsonObject;
+
   return success(request, {
     result_kind: "IMMUTABLE_PUBLICATION",
     publication: Object.freeze({

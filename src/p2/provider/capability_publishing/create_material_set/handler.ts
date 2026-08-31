@@ -25,13 +25,6 @@ export class P2StableError extends Error {
   }
 }
 
-function objectValue(value: unknown, field: string): JsonObject {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be an object`);
-  }
-  return value as JsonObject;
-}
-
 function stringValue(value: unknown, field: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new P2StableError("P2_INVALID_INPUT", `${field} must be a non-empty string`);
@@ -50,23 +43,6 @@ function sha256Value(value: unknown, field: string): string {
 function arrayValue(value: unknown, field: string): readonly unknown[] {
   if (!Array.isArray(value)) {
     throw new P2StableError("P2_INVALID_INPUT", `${field} must be an array`);
-  }
-  return value;
-}
-
-function optionalObject(value: unknown, field: string): JsonObject | undefined {
-  if (value === undefined) return undefined;
-  return objectValue(value, field);
-}
-
-function optionalArray(value: unknown, field: string): readonly unknown[] | undefined {
-  if (value === undefined) return undefined;
-  return arrayValue(value, field);
-}
-
-function boolValue(value: unknown, field: string): boolean {
-  if (typeof value !== "boolean") {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be boolean`);
   }
   return value;
 }
@@ -99,8 +75,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
-
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 export const ROLE = "provider" as const;
 export const CAPABILITY_ID = "capability_publishing" as const;
 export const OPERATION_ID = "create_material_set" as const;
@@ -117,21 +92,10 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
     throw new P2StableError("P2_MATERIAL_SET_INVALID", "materials and provider_lineage must be non-empty");
   }
   const dependency_closure = arrayValue(request.input.dependency_closure ?? [], "dependency_closure");
-  const payload = stableClone({
-    capability_contract_ref,
-    capability_contract_hash,
-    materials,
-    dependency_closure,
-    provider_lineage,
-  }) as JsonObject;
+  const payload = stableClone({ capability_contract_ref, capability_contract_hash, materials, dependency_closure, provider_lineage }) as JsonObject;
   const material_set_hash = sha256Json(payload);
   return success(request, {
     result_kind: "MATERIAL_SET",
-    material_set: Object.freeze({
-      ...payload,
-      material_set_hash,
-      publication_eligible: true,
-      provider_business_runtime_used: false,
-    }),
+    material_set: Object.freeze({ ...payload, material_set_hash, publication_eligible: true, provider_business_runtime_used: false }),
   });
 }

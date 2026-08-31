@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117
   role: consumer
   capability_id: external_capability_mounting
 rules:
@@ -21,5 +21,10 @@ rules:
   unlisted_p2_path_forbidden: true
   verified_publication_required: true
   resolver_owner: P2.Consumer
+  resolver_state_required_before_mount_creation: true
+  resolver_state_integrity_hash_required: true
+  resolver_state_preserved_by_create_activate_rollback: true
   pointer_mutation_verify_then_atomic_last: true
   receiving_local_p0_only_execution_runtime: true
+  mounted_execution_implementation_binding_hash_required: true
+  http_sql_mapping_wrapper_second_runtime_substitution_forbidden: true
