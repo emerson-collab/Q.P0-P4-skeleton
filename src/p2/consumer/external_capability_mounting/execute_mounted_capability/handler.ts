@@ -1,150 +1,17 @@
 import { createHash } from "node:crypto";
 
 export type JsonObject = Readonly<Record<string, unknown>>;
-
-export interface P2OperationRequest {
-  readonly input: JsonObject;
-  readonly runtime_context: JsonObject;
-  readonly trace_id: string;
-  readonly request_id: string;
-}
-
-export interface P2OperationResponse {
-  readonly outcome_type: "response";
-  readonly runtime_result: JsonObject;
-  readonly trace_id: string;
-  readonly request_id: string;
-}
-
-export class P2StableError extends Error {
-  readonly code: string;
-  constructor(code: string, message: string) {
-    super(message);
-    this.name = "P2StableError";
-    this.code = code;
-  }
-}
-
-function objectValue(value: unknown, field: string): JsonObject {
-  if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be an object`);
-  }
-  return value as JsonObject;
-}
-
-function stringValue(value: unknown, field: string): string {
-  if (typeof value !== "string" || value.length === 0) {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be a non-empty string`);
-  }
-  return value;
-}
-
-function sha256Value(value: unknown, field: string): string {
-  const text = stringValue(value, field);
-  if (!/^sha256:[0-9a-f]{64}$/.test(text)) {
-    throw new P2StableError("P2_INTEGRITY_BINDING_INVALID", `${field} must be an exact sha256 binding`);
-  }
-  return text;
-}
-
-function arrayValue(value: unknown, field: string): readonly unknown[] {
-  if (!Array.isArray(value)) {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be an array`);
-  }
-  return value;
-}
-
-function optionalObject(value: unknown, field: string): JsonObject | undefined {
-  if (value === undefined) return undefined;
-  return objectValue(value, field);
-}
-
-function optionalArray(value: unknown, field: string): readonly unknown[] | undefined {
-  if (value === undefined) return undefined;
-  return arrayValue(value, field);
-}
-
-function boolValue(value: unknown, field: string): boolean {
-  if (typeof value !== "boolean") {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be boolean`);
-  }
-  return value;
-}
-
-function stableClone(value: unknown): unknown {
-  if (Array.isArray(value)) return Object.freeze(value.map(stableClone));
-  if (value !== null && typeof value === "object") {
-    const source = value as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(source).sort()) out[key] = stableClone(source[key]);
-    return Object.freeze(out);
-  }
-  return value;
-}
-
-function canonical(value: unknown): string {
-  return JSON.stringify(stableClone(value));
-}
-
-function sha256Json(value: unknown): string {
-  return `sha256:${createHash("sha256").update(canonical(value), "utf8").digest("hex")}`;
-}
-
-function success(request: P2OperationRequest, runtime_result: JsonObject): P2OperationResponse {
-  return Object.freeze({
-    outcome_type: "response" as const,
-    runtime_result: Object.freeze({ ...runtime_result }),
-    trace_id: request.trace_id,
-    request_id: request.request_id,
-  });
-}
-
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
-
-export const ROLE = "consumer" as const;
-export const CAPABILITY_ID = "external_capability_mounting" as const;
-export const OPERATION_ID = "execute_mounted_capability" as const;
-
-export interface MountedCapabilityExecutionDependencies {
-  invoke_local_p0(input: Readonly<{
-    readonly exact_interface_binding: JsonObject;
-    readonly operation_input: unknown;
-    readonly runtime_context: JsonObject;
-    readonly trace_id: string;
-    readonly request_id: string;
-  }>): Promise<unknown>;
-}
-
-export async function handler(
-  request: P2OperationRequest,
-  dependencies: MountedCapabilityExecutionDependencies,
-): Promise<P2OperationResponse> {
-  const active_mount = objectValue(request.input.active_mount, "active_mount");
-  if (active_mount.status !== "ACTIVE") throw new P2StableError("P2_MOUNT_NOT_ACTIVE", "active mount required");
-  sha256Value(active_mount.mount_hash, "active_mount.mount_hash");
-  const exact_interface_binding = objectValue(request.input.exact_interface_binding, "exact_interface_binding");
-  for (const forbidden of ["translation", "mapping", "wrapper", "second_protocol"]) {
-    if (exact_interface_binding[forbidden] === true) {
-      throw new P2StableError("P2_PROTOCOL_TRANSLATION_FORBIDDEN", "exact Q Interface semantics must be preserved");
-    }
-  }
-  stringValue(exact_interface_binding.interface_ref, "exact_interface_binding.interface_ref");
-  const operation_input = request.input.operation_input;
-  const runtime_result = await dependencies.invoke_local_p0({
-    exact_interface_binding,
-    operation_input,
-    runtime_context: request.runtime_context,
-    trace_id: request.trace_id,
-    request_id: request.request_id,
-  });
-  return success(request, {
-    result_kind: "MOUNTED_CAPABILITY_EXECUTION",
-    mounted_execution: Object.freeze({
-      runtime_contract_ref: "Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134",
-      exact_interface_binding: stableClone(exact_interface_binding),
-      interface_binding_hash: sha256Json(exact_interface_binding),
-      runtime_result: stableClone(runtime_result),
-      second_runtime_used: false,
-    }),
-  });
-}
+export interface P2OperationRequest { readonly input:JsonObject; readonly runtime_context:JsonObject; readonly trace_id:string; readonly request_id:string; }
+export interface P2OperationResponse { readonly outcome_type:"response"; readonly runtime_result:JsonObject; readonly trace_id:string; readonly request_id:string; }
+export class P2StableError extends Error { readonly code:string; constructor(code:string,message:string){super(message);this.name="P2StableError";this.code=code;} }
+function objectValue(value:unknown,field:string):JsonObject{if(value===null||typeof value!=="object"||Array.isArray(value))throw new P2StableError("P2_INVALID_INPUT",`${field} must be an object`);return value as JsonObject;}
+function stringValue(value:unknown,field:string):string{if(typeof value!=="string"||value.length===0)throw new P2StableError("P2_INVALID_INPUT",`${field} must be a non-empty string`);return value;}
+function sha256Value(value:unknown,field:string):string{const text=stringValue(value,field);if(!/^sha256:[0-9a-f]{64}$/.test(text))throw new P2StableError("P2_INTEGRITY_BINDING_INVALID",`${field} must be an exact sha256 binding`);return text;}
+function stableClone(value:unknown):unknown{if(Array.isArray(value))return Object.freeze(value.map(stableClone));if(value!==null&&typeof value==="object"){const source=value as Record<string,unknown>,out:Record<string,unknown>={};for(const key of Object.keys(source).sort())out[key]=stableClone(source[key]);return Object.freeze(out);}return value;}
+function canonical(value:unknown):string{return JSON.stringify(stableClone(value));}
+function sha256Json(value:unknown):string{return `sha256:${createHash("sha256").update(canonical(value),"utf8").digest("hex")}`;}
+function success(request:P2OperationRequest,runtime_result:JsonObject):P2OperationResponse{return Object.freeze({outcome_type:"response" as const,runtime_result:Object.freeze({...runtime_result}),trace_id:request.trace_id,request_id:request.request_id});}
+function verifyResolverState(value:unknown):JsonObject{const state=objectValue(value,"active_mount.resolver_state");if(state.verified!==true)throw new P2StableError("P2_MOUNT_NOT_VERIFIED","active mount must carry verified resolver_state");const payload=Object.freeze({publication_hash:sha256Value(state.publication_hash,"resolver_state.publication_hash"),implementation_artifact_ref:stringValue(state.implementation_artifact_ref,"resolver_state.implementation_artifact_ref"),implementation_artifact_hash:sha256Value(state.implementation_artifact_hash,"resolver_state.implementation_artifact_hash"),provider_neutral_locator_binding:objectValue(state.provider_neutral_locator_binding,"resolver_state.provider_neutral_locator_binding"),entry_symbol_ref:stringValue(state.entry_symbol_ref,"resolver_state.entry_symbol_ref"),local_material_binding_ref:stringValue(state.local_material_binding_ref,"resolver_state.local_material_binding_ref")});if(sha256Value(state.binding_hash,"resolver_state.binding_hash")!==sha256Json(payload))throw new P2StableError("P2_INTEGRITY_BINDING_INVALID","resolver_state.binding_hash does not match exact V0117 resolver binding payload");return state;}
+export const STAGE_CONTRACT_REF="Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;export const ROLE="consumer" as const;export const CAPABILITY_ID="external_capability_mounting" as const;export const OPERATION_ID="execute_mounted_capability" as const;export const P0_RUNTIME_CONTRACT_REF="Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134" as const;
+export interface MountedCapabilityExecutionDependencies { invoke_local_p0(input:Readonly<{exact_interface_binding:JsonObject;implementation_binding:JsonObject;operation_input:unknown;runtime_context:JsonObject;trace_id:string;request_id:string}>):Promise<unknown>; }
+export async function handler(request:P2OperationRequest,dependencies:MountedCapabilityExecutionDependencies):Promise<P2OperationResponse>{const active_mount=objectValue(request.input.active_mount,"active_mount");if(active_mount.status!=="ACTIVE")throw new P2StableError("P2_MOUNT_NOT_ACTIVE","active mount required");const active_mount_hash=sha256Value(active_mount.mount_hash,"active_mount.mount_hash"),resolver_state=verifyResolverState(active_mount.resolver_state),exact_interface_binding=objectValue(request.input.exact_interface_binding,"exact_interface_binding");for(const forbidden of ["translation","mapping","wrapper","second_protocol","http","sql","remote_runtime"])if(exact_interface_binding[forbidden]===true)throw new P2StableError("P2_PROTOCOL_TRANSLATION_FORBIDDEN","exact Q Interface and receiving local P0 execution semantics must be preserved");const exact_interface_ref=stringValue(exact_interface_binding.interface_ref,"exact_interface_binding.interface_ref"),interface_binding_hash=sha256Json(exact_interface_binding),implementation_binding_hash=sha256Json(resolver_state);const receiving_repository_local_p0_runtime_result=await dependencies.invoke_local_p0({exact_interface_binding,implementation_binding:resolver_state,operation_input:request.input.operation_input,runtime_context:request.runtime_context,trace_id:request.trace_id,request_id:request.request_id}),runtime_result_hash=sha256Json(receiving_repository_local_p0_runtime_result),receipt_payload=Object.freeze({stage_contract_ref:STAGE_CONTRACT_REF,role:ROLE,capability_id:CAPABILITY_ID,operation_id:OPERATION_ID,active_mount_hash,exact_interface_ref,interface_binding_hash,implementation_binding_hash,runtime_contract_ref:P0_RUNTIME_CONTRACT_REF,trace_id:request.trace_id,request_id:request.request_id,outcome_type:"response",runtime_result_hash,second_runtime_used:false}),receipt_hash=sha256Json(receipt_payload),receipt_hash_hex=receipt_hash.slice("sha256:".length),execution_receipt=Object.freeze({receipt_ref:`urn:q:p2:execution-receipt:${receipt_hash_hex}`,receipt_hash,receipt_payload});return success(request,{result_kind:"MOUNTED_CAPABILITY_EXECUTION",mounted_execution:Object.freeze({runtime_contract_ref:P0_RUNTIME_CONTRACT_REF,exact_interface_binding:stableClone(exact_interface_binding),interface_binding_hash,implementation_binding_hash,runtime_result:stableClone(receiving_repository_local_p0_runtime_result),second_runtime_used:false}),execution_receipt});}

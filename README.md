@@ -12,13 +12,13 @@ The reusable skeleton does not carry a standalone product/vendor Domain authorit
 
 ## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0118`.
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0121`.
 
 The current Stage projections are:
 
 - P0: `Q.SS.STD.P0.DRT.RUNTIME_CORE@V0134`
 - P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0175`
-- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0115`
+- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0117`
 - P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0145`
 - P4: `Q.SS.STD.P4.DRT.COORDINATION@V0141`
 
@@ -32,7 +32,7 @@ Generated-code roots are:
 - P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
 - P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
 
-Repository Skeleton V0118 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
+Repository Skeleton V0121 preserves the provider-native repository verification semantics of its predecessor chain while correcting current/self authority bindings. The governed repository-event verification projection remains provider-native:
 
 - provider binding: GitHub App Checks
 - provider event: `check_suite.requested`
@@ -41,6 +41,8 @@ Repository Skeleton V0118 removes the repository-local Q.Workflow launcher from 
 - execution owner: `Q.WORKFLOW.CONTRACT.DOMAIN@${CURRENT}#/system_interface_declarations/workflow_execution_invoke`
 
 The target repository therefore does not carry `.github/workflows/q-workflow-system-interface.yml`, a copied `runtime/github_transport.ts`, or a repository-local verification Actions runner for this binding. Q.Workflow retains execution ownership and Q.Gate remains the final verdict authority.
+
+Repository Skeleton V0121 does not change P0-P4 paths, Workflow business semantics, P2 ownership, provider event semantics, or Q.Gate verdict semantics.
 
 ## P1 overlay boundary
 
