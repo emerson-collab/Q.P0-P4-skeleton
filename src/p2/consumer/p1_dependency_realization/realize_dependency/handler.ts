@@ -122,7 +122,7 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
     exact_owner_capability_ref,
     exact_receiving_operation_ref,
     exact_local_dependency_ref,
-    p1_dependency_interface_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174#/interfaces/dependency_invoke",
+    p1_dependency_interface_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0175#/interfaces/dependency_invoke",
   }) as JsonObject;
   return success(request, {
     result_kind: "P1_DEPENDENCY_REALIZATION_BINDING",
