@@ -70,7 +70,7 @@ coevolution_case_binding:
   impact_resolution_source: Q_STANDARD_REVERSE_DEPENDENCY_FACTS
   impact_not_precomputed: true
 acceptance:
-- V0141 supersedes exactly V0140 under the governed manual change case; V0140 remains immutable lineage and registration alone does not imply
+- V0140 supersedes exactly V0139 under the governed manual change case; V0139 remains immutable lineage and registration alone does not imply
   Q.Gate PASS or Q.Activation.
 - P4 is the universal governed Contract-change Case intake/classification plane and the execution coordinator only for Meta and P0-P4 Standard/Skeleton
   Contract co-evolution; business Contract Cases route to P3 regardless of affected-domain count.
