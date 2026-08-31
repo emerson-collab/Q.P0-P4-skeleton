@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "external_capability_mounting" as const;
@@ -113,11 +113,26 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
   const target_hash = sha256Value(rollback_target_mount.mount_hash, "rollback_target_mount.mount_hash");
   const target_publication = objectValue(rollback_target_mount.verified_publication, "rollback_target_mount.verified_publication");
   if (target_publication.verified !== true) throw new P2StableError("P2_MOUNT_NOT_VERIFIED", "rollback target must preserve verified publication");
+  const resolver_state = objectValue(rollback_target_mount.resolver_state, "rollback_target_mount.resolver_state");
+  if (resolver_state.verified !== true) throw new P2StableError("P2_RESOLVER_STATE_NOT_VERIFIED", "rollback target must preserve verified resolver state");
+  const implementation_binding_hash = sha256Value(
+    rollback_target_mount.implementation_binding_hash,
+    "rollback_target_mount.implementation_binding_hash",
+  );
+  const resolver_binding_hash = sha256Value(
+    resolver_state.implementation_binding_hash,
+    "rollback_target_mount.resolver_state.implementation_binding_hash",
+  );
+  if (implementation_binding_hash !== resolver_binding_hash) {
+    throw new P2StableError("P2_IMPLEMENTATION_BINDING_HASH_MISMATCH", "rollback target and resolver state must preserve the same implementation binding");
+  }
   return success(request, {
     result_kind: "ACTIVE_MOUNT",
     active_mount: Object.freeze({
       ...stableClone(rollback_target_mount) as JsonObject,
       mount_hash: target_hash,
+      resolver_state: stableClone(resolver_state),
+      implementation_binding_hash,
       status: "ACTIVE",
       rolled_back_from_mount_hash: active_mount_hash,
       activation_order: "VERIFY_MATERIAL_THEN_ATOMIC_POINTER_LAST",

@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "external_capability_mounting" as const;
@@ -108,16 +108,25 @@ export const OPERATION_ID = "create_mount" as const;
 export async function handler(request: P2OperationRequest): Promise<P2OperationResponse> {
   const verified_publication = objectValue(request.input.verified_publication, "verified_publication");
   if (verified_publication.verified !== true) throw new P2StableError("P2_PUBLICATION_NOT_VERIFIED", "verified publication required");
+  const resolver_state = objectValue(verified_publication.resolver_state, "verified_publication.resolver_state");
+  if (resolver_state.verified !== true) throw new P2StableError("P2_RESOLVER_STATE_NOT_VERIFIED", "verified resolver state required");
+  const implementation_binding_hash = sha256Value(
+    resolver_state.implementation_binding_hash,
+    "verified_publication.resolver_state.implementation_binding_hash",
+  );
+  objectValue(resolver_state.implementation_material_binding, "verified_publication.resolver_state.implementation_material_binding");
   const receiving_domain_ref = stringValue(request.input.receiving_domain_ref, "receiving_domain_ref");
   const publication_hash = sha256Value(verified_publication.publication_hash, "verified_publication.publication_hash");
   const mount_policy = optionalObject(request.input.mount_policy, "mount_policy") ?? Object.freeze({});
-  const identity_payload = stableClone({ receiving_domain_ref, publication_hash, mount_policy });
+  const identity_payload = stableClone({ receiving_domain_ref, publication_hash, implementation_binding_hash, mount_policy });
   return success(request, {
     result_kind: "MOUNT",
     mount: Object.freeze({
       receiving_domain_ref,
       publication_hash,
       verified_publication: stableClone(verified_publication),
+      resolver_state: stableClone(resolver_state),
+      implementation_binding_hash,
       mount_policy: stableClone(mount_policy),
       mount_hash: sha256Json(identity_payload),
       status: "INACTIVE",

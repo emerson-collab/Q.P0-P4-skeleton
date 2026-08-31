@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "external_capability_mounting" as const;
@@ -110,12 +110,21 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
   const mount_hash = sha256Value(mount.mount_hash, "mount.mount_hash");
   const verified_publication = objectValue(mount.verified_publication, "mount.verified_publication");
   if (verified_publication.verified !== true) throw new P2StableError("P2_MOUNT_NOT_VERIFIED", "mount publication must be verified before activation");
+  const resolver_state = objectValue(mount.resolver_state, "mount.resolver_state");
+  if (resolver_state.verified !== true) throw new P2StableError("P2_RESOLVER_STATE_NOT_VERIFIED", "mount resolver state must remain verified");
+  const implementation_binding_hash = sha256Value(mount.implementation_binding_hash, "mount.implementation_binding_hash");
+  const resolver_binding_hash = sha256Value(resolver_state.implementation_binding_hash, "mount.resolver_state.implementation_binding_hash");
+  if (implementation_binding_hash !== resolver_binding_hash) {
+    throw new P2StableError("P2_IMPLEMENTATION_BINDING_HASH_MISMATCH", "mount and resolver state must preserve the same implementation binding");
+  }
   const current_active_mount = optionalObject(request.input.current_active_mount, "current_active_mount");
   return success(request, {
     result_kind: "ACTIVE_MOUNT",
     active_mount: Object.freeze({
       ...stableClone(mount) as JsonObject,
       mount_hash,
+      resolver_state: stableClone(resolver_state),
+      implementation_binding_hash,
       status: "ACTIVE",
       previous_active_mount: stableClone(current_active_mount),
       activation_order: "VERIFY_MATERIAL_THEN_ATOMIC_POINTER_LAST",

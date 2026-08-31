@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117
   role: provider
   capability_id: capability_publishing
 rules:
@@ -20,3 +20,11 @@ rules:
   publication_immutable: true
   provider_business_runtime_forbidden: true
   consumer_mount_or_binding_ownership_forbidden: true
+  executable_publication_requires_exact_artifact_ref: true
+  executable_publication_requires_exact_content_hash: true
+  executable_publication_requires_provider_neutral_locator_binding: true
+  executable_publication_requires_exact_entry_symbol_ref: true
+  mutable_repository_path_not_executable: true
+  raw_provider_url_not_executable: true
+  unverified_bytes_not_executable: true
+  launcher_owned_binding_not_executable: true

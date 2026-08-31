@@ -9,21 +9,37 @@ const baseRequest = (input: Record<string, unknown>) => ({
   request_id: "request-p2",
 });
 
-test("activate_mount materializes declared P2 semantics", async () => {
-  const response = await handler(baseRequest({ mount: {
-  mount_hash: `sha256:${"b".repeat(64)}`,
-  status: "INACTIVE",
-  verified_publication: { verified: true, publication_hash: `sha256:${"c".repeat(64)}` },
-} }));
-  assert.equal(response.outcome_type, "response");
-  assert.equal(response.trace_id, "trace-p2");
-  assert.equal(response.request_id, "request-p2");
-  assert.equal(typeof response.runtime_result.result_kind, "string");
+const resolver_state = {
+  verified: true,
+  implementation_binding_hash: `sha256:${"c".repeat(64)}`,
+  implementation_material_binding: { artifact_ref: "artifact://implementation" },
+};
+
+test("activate_mount preserves the verified V0117 resolver_state", async () => {
+  const response = await handler(baseRequest({
+    mount: {
+      mount_hash: `sha256:${"b".repeat(64)}`,
+      status: "INACTIVE",
+      verified_publication: { verified: true, publication_hash: `sha256:${"d".repeat(64)}` },
+      resolver_state,
+      implementation_binding_hash: resolver_state.implementation_binding_hash,
+    },
+  }));
+  const active = response.runtime_result.active_mount as Record<string, unknown>;
+  assert.equal(active.status, "ACTIVE");
+  assert.deepEqual(active.resolver_state, resolver_state);
 });
 
-test("activate_mount fails closed on invalid or forbidden material", async () => {
+test("activate_mount fails closed when resolver binding differs", async () => {
   await assert.rejects(
-    () => handler(baseRequest({ mount: { mount_hash: `sha256:${"b".repeat(64)}`, verified_publication: { verified: false } } })),
-    (error: unknown) => error instanceof P2StableError,
+    () => handler(baseRequest({
+      mount: {
+        mount_hash: `sha256:${"b".repeat(64)}`,
+        verified_publication: { verified: true },
+        resolver_state,
+        implementation_binding_hash: `sha256:${"e".repeat(64)}`,
+      },
+    })),
+    (error: unknown) => error instanceof P2StableError && error.code === "P2_IMPLEMENTATION_BINDING_HASH_MISMATCH",
   );
 });

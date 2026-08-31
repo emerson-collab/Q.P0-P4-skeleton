@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "provider" as const;
 export const CAPABILITY_ID = "governed_data_exposure" as const;

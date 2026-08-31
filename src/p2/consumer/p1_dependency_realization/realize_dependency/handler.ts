@@ -99,7 +99,7 @@ function success(request: P2OperationRequest, runtime_result: JsonObject): P2Ope
   });
 }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117" as const;
 
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "p1_dependency_realization" as const;
@@ -122,7 +122,7 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
     exact_owner_capability_ref,
     exact_receiving_operation_ref,
     exact_local_dependency_ref,
-    p1_dependency_interface_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0174#/interfaces/dependency_invoke",
+    p1_dependency_interface_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0175#/interfaces/dependency_invoke",
   }) as JsonObject;
   return success(request, {
     result_kind: "P1_DEPENDENCY_REALIZATION_BINDING",
