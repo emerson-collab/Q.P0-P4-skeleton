@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0114
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117
   role: consumer
   capability_id: external_capability_mounting
 rules:
@@ -23,3 +23,13 @@ rules:
   resolver_owner: P2.Consumer
   pointer_mutation_verify_then_atomic_last: true
   receiving_local_p0_only_execution_runtime: true
+  executable_publication_requires_immutable_implementation_material_binding: true
+  implementation_material_exact_artifact_ref_required: true
+  implementation_material_exact_content_hash_required: true
+  implementation_material_provider_neutral_locator_binding_required: true
+  implementation_material_exact_entry_symbol_ref_required: true
+  consume_publication_exact_artifact_verification_required: true
+  create_mount_preserve_verified_resolver_state_required: true
+  activate_mount_preserve_verified_resolver_state_required: true
+  execute_exact_implementation_binding_to_local_p0_only: true
+  implementation_binding_hash_receipt_required: true
