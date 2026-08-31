@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144
+  source_contract_ref: Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145
   semantic_authority: false
   projection_only: true
 object_model:
