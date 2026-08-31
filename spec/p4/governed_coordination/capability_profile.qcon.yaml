@@ -1,6 +1,6 @@
 projection:
-  source_contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
-  source_contract_hash: sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b
+  source_contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0141
+  source_contract_hash: sha256:afc683394ff10099f5958a1e65b9ff68324a1cacf4c4b97df359123fa0eba49d
   semantic_authority: false
   projection_only: true
 stage:
@@ -52,8 +52,8 @@ baseline_release:
 current_source_alignment:
   selection_authority: Q_STANDARD_SELECTED_ACTIVE_POINTER
   source_status: active
-  predecessor_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0139
-  predecessor_content_hash: sha256:f31783c1f9e829e893633612c50dc36db2b0a21f3e378657dc85b4a0737f82ec
+  predecessor_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
+  predecessor_content_hash: sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b
   older_versions: ARCHIVE_ONLY
   database_projection_role: NON_AUTHORITATIVE_LOCATOR_AND_FACT_PROJECTION
   gate_verdict_role: CONFORMANCE_ONLY_NOT_VERSION_SELECTION
@@ -70,7 +70,7 @@ coevolution_case_binding:
   impact_resolution_source: Q_STANDARD_REVERSE_DEPENDENCY_FACTS
   impact_not_precomputed: true
 acceptance:
-- V0140 supersedes exactly V0139 under the governed manual change case; V0139 remains immutable lineage and registration alone does not imply
+- V0141 supersedes exactly V0140 under the governed manual change case; V0140 remains immutable lineage and registration alone does not imply
   Q.Gate PASS or Q.Activation.
 - P4 is the universal governed Contract-change Case intake/classification plane and the execution coordinator only for Meta and P0-P4 Standard/Skeleton
   Contract co-evolution; business Contract Cases route to P3 regardless of affected-domain count.
