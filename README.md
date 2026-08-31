@@ -12,7 +12,7 @@ The reusable skeleton does not carry a standalone product/vendor Domain authorit
 
 ## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0118`.
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0121`.
 
 The current Stage projections are:
 
@@ -34,7 +34,7 @@ Generated-code roots are:
 
 P2 V0117 preserves the fixed Provider/Consumer topology, five Capabilities, fifteen Operations, and 52 projected repository leaves. It closes executable implementation-material resolution through an immutable Provider publication binding, P2.Consumer-owned verified `resolver_state`, and exact `implementation_binding_hash`, with mounted execution delegated only to the receiving repository local P0 runtime.
 
-Repository Skeleton V0118 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
+Repository Skeleton V0121 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
 
 - provider binding: GitHub App Checks
 - provider event: `check_suite.requested`
