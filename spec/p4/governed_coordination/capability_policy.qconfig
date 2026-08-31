@@ -1,6 +1,6 @@
 projection:
-  source_contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0140
-  source_contract_hash: sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b
+  source_contract_ref: Q.SS.STD.P4.CONTRACT.COORDINATION@V0141
+  source_contract_hash: sha256:afc683394ff10099f5958a1e65b9ff68324a1cacf4c4b97df359123fa0eba49d
   semantic_authority: false
   projection_only: true
 authority:

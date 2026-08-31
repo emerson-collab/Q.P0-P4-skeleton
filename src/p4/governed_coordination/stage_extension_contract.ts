@@ -1,9 +1,9 @@
 import { createHash } from "node:crypto";
 
-export const P4_CONTRACT_REF = "Q.SS.STD.P4.CONTRACT.COORDINATION@V0140" as const;
-export const P4_CONTRACT_HASH = "sha256:1ab47644388f9270415abc96b565ce0e589a813d9634ba5be4ebf75c0f39865b" as const;
-export const P3_CONTRACT_REF = "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144" as const;
-export const P3_CONTRACT_HASH = "sha256:4544b023adc529b795a9ece8a6f5cddd6964f8415faffdc960ad3116a0c98502" as const;
+export const P4_CONTRACT_REF = "Q.SS.STD.P4.CONTRACT.COORDINATION@V0141" as const;
+export const P4_CONTRACT_HASH = "sha256:afc683394ff10099f5958a1e65b9ff68324a1cacf4c4b97df359123fa0eba49d" as const;
+export const P3_CONTRACT_REF = "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145" as const;
+export const P3_CONTRACT_HASH = "sha256:e26f7adb3f0fd32f6ec9dd9e121c74649b1280c261da9f91e83cbb7351a91da4" as const;
 export const P4_CAPABILITY_ID = "governed_coordination" as const;
 export const P4_OPERATIONS = Object.freeze(["inspect_change_set","approve_activation_plan","resume_recovery","freeze_change_set"] as const);
 export type P4OperationId = (typeof P4_OPERATIONS)[number];
