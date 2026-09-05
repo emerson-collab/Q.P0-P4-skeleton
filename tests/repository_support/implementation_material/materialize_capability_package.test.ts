@@ -32,7 +32,7 @@ class MemoryStore implements GovernedArtifactStore {
     if (this.tamperManifest) manifest[0] = 0x58;
     const files = this.lastWrite.files.map((file, index) => {
       const bytes = Buffer.from(file.bytes);
-      if (this.tamperFile && index === 0 && bytes.length > 0) bytes[0] ^= 0xff;
+      if (this.tamperFile && index === 0 && bytes.length > 0) bytes[0] = (bytes[0] ?? 0) ^ 0xff;
       return { relative_path: file.relative_path, bytes };
     });
     if (this.reverseReadback) files.reverse();
