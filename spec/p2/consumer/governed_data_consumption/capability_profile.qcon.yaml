@@ -1,13 +1,13 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117
-  source_contract_hash: sha256:1b0307ca2d6bbe480a6273ab9194391db02aeac0a19cf669e37d917b4cbf0f39
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118
+  source_contract_hash: sha256:4f21d59c686b55e46fdb5898ce0a6a9727a6319501dc723c91d6f75f541b50ad
   role: consumer
   role_dimension: N2
   direction: INWARD
   capability_id: governed_data_consumption
   canonical_name: governed_data_consumption
   stable_code: GOVERNED_DATA_CONSUMPTION
-  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117#/role_capability_catalog/consumer/capabilities/governed_data_consumption
+  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118#/role_capability_catalog/consumer/capabilities/governed_data_consumption
   purpose: sole governed inward consumption of Provider-exposed STATIC/DYNAMIC/RUNTIME data
   semantic_authority: false
   projection_only: true
@@ -15,19 +15,19 @@ operations:
 - operation_id: consume_static_data
   canonical_name: consume_static_data
   stable_code: CONSUME_STATIC_DATA
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117#/operation_catalog/consumer/governed_data_consumption
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118#/operation_catalog/consumer/governed_data_consumption
   source_leaf: src/p2/consumer/governed_data_consumption/consume_static_data/handler.ts
   test_leaf: tests/p2/consumer/governed_data_consumption/consume_static_data/handler.test.ts
 - operation_id: consume_dynamic_data
   canonical_name: consume_dynamic_data
   stable_code: CONSUME_DYNAMIC_DATA
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117#/operation_catalog/consumer/governed_data_consumption
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118#/operation_catalog/consumer/governed_data_consumption
   source_leaf: src/p2/consumer/governed_data_consumption/consume_dynamic_data/handler.ts
   test_leaf: tests/p2/consumer/governed_data_consumption/consume_dynamic_data/handler.test.ts
 - operation_id: consume_runtime_data
   canonical_name: consume_runtime_data
   stable_code: CONSUME_RUNTIME_DATA
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117#/operation_catalog/consumer/governed_data_consumption
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118#/operation_catalog/consumer/governed_data_consumption
   source_leaf: src/p2/consumer/governed_data_consumption/consume_runtime_data/handler.ts
   test_leaf: tests/p2/consumer/governed_data_consumption/consume_runtime_data/handler.test.ts
 boundaries:

@@ -28,7 +28,7 @@ const active_mount = {
   },
 };
 
-test("execute_mounted_capability passes exact V0117 implementation binding only to local P0", async () => {
+test("execute_mounted_capability passes exact V0118 implementation binding only to local P0", async () => {
   let calls = 0;
   const response = await handler(baseRequest({
     active_mount,

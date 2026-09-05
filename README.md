@@ -12,13 +12,13 @@ The reusable skeleton does not carry a standalone product/vendor Domain authorit
 
 ## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0121`.
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0122`.
 
 The current Stage projections are:
 
 - P0: `Q.SS.STD.P0.DRT.RUNTIME_CORE@V0134`
 - P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0175`
-- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0117`
+- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0118`
 - P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0145`
 - P4: `Q.SS.STD.P4.DRT.COORDINATION@V0141`
 
@@ -32,9 +32,9 @@ Generated-code roots are:
 - P3: `spec/p3/governed_evolution`, `src/p3/governed_evolution`, `tests/p3/governed_evolution`
 - P4: `spec/p4/governed_coordination`, `src/p4/governed_coordination`, `tests/p4/governed_coordination`
 
-P2 V0117 preserves the fixed Provider/Consumer topology, five Capabilities, fifteen Operations, and 52 projected repository leaves. It closes executable implementation-material resolution through an immutable Provider publication binding, P2.Consumer-owned verified `resolver_state`, and exact `implementation_binding_hash`, with mounted execution delegated only to the receiving repository local P0 runtime.
+P2 V0118 preserves the fixed Provider/Consumer topology, five Capabilities, fifteen Operations, and 52 projected repository leaves. It closes executable implementation-material resolution through an immutable Provider publication binding, P2.Consumer-owned verified `resolver_state`, and exact `implementation_binding_hash`, with mounted execution delegated only to the receiving repository local P0 runtime.
 
-Repository Skeleton V0121 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
+Repository Skeleton V0122 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
 
 - provider binding: GitHub App Checks
 - provider event: `check_suite.requested`
