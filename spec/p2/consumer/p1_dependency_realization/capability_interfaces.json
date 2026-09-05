@@ -33,7 +33,7 @@
       "M7",
       "M8"
     ],
-    "source_contract_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0117",
+    "source_contract_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118",
     "surface_binding": {
       "M1": "CALL",
       "M6": "REGISTRY",
