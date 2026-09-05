@@ -226,9 +226,52 @@ export function normalize_runtime_error(
   fallback_code = "P0_OPERATION_FAILED",
 ): StableRuntimeError {
   if (error instanceof StableRuntimeError) return error;
-  if (error instanceof Error) {
-    return new StableRuntimeError(fallback_code, error.message, undefined, { cause: error });
+
+  if (
+    error !== null
+    && typeof error === "object"
+  ) {
+    const candidate = error as {
+      readonly code?: unknown;
+      readonly message?: unknown;
+      readonly details?: unknown;
+    };
+
+    const details_valid =
+      candidate.details === undefined
+      || (
+        candidate.details !== null
+        && typeof candidate.details === "object"
+        && !Array.isArray(candidate.details)
+      );
+
+    if (
+      typeof candidate.code === "string"
+      && typeof candidate.message === "string"
+      && details_valid
+    ) {
+      return new StableRuntimeError(
+        candidate.code,
+        candidate.message,
+        candidate.details === undefined
+          ? undefined
+          : candidate.details as Readonly<Record<string, unknown>>,
+        error instanceof Error
+          ? { cause: error }
+          : undefined,
+      );
+    }
   }
+
+  if (error instanceof Error) {
+    return new StableRuntimeError(
+      fallback_code,
+      error.message,
+      undefined,
+      { cause: error },
+    );
+  }
+
   return new StableRuntimeError(
     fallback_code,
     "Unknown runtime failure",

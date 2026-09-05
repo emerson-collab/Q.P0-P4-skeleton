@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -344,3 +344,33 @@ test("P0 exact initial baseline contains 14 files and no later-stage placeholder
   const later_stage_content = files.some((path) => /^(?:spec|src|tests)\/p[1-4]\//.test(path));
   if (!later_stage_content) assert.deepEqual(files, expected);
 });
+
+
+test("P0 preserves stable runtime error across physical runtime replicas", async () => {
+  class ForeignStableRuntimeError extends Error {
+    readonly code = "FOREIGN_STABLE_ERROR";
+    readonly details = { provider: "foreign_replica" } as const;
+
+    constructor() {
+      super("foreign stable error");
+    }
+  }
+
+  const result = await runtime_provider.invoke(
+    invoke_request("input", () => {
+      throw new ForeignStableRuntimeError();
+    }),
+  );
+
+  assert.equal(result.outcome, "error");
+
+  if (result.outcome === "error") {
+    assert.equal(result.error.code, "FOREIGN_STABLE_ERROR");
+    assert.equal(result.error.message, "foreign stable error");
+    assert.deepEqual(
+      result.error.details,
+      { provider: "foreign_replica" },
+    );
+  }
+});
+
