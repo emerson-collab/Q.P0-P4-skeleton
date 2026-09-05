@@ -15,7 +15,7 @@ const resolver_state = {
   implementation_material_binding: { artifact_ref: "artifact://implementation" },
 };
 
-test("activate_mount preserves the verified V0117 resolver_state", async () => {
+test("activate_mount preserves the verified V0118 resolver_state", async () => {
   const response = await handler(baseRequest({
     mount: {
       mount_hash: `sha256:${"b".repeat(64)}`,

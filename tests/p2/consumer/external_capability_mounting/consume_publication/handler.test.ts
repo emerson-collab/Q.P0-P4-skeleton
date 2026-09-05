@@ -19,7 +19,7 @@ const implementation_material_binding = {
 };
 const implementation_binding_hash = `sha256:${createHash("sha256").update(JSON.stringify(implementation_material_binding), "utf8").digest("hex")}`;
 
-test("consume_publication verifies and owns V0117 resolver_state", async () => {
+test("consume_publication verifies and owns V0118 resolver_state", async () => {
   const response = await handler(baseRequest({
     publication: {
       immutable: true,
