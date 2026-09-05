@@ -12,7 +12,7 @@ The reusable skeleton does not carry a standalone product/vendor Domain authorit
 
 ## Current repository and five-stage baseline
 
-The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0122`.
+The current Repository Directory Skeleton selection is `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0123`.
 
 The current Stage projections are:
 
@@ -34,7 +34,14 @@ Generated-code roots are:
 
 P2 V0118 preserves the fixed Provider/Consumer topology, five Capabilities, fifteen Operations, and 52 projected repository leaves. It closes executable implementation-material resolution through an immutable Provider publication binding, P2.Consumer-owned verified `resolver_state`, and exact `implementation_binding_hash`, with mounted execution delegated only to the receiving repository local P0 runtime.
 
-Repository Skeleton V0122 removes the repository-local Q.Workflow launcher from the target repository. The governed repository-event trigger projection is provider-native:
+Repository Skeleton V0123 freezes P2 to the exact V0118 Contract/DRT binding and adds two non-Stage reusable repository support closures without changing P0-P4 business semantics:
+
+- `npm test` is the single full-repository Node test entrypoint and is not a P0-only alias.
+- `tools/implementation_material/materialize_capability_package.ts` materializes the CURRENT Capability Package installable material representation, performs governed durable-write plus exact read-back verification, and returns the exact immutable P2 `implementation_material_binding`.
+
+The implementation-material support leaf follows `Q.SS.STD.META.CONTRACT.CAPABILITY_PACKAGE@V0112` and the CURRENT Database Persistence external-artifact commit protocol. It does not select providers or dependencies, infer business semantics, introduce a second runtime, use a mutable repository path as executable identity, or transfer P1 Capability ownership to P2.
+
+Repository Skeleton V0123 preserves the repository-native Q.Workflow trigger boundary:
 
 - provider binding: GitHub App Checks
 - provider event: `check_suite.requested`
@@ -42,7 +49,7 @@ Repository Skeleton V0122 removes the repository-local Q.Workflow launcher from 
 - repository source-read permission: Contents read
 - execution owner: `Q.WORKFLOW.CONTRACT.DOMAIN@${CURRENT}#/system_interface_declarations/workflow_execution_invoke`
 
-The target repository therefore does not carry `.github/workflows/q-workflow-system-interface.yml`, a copied `runtime/github_transport.ts`, or a repository-local verification Actions runner for this binding. Q.Workflow retains execution ownership and Q.Gate remains the final verdict authority.
+The target repository therefore does not carry `.github/workflows/q-workflow-system-interface.yml`, a copied `runtime/github_transport.ts`, or a repository-local verification Actions runner for this binding. Q.Workflow retains verification execution ownership and Q.Gate remains the final verdict authority.
 
 ## P1 overlay boundary
 
