@@ -9,7 +9,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "npm run typecheck",
-    "test": "npm run test:p0",
+    "test": "node --experimental-transform-types --test",
     "smoke": "npm run smoke:p0",
     "test:p0": "node --experimental-transform-types --test tests/p0/p0_runtime_core.test.ts",
     "smoke:p0": "node --experimental-transform-types --test --test-name-pattern=\"P0 smoke\" tests/p0/p0_runtime_core.test.ts"
