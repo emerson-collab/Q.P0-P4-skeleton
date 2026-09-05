@@ -15,6 +15,7 @@ class MemoryStore implements GovernedArtifactStore {
   lastWrite?: GovernedArtifactWriteRequest;
   tamperManifest = false;
   tamperFile = false;
+  reverseReadback = false;
 
   async writeImmutable(request: GovernedArtifactWriteRequest) {
     this.lastWrite = {
@@ -34,6 +35,7 @@ class MemoryStore implements GovernedArtifactStore {
       if (this.tamperFile && index === 0 && bytes.length > 0) bytes[0] ^= 0xff;
       return { relative_path: file.relative_path, bytes };
     });
+    if (this.reverseReadback) files.reverse();
     return { manifest_bytes: manifest, files };
   }
 }
@@ -63,6 +65,13 @@ test("materializer creates deterministic exact immutable P2 binding after read-b
   assert.equal(first.immutable, true);
   assert.equal(firstStore.lastWrite?.representation_id, IMPLEMENTATION_MATERIAL_REPRESENTATION_ID);
   assert.equal(Buffer.from(firstStore.lastWrite?.manifest_bytes ?? []).subarray(0, 7).toString("ascii"), "QCPIM1\n");
+});
+
+test("materializer verifies the exact file set independent of artifact-store read-back ordering", async () => {
+  const store = new MemoryStore();
+  store.reverseReadback = true;
+  const binding = await materializeCapabilityPackageImplementation(packageManifest, files, store);
+  assert.equal(binding.immutable, true);
 });
 
 test("materializer fails closed when governed artifact read-back changes bytes", async () => {
