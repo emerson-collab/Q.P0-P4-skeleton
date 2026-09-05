@@ -103,6 +103,17 @@ function exactBytesEqual(left: Uint8Array, right: Uint8Array): boolean {
   return left.byteLength === right.byteLength && Buffer.compare(Buffer.from(left), Buffer.from(right)) === 0;
 }
 
+function deepFreezeClone(value: unknown): unknown {
+  if (Array.isArray(value)) return Object.freeze(value.map(deepFreezeClone));
+  if (value !== null && typeof value === "object") {
+    const source = value as Record<string, unknown>;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(source)) out[key] = deepFreezeClone(source[key]);
+    return Object.freeze(out);
+  }
+  return value;
+}
+
 function assertValidatedPackageInput(
   manifest: InstallableCapabilityPackageManifest,
   files: readonly CapabilityPackageFile[],
@@ -195,14 +206,24 @@ export async function materializeCapabilityPackageImplementation(
   if (readBack.files.length !== files.length) {
     throw new ImplementationMaterialError("IMPLEMENTATION_MATERIAL_READBACK_MISMATCH", "implementation-material file-count read-back mismatch");
   }
+  const readBackByPath = new Map<string, CapabilityPackageFile>();
+  for (const actual of readBack.files) {
+    if (readBackByPath.has(actual.relative_path)) {
+      throw new ImplementationMaterialError("IMPLEMENTATION_MATERIAL_READBACK_MISMATCH", "duplicate read-back package-relative path");
+    }
+    readBackByPath.set(actual.relative_path, actual);
+  }
   for (let index = 0; index < files.length; index += 1) {
     const expected = files[index];
-    const actual = readBack.files[index];
-    if (expected === undefined || actual === undefined || actual.relative_path !== expected.relative_path) {
+    const expectedHash = fileHashes[index]?.content_hash;
+    if (expected === undefined || expectedHash === undefined) {
+      throw new ImplementationMaterialError("IMPLEMENTATION_MATERIAL_READBACK_MISMATCH", "implementation-material expected file set is incomplete");
+    }
+    const actual = readBackByPath.get(expected.relative_path);
+    if (actual === undefined) {
       throw new ImplementationMaterialError("IMPLEMENTATION_MATERIAL_READBACK_MISMATCH", "implementation-material file-path read-back mismatch");
     }
-    const expectedHash = fileHashes[index]?.content_hash;
-    if (expectedHash === undefined || sha256ExactBytes(actual.bytes) !== expectedHash || !exactBytesEqual(actual.bytes, expected.bytes)) {
+    if (sha256ExactBytes(actual.bytes) !== expectedHash || !exactBytesEqual(actual.bytes, expected.bytes)) {
       throw new ImplementationMaterialError("IMPLEMENTATION_MATERIAL_READBACK_MISMATCH", "implementation-material file-byte read-back mismatch");
     }
   }
@@ -210,7 +231,7 @@ export async function materializeCapabilityPackageImplementation(
   return Object.freeze({
     artifact_ref: artifactRef,
     content_hash: contentHash,
-    provider_neutral_locator_binding: Object.freeze({ ...locator }),
+    provider_neutral_locator_binding: deepFreezeClone(locator) as Readonly<Record<string, unknown>>,
     entry_symbol_ref: manifest.public_entry_ref,
     immutable: true as const,
   });
