@@ -14,6 +14,9 @@ rules:
   protocol_translation_mapping_wrapper_second_protocol_forbidden: true
   new_global_field_surface_layer_interface_kind_forbidden: true
   p2_stage_database_ownership_forbidden: true
+  fact_persistence_owner_rule: "every persisted publication/mount/binding/receipt/data-consumption fact resolves to the exact implementing Q Domain owner through that Domain persistence_contract"
+  cross_domain_sql_business_dependency_forbidden: true
+  cross_owner_foreign_key_forbidden: true
   p2_evidence_observation_gate_activation_authority_forbidden: true
   stage_local_workflow_launcher_forbidden: true
   local_p0_is_only_runtime_when_execution_required: true

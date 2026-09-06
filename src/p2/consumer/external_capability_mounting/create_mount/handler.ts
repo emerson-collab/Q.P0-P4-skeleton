@@ -134,3 +134,156 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
     }),
   });
 }
+
+export interface OwnerLocalMountRecordPersistencePort {
+  persist_mount_record(input: Readonly<{
+    receiving_domain_ref: string;
+    mount_hash: string;
+    mount: JsonObject;
+  }>): Promise<void>;
+
+  read_mount_record(input: Readonly<{
+    receiving_domain_ref: string;
+    mount_hash: string;
+  }>): Promise<JsonObject | undefined>;
+}
+
+function persistenceMountIdentity(
+  mount: JsonObject,
+): Readonly<{
+  receiving_domain_ref: string;
+  publication_hash: string;
+  implementation_binding_hash: string;
+  mount_hash: string;
+}> {
+  const receiving_domain_ref = stringValue(
+    mount.receiving_domain_ref,
+    "mount.receiving_domain_ref",
+  );
+
+  const publication_hash = sha256Value(
+    mount.publication_hash,
+    "mount.publication_hash",
+  );
+
+  const verified_publication = objectValue(
+    mount.verified_publication,
+    "mount.verified_publication",
+  );
+
+  if (verified_publication.verified !== true) {
+    throw new P2StableError(
+      "P2_MOUNT_NOT_VERIFIED",
+      "mount publication must remain verified",
+    );
+  }
+
+  const resolver_state = objectValue(
+    mount.resolver_state,
+    "mount.resolver_state",
+  );
+
+  if (resolver_state.verified !== true) {
+    throw new P2StableError(
+      "P2_RESOLVER_STATE_NOT_VERIFIED",
+      "mount resolver state must remain verified",
+    );
+  }
+
+  const implementation_binding_hash = sha256Value(
+    mount.implementation_binding_hash,
+    "mount.implementation_binding_hash",
+  );
+
+  const resolver_binding_hash = sha256Value(
+    resolver_state.implementation_binding_hash,
+    "mount.resolver_state.implementation_binding_hash",
+  );
+
+  if (implementation_binding_hash !== resolver_binding_hash) {
+    throw new P2StableError(
+      "P2_IMPLEMENTATION_BINDING_HASH_MISMATCH",
+      "mount and resolver state must preserve the same implementation binding",
+    );
+  }
+
+  const mount_policy =
+    optionalObject(
+      mount.mount_policy,
+      "mount.mount_policy",
+    ) ?? Object.freeze({});
+
+  const mount_hash = sha256Value(
+    mount.mount_hash,
+    "mount.mount_hash",
+  );
+
+  const expected_mount_hash = sha256Json(
+    stableClone({
+      receiving_domain_ref,
+      publication_hash,
+      implementation_binding_hash,
+      mount_policy,
+    }),
+  );
+
+  if (mount_hash !== expected_mount_hash) {
+    throw new P2StableError(
+      "P2_INTEGRITY_BINDING_INVALID",
+      "mount_hash does not preserve exact create_mount identity",
+    );
+  }
+
+  return Object.freeze({
+    receiving_domain_ref,
+    publication_hash,
+    implementation_binding_hash,
+    mount_hash,
+  });
+}
+
+export async function persist_created_mount_with_owner(
+  mount: JsonObject,
+  persistence: OwnerLocalMountRecordPersistencePort,
+): Promise<void> {
+  if (mount.status !== "INACTIVE") {
+    throw new P2StableError(
+      "P2_INVALID_INPUT",
+      "only an exact INACTIVE create_mount result may be durably retained",
+    );
+  }
+
+  const identity =
+    persistenceMountIdentity(mount);
+
+  await persistence.persist_mount_record(
+    Object.freeze({
+      receiving_domain_ref:
+        identity.receiving_domain_ref,
+      mount_hash:
+        identity.mount_hash,
+      mount:
+        stableClone(mount) as JsonObject,
+    }),
+  );
+
+  const readback =
+    await persistence.read_mount_record(
+      Object.freeze({
+        receiving_domain_ref:
+          identity.receiving_domain_ref,
+        mount_hash:
+          identity.mount_hash,
+      }),
+    );
+
+  if (
+    readback === undefined ||
+    canonical(readback) !== canonical(mount)
+  ) {
+    throw new P2StableError(
+      "P2_INTEGRITY_BINDING_INVALID",
+      "owner-local mount record exact read-back failed",
+    );
+  }
+}
