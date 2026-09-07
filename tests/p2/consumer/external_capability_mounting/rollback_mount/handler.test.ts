@@ -1,51 +1,27 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { handler, P2StableError, STAGE_CONTRACT_REF } from "#q/p2/consumer/external_capability_mounting/rollback_mount/handler.ts";
+const baseRequest=(input:Record<string,unknown>)=>({input,runtime_context:{stage_contract_ref:STAGE_CONTRACT_REF},trace_id:"trace-p2",request_id:"request-p2"});
+function stable(v:unknown):unknown{return Array.isArray(v)?v.map(stable):(v!==null&&typeof v==="object"?Object.fromEntries(Object.keys(v as Record<string,unknown>).sort().map(k=>[k,stable((v as Record<string,unknown>)[k])])):v);}
+const sha=(v:unknown)=>`sha256:${createHash("sha256").update(JSON.stringify(stable(v)),"utf8").digest("hex")}`;
+function makeMount(seed:string,status:"INACTIVE"|"ACTIVE"){
+ const publication_hash=`sha256:${seed.repeat(64).slice(0,64)}`;
+ const payload={publication_hash,implementation_artifact_ref:`artifact://${seed}`,implementation_artifact_hash:`sha256:${"c".repeat(64)}`,entry_symbol_ref:`src/p1/export/${seed}/entry.ts#entry`,local_material_binding_ref:`src/p1/export/${seed}/entry.ts#entry`};
+ const resolver_state={...payload,binding_hash:sha(payload),verified:true};
+ const implementation_binding_hash=sha(resolver_state); const receiving_domain_ref="Q.RECEIVER.CONTRACT.DOMAIN@V0100"; const mount_policy={};
+ const mount_hash=sha({receiving_domain_ref,publication_hash,implementation_binding_hash,mount_policy});
+ return {receiving_domain_ref,publication_hash,mount_hash,status,verified_publication:{verified:true,publication_hash,resolver_state},resolver_state,implementation_binding_hash,mount_policy};
+}
 
-const baseRequest = (input: Record<string, unknown>) => ({
-  input,
-  runtime_context: { stage_contract_ref: STAGE_CONTRACT_REF },
-  trace_id: "trace-p2",
-  request_id: "request-p2",
+test("rollback_mount reactivates exact retained V0119 target",async()=>{
+ const active=makeMount("a","ACTIVE"); const target=makeMount("b","INACTIVE");
+ const response=await handler(baseRequest({active_mount:active,rollback_target_mount:target}));
+ const rolled=response.runtime_result.active_mount as Record<string,unknown>;
+ assert.equal(rolled.status,"ACTIVE"); assert.equal(rolled.mount_hash,target.mount_hash); assert.equal(rolled.rolled_back_from_mount_hash,active.mount_hash); assert.deepEqual(rolled.resolver_state,target.resolver_state);
 });
 
-const resolver_state = {
-  verified: true,
-  implementation_binding_hash: `sha256:${"c".repeat(64)}`,
-  implementation_material_binding: { artifact_ref: "artifact://implementation" },
-};
-
-test("rollback_mount preserves the target V0119 resolver_state", async () => {
-  const response = await handler(baseRequest({
-    active_mount: {
-      mount_hash: `sha256:${"a".repeat(64)}`,
-      status: "ACTIVE",
-      verified_publication: { verified: true },
-    },
-    rollback_target_mount: {
-      mount_hash: `sha256:${"b".repeat(64)}`,
-      status: "INACTIVE",
-      verified_publication: { verified: true },
-      resolver_state,
-      implementation_binding_hash: resolver_state.implementation_binding_hash,
-    },
-  }));
-  const active = response.runtime_result.active_mount as Record<string, unknown>;
-  assert.equal(active.status, "ACTIVE");
-  assert.deepEqual(active.resolver_state, resolver_state);
-});
-
-test("rollback_mount fails closed on invalid target resolver state", async () => {
-  await assert.rejects(
-    () => handler(baseRequest({
-      active_mount: { mount_hash: `sha256:${"a".repeat(64)}`, status: "ACTIVE" },
-      rollback_target_mount: {
-        mount_hash: `sha256:${"b".repeat(64)}`,
-        verified_publication: { verified: true },
-        resolver_state: { verified: false },
-        implementation_binding_hash: `sha256:${"c".repeat(64)}`,
-      },
-    })),
-    (error: unknown) => error instanceof P2StableError,
-  );
+test("rollback_mount fails closed on resolver binding mismatch",async()=>{
+ const active=makeMount("a","ACTIVE"); const target=makeMount("b","INACTIVE");
+ await assert.rejects(()=>handler(baseRequest({active_mount:active,rollback_target_mount:{...target,resolver_state:{...target.resolver_state,binding_hash:`sha256:${"d".repeat(64)}`}}})),(e:unknown)=>e instanceof P2StableError&&e.code==="P2_IMPLEMENTATION_BINDING_HASH_MISMATCH");
 });
