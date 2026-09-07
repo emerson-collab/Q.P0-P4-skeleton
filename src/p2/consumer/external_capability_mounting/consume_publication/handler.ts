@@ -111,26 +111,25 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
   const capability_contract_ref = stringValue(publication.capability_contract_ref, "publication.capability_contract_ref");
   const capability_contract_hash = sha256Value(publication.capability_contract_hash, "publication.capability_contract_hash");
   const publication_hash = sha256Value(publication.publication_hash, "publication.publication_hash");
-  const implementation_material_binding = objectValue(publication.implementation_material_binding, "publication.implementation_material_binding");
-  if (implementation_material_binding.immutable !== true) {
-    throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID", "implementation material binding must be immutable");
-  }
-  stringValue(implementation_material_binding.artifact_ref, "publication.implementation_material_binding.artifact_ref");
-  sha256Value(implementation_material_binding.content_hash, "publication.implementation_material_binding.content_hash");
-  objectValue(implementation_material_binding.provider_neutral_locator_binding, "publication.implementation_material_binding.provider_neutral_locator_binding");
-  stringValue(implementation_material_binding.entry_symbol_ref, "publication.implementation_material_binding.entry_symbol_ref");
-  const implementation_binding_hash = sha256Value(
-    publication.implementation_binding_hash,
-    "publication.implementation_binding_hash",
+  const publication_artifact_binding = objectValue(
+    publication.publication_artifact_binding,
+    "publication.publication_artifact_binding",
   );
-  const computed_implementation_binding_hash = sha256Json(implementation_material_binding);
-  if (implementation_binding_hash !== computed_implementation_binding_hash) {
-    throw new P2StableError("P2_IMPLEMENTATION_BINDING_HASH_MISMATCH", "implementation binding hash must match exact publication material");
+  if (publication_artifact_binding.immutable !== true) {
+    throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID", "publication artifact binding must be immutable");
   }
+  stringValue(publication_artifact_binding.artifact_ref, "publication.publication_artifact_binding.artifact_ref");
+  sha256Value(publication_artifact_binding.content_hash, "publication.publication_artifact_binding.content_hash");
+  objectValue(
+    publication_artifact_binding.provider_neutral_locator_binding,
+    "publication.publication_artifact_binding.provider_neutral_locator_binding",
+  );
+  stringValue(publication_artifact_binding.entry_symbol_ref, "publication.publication_artifact_binding.entry_symbol_ref");
+  const implementation_binding_hash = sha256Json(publication_artifact_binding);
   const verification = objectValue(request.input.verification, "verification");
   if (verification.integrity_verified !== true) throw new P2StableError("P2_PUBLICATION_NOT_VERIFIED", "publication integrity must be verified");
   const resolver_state = Object.freeze({
-    implementation_material_binding: stableClone(implementation_material_binding),
+    implementation_material_binding: stableClone(publication_artifact_binding),
     implementation_binding_hash,
     verification: stableClone(verification),
     verified: true,
