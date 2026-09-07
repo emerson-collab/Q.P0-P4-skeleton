@@ -47,30 +47,6 @@ function sha256Value(value: unknown, field: string): string {
   return text;
 }
 
-function arrayValue(value: unknown, field: string): readonly unknown[] {
-  if (!Array.isArray(value)) {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be an array`);
-  }
-  return value;
-}
-
-function optionalObject(value: unknown, field: string): JsonObject | undefined {
-  if (value === undefined) return undefined;
-  return objectValue(value, field);
-}
-
-function optionalArray(value: unknown, field: string): readonly unknown[] | undefined {
-  if (value === undefined) return undefined;
-  return arrayValue(value, field);
-}
-
-function boolValue(value: unknown, field: string): boolean {
-  if (typeof value !== "boolean") {
-    throw new P2StableError("P2_INVALID_INPUT", `${field} must be boolean`);
-  }
-  return value;
-}
-
 function stableClone(value: unknown): unknown {
   if (Array.isArray(value)) return Object.freeze(value.map(stableClone));
   if (value !== null && typeof value === "object") {
@@ -110,33 +86,69 @@ export async function handler(request: P2OperationRequest): Promise<P2OperationR
   if (material_set.publication_eligible !== true) {
     throw new P2StableError("P2_PUBLICATION_INVALID", "material_set must be publication eligible");
   }
-  const capability_contract_ref = stringValue(material_set.capability_contract_ref, "material_set.capability_contract_ref");
-  const capability_contract_hash = sha256Value(material_set.capability_contract_hash, "material_set.capability_contract_hash");
-  const material_set_hash = sha256Value(material_set.material_set_hash, "material_set.material_set_hash");
-  const publication_artifact_binding = objectValue(request.input.publication_artifact_binding, "publication_artifact_binding");
-  const implementation_material_binding = objectValue(request.input.implementation_material_binding, "implementation_material_binding");
-  if (implementation_material_binding.immutable !== true) {
-    throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID", "implementation material binding must be immutable");
+
+  const capability_contract_ref = stringValue(
+    material_set.capability_contract_ref,
+    "material_set.capability_contract_ref",
+  );
+  const capability_contract_hash = sha256Value(
+    material_set.capability_contract_hash,
+    "material_set.capability_contract_hash",
+  );
+  const material_set_hash = sha256Value(
+    material_set.material_set_hash,
+    "material_set.material_set_hash",
+  );
+
+  const supplied_binding = objectValue(
+    request.input.publication_artifact_binding,
+    "publication_artifact_binding",
+  );
+  if (supplied_binding.immutable !== true) {
+    throw new P2StableError(
+      "P2_IMPLEMENTATION_MATERIAL_INVALID",
+      "publication artifact binding must identify immutable executable implementation material",
+    );
   }
-  stringValue(implementation_material_binding.artifact_ref, "implementation_material_binding.artifact_ref");
-  sha256Value(implementation_material_binding.content_hash, "implementation_material_binding.content_hash");
-  objectValue(implementation_material_binding.provider_neutral_locator_binding, "implementation_material_binding.provider_neutral_locator_binding");
-  stringValue(implementation_material_binding.entry_symbol_ref, "implementation_material_binding.entry_symbol_ref");
+
+  const publication_artifact_binding = Object.freeze({
+    artifact_ref: stringValue(
+      supplied_binding.artifact_ref,
+      "publication_artifact_binding.artifact_ref",
+    ),
+    content_hash: sha256Value(
+      supplied_binding.content_hash,
+      "publication_artifact_binding.content_hash",
+    ),
+    provider_neutral_locator_binding: stableClone(objectValue(
+      supplied_binding.provider_neutral_locator_binding,
+      "publication_artifact_binding.provider_neutral_locator_binding",
+    )) as JsonObject,
+    entry_symbol_ref: stringValue(
+      supplied_binding.entry_symbol_ref,
+      "publication_artifact_binding.entry_symbol_ref",
+    ),
+    immutable: true,
+  });
+
   for (const disallowed of ["mutable_repository_path", "raw_provider_url", "launcher_owned_binding"]) {
-    if (implementation_material_binding[disallowed] !== undefined) {
-      throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID", `${disallowed} is not executable publication material`);
+    if (supplied_binding[disallowed] !== undefined) {
+      throw new P2StableError(
+        "P2_IMPLEMENTATION_MATERIAL_INVALID",
+        `${disallowed} is not executable publication material`,
+      );
     }
   }
+
   const payload = stableClone({
     capability_contract_ref,
     capability_contract_hash,
     material_set_hash,
     publication_artifact_binding,
-    implementation_material_binding,
-    implementation_binding_hash: sha256Json(implementation_material_binding),
     provider_lineage: material_set.provider_lineage,
     dependency_closure: material_set.dependency_closure,
   }) as JsonObject;
+
   return success(request, {
     result_kind: "IMMUTABLE_PUBLICATION",
     publication: Object.freeze({
