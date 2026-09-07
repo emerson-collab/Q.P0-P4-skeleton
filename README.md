@@ -39,7 +39,7 @@ Repository Skeleton V0123 freezes P2 to the exact V0118 Contract/DRT binding and
 - `npm test` is the single full-repository Node test entrypoint and is not a P0-only alias.
 - `tools/implementation_material/materialize_capability_package.ts` materializes the CURRENT Capability Package installable material representation, performs governed durable-write plus exact read-back verification, and returns the exact immutable P2 `implementation_material_binding`.
 
-The implementation-material support leaf follows `Q.SS.STD.META.CONTRACT.CAPABILITY_PACKAGE@V0112` and the CURRENT Database Persistence external-artifact commit protocol. It does not select providers or dependencies, infer business semantics, introduce a second runtime, use a mutable repository path as executable identity, or transfer P1 Capability ownership to P2.
+The implementation-material support leaf follows `Q.SS.STD.META.CONTRACT.CAPABILITY_PACKAGE@V0113` and the CURRENT Database Persistence external-artifact commit protocol. It does not select providers or dependencies, infer business semantics, introduce a second runtime, use a mutable repository path as executable identity, or transfer P1 Capability ownership to P2.
 
 Repository Skeleton V0123 preserves the repository-native Q.Workflow trigger boundary:
 
@@ -49,7 +49,7 @@ Repository Skeleton V0123 preserves the repository-native Q.Workflow trigger bou
 - repository source-read permission: Contents read
 - execution owner: `Q.WORKFLOW.CONTRACT.DOMAIN@${CURRENT}#/system_interface_declarations/workflow_execution_invoke`
 
-The target repository therefore does not carry `.github/workflows/q-workflow-system-interface.yml`, a copied `runtime/github_transport.ts`, or a repository-local verification Actions runner for this binding. Q.Workflow retains verification execution ownership and Q.Gate remains the final verdict authority.
+The target repository therefore does not carry `.github/workflows/q-workflow-system-interface.yml`, a copied `runtime/github_transport.ts`, or a repository-local verification Actions runner for this binding. Q.Workflow retains execution ownership and Q.Gate remains the final verdict authority.
 
 ## P1 overlay boundary
 
