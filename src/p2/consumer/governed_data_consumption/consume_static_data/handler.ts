@@ -18,53 +18,32 @@ const DATA_CATEGORY="STATIC" as const;
 const REPRESENTATION_MODES=Object.freeze(["INLINE_FACT_SET","ARTIFACT_SNAPSHOT","ARTIFACT_CHUNKED_SNAPSHOT"] as const);
 
 function validateMaterialEnvelope(value:unknown):JsonObject{
- const envelope=objectValue(value,"material_envelope");
- stringValue(envelope.material_ref,"material_envelope.material_ref");
- stringValue(envelope.subject_ref,"material_envelope.subject_ref");
- stringValue(envelope.owner_ref,"material_envelope.owner_ref");
- stringValue(envelope.source_ref,"material_envelope.source_ref");
- const representation_mode=stringValue(envelope.representation_mode,"material_envelope.representation_mode");
+ const envelope=objectValue(value,"governed_data_material.material_envelope");
+ stringValue(envelope.material_ref,"governed_data_material.material_envelope.material_ref");
+ stringValue(envelope.subject_ref,"governed_data_material.material_envelope.subject_ref");
+ stringValue(envelope.owner_ref,"governed_data_material.material_envelope.owner_ref");
+ stringValue(envelope.source_ref,"governed_data_material.material_envelope.source_ref");
+ const representation_mode=stringValue(envelope.representation_mode,"governed_data_material.material_envelope.representation_mode");
  if(!(REPRESENTATION_MODES as readonly string[]).includes(representation_mode)) throw new P2StableError("P2_GOVERNED_DATA_REPRESENTATION_INVALID","material envelope representation_mode is invalid");
- sha256Value(envelope.content_hash,"material_envelope.content_hash");
- stringValue(envelope.integrity_profile_ref,"material_envelope.integrity_profile_ref");
+ sha256Value(envelope.content_hash,"governed_data_material.material_envelope.content_hash");
+ stringValue(envelope.integrity_profile_ref,"governed_data_material.material_envelope.integrity_profile_ref");
  return envelope;
 }
 
-export interface GovernedDataConsumptionDependencies{
- consume_governed_data(input:Readonly<{
-   data_category:typeof DATA_CATEGORY;
-   governed_material_envelope:JsonObject;
-   consumer_binding:JsonObject;
- }>):Promise<unknown>;
-}
+export interface GovernedDataConsumptionDependencies{consume_governed_data(input:Readonly<{data_category:typeof DATA_CATEGORY;governed_material_envelope:JsonObject;consumer_binding:JsonObject;artifact_store_resolver:JsonObject}>):Promise<unknown>;}
 
 export async function handler(request:P2OperationRequest,dependencies:GovernedDataConsumptionDependencies):Promise<P2OperationResponse>{
- const material_envelope=validateMaterialEnvelope(request.input.material_envelope);
+ const governed_data_material=objectValue(request.input.governed_data_material,"governed_data_material");
+ if(governed_data_material.data_category!==DATA_CATEGORY) throw new P2StableError("P2_DATA_CATEGORY_MISMATCH",`expected ${DATA_CATEGORY} governed data`);
+ const source_domain_identity=stringValue(governed_data_material.source_domain_identity,"governed_data_material.source_domain_identity");
+ const subject_identity=stringValue(governed_data_material.subject_identity,"governed_data_material.subject_identity");
+ const source_provenance=objectValue(governed_data_material.source_provenance,"governed_data_material.source_provenance");
+ const source_fact_authority=stringValue(governed_data_material.source_fact_authority,"governed_data_material.source_fact_authority");
+ const governed_access_binding=objectValue(governed_data_material.governed_access_binding,"governed_data_material.governed_access_binding");
+ const integrity_binding=objectValue(governed_data_material.integrity_binding,"governed_data_material.integrity_binding");
+ const material_envelope=validateMaterialEnvelope(governed_data_material.material_envelope);
  const consumer_binding=objectValue(request.input.consumer_binding,"consumer_binding");
- const consumption_result=await dependencies.consume_governed_data(Object.freeze({
-   data_category:DATA_CATEGORY,
-   governed_material_envelope:material_envelope,
-   consumer_binding,
- }));
- return success(request,{
-   result_kind:"GOVERNED_DATA_CONSUMPTION_BINDING",
-   data_consumption_binding:Object.freeze({
-     data_category:DATA_CATEGORY,
-     material_ref:material_envelope.material_ref,
-     subject_ref:material_envelope.subject_ref,
-     owner_ref:material_envelope.owner_ref,
-     source_ref:material_envelope.source_ref,
-     representation_mode:material_envelope.representation_mode,
-     content_hash:material_envelope.content_hash,
-     integrity_profile_ref:material_envelope.integrity_profile_ref,
-     ...(material_envelope.snapshot_ref===undefined?{}:{snapshot_ref:material_envelope.snapshot_ref}),
-     ...(material_envelope.manifest_ref===undefined?{}:{manifest_ref:material_envelope.manifest_ref}),
-     ...(material_envelope.continuation_token===undefined?{}:{continuation_token:material_envelope.continuation_token}),
-     ...(material_envelope.lineage_ref===undefined?{}:{lineage_ref:material_envelope.lineage_ref}),
-     ...(material_envelope.metadata===undefined?{}:{metadata:stableClone(material_envelope.metadata)}),
-     consumption_result:stableClone(consumption_result),
-     full_memory_assembly_required:false,
-     creates_evidence_or_gate_result:false,
-   }),
- });
+ const artifact_store_resolver=objectValue(request.input.artifact_store_resolver,"artifact_store_resolver");
+ const consumption_result=await dependencies.consume_governed_data(Object.freeze({data_category:DATA_CATEGORY,governed_material_envelope:material_envelope,consumer_binding,artifact_store_resolver}));
+ return success(request,{result_kind:"GOVERNED_DATA_CONSUMPTION_BINDING",data_consumption_binding:Object.freeze({data_category:DATA_CATEGORY,source_domain_identity,subject_identity,source_provenance:stableClone(source_provenance),source_fact_authority,governed_access_binding:stableClone(governed_access_binding),integrity_binding:stableClone(integrity_binding),material_ref:material_envelope.material_ref,subject_ref:material_envelope.subject_ref,owner_ref:material_envelope.owner_ref,source_ref:material_envelope.source_ref,representation_mode:material_envelope.representation_mode,content_hash:material_envelope.content_hash,integrity_profile_ref:material_envelope.integrity_profile_ref,...(material_envelope.snapshot_ref===undefined?{}:{snapshot_ref:material_envelope.snapshot_ref}),...(material_envelope.manifest_ref===undefined?{}:{manifest_ref:material_envelope.manifest_ref}),...(material_envelope.continuation_token===undefined?{}:{continuation_token:material_envelope.continuation_token}),...(material_envelope.lineage_ref===undefined?{}:{lineage_ref:material_envelope.lineage_ref}),...(material_envelope.metadata===undefined?{}:{metadata:stableClone(material_envelope.metadata)}),consumption_result:stableClone(consumption_result),full_memory_assembly_required:false,creates_evidence_or_gate_result:false})});
 }
