@@ -40,31 +40,21 @@ function validateMaterialEnvelope(value:unknown,request:JsonObject):JsonObject{
  return envelope;
 }
 
-export interface GovernedDataExposureDependencies {
- materialize_governed_data(input:Readonly<{
-   data_category:typeof DATA_CATEGORY;
-   authorized_exposure_request:JsonObject;
-   exact_source_authority:JsonObject;
-   owning_persistence_contract:JsonObject;
-   integrity_profile:JsonObject;
-   artifact_store_binding:JsonObject;
- }>):Promise<JsonObject>;
-}
+export interface GovernedDataExposureDependencies { materialize_governed_data(input:Readonly<{data_category:typeof DATA_CATEGORY;authorized_exposure_request:JsonObject;exact_source_authority:JsonObject;owning_persistence_contract:JsonObject;integrity_profile:JsonObject;artifact_store_binding:JsonObject}>):Promise<JsonObject>; }
 
 export async function handler(request:P2OperationRequest,dependencies:GovernedDataExposureDependencies):Promise<P2OperationResponse>{
  if(request.input.reexecution_requested===true) throw new P2StableError("P2_RUNTIME_DATA_REEXECUTION_FORBIDDEN","provider may not re-execute solely to manufacture runtime data");
+ const source_domain_identity=stringValue(request.input.source_domain_identity,"source_domain_identity");
+ const subject_identity=stringValue(request.input.subject_identity,"subject_identity");
+ const source_provenance=objectValue(request.input.source_provenance,"source_provenance");
+ const source_fact_authority=stringValue(request.input.source_fact_authority,"source_fact_authority");
+ const governed_access_binding=objectValue(request.input.governed_access_binding,"governed_access_binding");
+ const integrity_binding=objectValue(request.input.integrity_binding,"integrity_binding");
  const authorized_exposure_request=validateExposureRequest(request.input.authorized_exposure_request);
  const exact_source_authority=objectValue(request.input.exact_source_authority,"exact_source_authority");
  const owning_persistence_contract=objectValue(request.input.owning_persistence_contract,"owning_persistence_contract");
  const integrity_profile=objectValue(request.input.integrity_profile,"integrity_profile");
  const artifact_store_binding=objectValue(request.input.artifact_store_binding,"artifact_store_binding");
- const material_envelope=validateMaterialEnvelope(await dependencies.materialize_governed_data(Object.freeze({
-  data_category:DATA_CATEGORY,
-  authorized_exposure_request,
-  exact_source_authority,
-  owning_persistence_contract,
-  integrity_profile,
-  artifact_store_binding,
- })),authorized_exposure_request);
- return success(request,{result_kind:"GOVERNED_DATA_EXPOSURE",data_category:DATA_CATEGORY,material_envelope:stableClone(material_envelope)});
+ const material_envelope=validateMaterialEnvelope(await dependencies.materialize_governed_data(Object.freeze({data_category:DATA_CATEGORY,authorized_exposure_request,exact_source_authority,owning_persistence_contract,integrity_profile,artifact_store_binding})),authorized_exposure_request);
+ return success(request,{result_kind:"GOVERNED_DATA_EXPOSURE",data_category:DATA_CATEGORY,source_domain_identity,subject_identity,source_provenance:stableClone(source_provenance),source_fact_authority,governed_access_binding:stableClone(governed_access_binding),integrity_binding:stableClone(integrity_binding),material_envelope:stableClone(material_envelope)});
 }
