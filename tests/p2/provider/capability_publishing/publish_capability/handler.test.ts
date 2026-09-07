@@ -17,7 +17,7 @@ const publication_artifact_binding = {
   provider_neutral_locator_binding: { locator_ref: "q-storage://implementation" },
 };
 
-test("publish_capability carries the immutable V0118 executable artifact binding", async () => {
+test("publish_capability carries the immutable V0119 executable artifact binding", async () => {
   const response = await handler(baseRequest({
     material_set: {
       publication_eligible: true,

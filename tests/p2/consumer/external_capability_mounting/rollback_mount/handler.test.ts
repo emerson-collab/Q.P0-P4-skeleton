@@ -15,7 +15,7 @@ const resolver_state = {
   implementation_material_binding: { artifact_ref: "artifact://implementation" },
 };
 
-test("rollback_mount preserves the target V0118 resolver_state", async () => {
+test("rollback_mount preserves the target V0119 resolver_state", async () => {
   const response = await handler(baseRequest({
     active_mount: {
       mount_hash: `sha256:${"a".repeat(64)}`,

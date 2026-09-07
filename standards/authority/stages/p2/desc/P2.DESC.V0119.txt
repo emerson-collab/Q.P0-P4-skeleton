@@ -1,0 +1,29 @@
+Q.SS.STD.P2.DESC.CROSS_DOMAIN_REALIZATION@V0119
+
+Status: active.
+Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0119.
+Predecessor: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0118, hash sha256:4f21d59c686b55e46fdb5898ce0a6a9727a6319501dc723c91d6f75f541b50ad.
+Contract content hash: sha256:d367304b82b7d41a8cf458e84b8fa97be9b16942631974d4568cf7901aa4978a.
+Update classification: ADD_ONLY.
+
+Purpose
+Close durable P2.Consumer mount persistence and restart recovery as normative P2 behavior already materialized in the canonical Repository Skeleton.
+
+Preserved V0118 semantics
+- One P2 Stage, Provider/Consumer role profiles, five Capabilities and fifteen Operations remain unchanged.
+- Receiving repository local P0 remains the only execution Runtime.
+- Executable implementation material remains immutable, exact-hash verified and resolver-state bound.
+- P2 Stage owns zero database objects and no business semantics, Gate verdict, Activation or Workflow execution authority.
+- Direct cross-Domain SQL, cross-owner foreign keys, adapter/bridge/wrapper/second-runtime substitution remain forbidden.
+- Physical Stage path count remains exactly 52; only version-matched DESC/DRT release filenames advance.
+
+ADD_ONLY durable lifecycle
+- Successful create_mount persists the exact immutable mount record under the exact receiving Domain owner-local standardized P2 mount persistence profile and requires exact readback before activation eligibility.
+- activate_mount resolves and verifies the retained mount, re-verifies exact implementation material, then mutates the active pointer atomically last and reads back the exact pointer.
+- Previous retained mount records remain immutable.
+- Restart recovery reads the active pointer first, resolves the exact retained mount, re-verifies identity and implementation material, and reconstructs ACTIVE state only after successful verification.
+- Missing or mismatched pointer, mount record, identity or implementation material FAILS_CLOSED.
+- A receiving Business Domain does not need a Domain Contract successor solely to duplicate the generic mount record or active pointer persistence definitions.
+
+Rules
+The Contract invariant RuleSet is q.p2.cross_domain_realization.contract_invariants@V0116 with 42 rules. V0118 rules P2-CON-001..037 are preserved unchanged. P2-CON-038..042 close durable mount record/readback, atomic-last activation pointer, restart recovery, receiving-Domain ownership and no duplicated Domain persistence definition.
