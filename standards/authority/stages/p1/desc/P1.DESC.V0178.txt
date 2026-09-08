@@ -1,0 +1,30 @@
+q_header: '1'
+q_id: Q.SS.STD.P1.DESC.BUSINESS_RUNTIME
+q_version: V0178
+q_title: P1 Generic Relational Materializer DESC Projection
+q_stage: P1
+q_role: description
+q_status: active
+q_refs:
+  supersedes:
+  - Q.SS.STD.P1.DESC.BUSINESS_RUNTIME@V0177
+  contract: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178
+  drt: Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0178
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178
+description:
+  unchanged:
+  - P0 sole Runtime
+  - Capability/Operation business semantic ownership
+  - existing DATABASE_PERSISTENCE V0113 compiler/apply/activation behavior
+  added_fixed_skeleton:
+  - P1 Relational Materializer sibling root
+  - explicit semantic reader
+  - Relational IR
+  - deterministic relational planner
+  materializer_purpose: scientific deterministic relational table planning from explicit contract-bound semantics only
+  specific_domain_semantics_forbidden: true
+  steady_state_ai_required: false
+  database_persistence_current_replacement: false

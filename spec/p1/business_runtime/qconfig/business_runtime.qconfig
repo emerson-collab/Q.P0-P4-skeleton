@@ -1,4 +1,4 @@
-policy_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0177
+policy_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178
 one_operation_one_capability: true
 formal_business_operation_type_forbidden: true
 direct_same_domain_handler_import_forbidden: true

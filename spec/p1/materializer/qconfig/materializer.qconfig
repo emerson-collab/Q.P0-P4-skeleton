@@ -1,0 +1,3 @@
+stage_authority_ref=Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178
+materializer_projection_ref=Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178#/physical_model/materializer_projection
+output_model=P1_RELATIONAL_SCHEMA_PLAN_V1
