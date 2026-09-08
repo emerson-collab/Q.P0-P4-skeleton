@@ -1,5 +1,5 @@
 {
-  "stage_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0176",
+  "stage_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0177",
   "interfaces": [
     "business_operation_invoke",
     "internal_call_invoke",
@@ -10,10 +10,5 @@
     "business_registry_resolve",
     "business_registry_lookup"
   ],
-  "surfaces": {
-    "CALL": "active",
-    "HOOK": "active",
-    "REGISTRY": "active",
-    "EVENT": "not_applicable"
-  }
+  "surfaces": {"CALL":"active","HOOK":"active","REGISTRY":"active","EVENT":"not_applicable"}
 }
