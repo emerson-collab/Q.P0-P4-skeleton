@@ -1,10 +1,10 @@
-Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0119
-Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0119
+Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0120
+Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120
 Projection mode: EXACT_PATH_SET
-Exact path count: 52
+Exact path count: 56
 
-standards/authority/stages/p2/desc/P2.DESC.V0119.txt
-standards/authority/stages/p2/drt/P2.DRT.V0119.txt
+standards/authority/stages/p2/desc/P2.DESC.V0120.txt
+standards/authority/stages/p2/drt/P2.DRT.V0120.txt
 spec/p2/provider/capability_publishing/capability_profile.qcon.yaml
 spec/p2/provider/capability_publishing/capability_objects.qreg
 spec/p2/provider/capability_publishing/capability_policy.qconfig
@@ -33,6 +33,8 @@ src/p2/provider/governed_data_exposure/expose_runtime_data/handler.ts
 src/p2/consumer/external_capability_mounting/consume_publication/handler.ts
 src/p2/consumer/external_capability_mounting/create_mount/handler.ts
 src/p2/consumer/external_capability_mounting/activate_mount/handler.ts
+src/p2/consumer/external_capability_mounting/create_mount_set/handler.ts
+src/p2/consumer/external_capability_mounting/activate_mount_set/handler.ts
 src/p2/consumer/external_capability_mounting/rollback_mount/handler.ts
 src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts
 src/p2/consumer/governed_data_consumption/consume_static_data/handler.ts
@@ -48,6 +50,8 @@ tests/p2/provider/governed_data_exposure/expose_runtime_data/handler.test.ts
 tests/p2/consumer/external_capability_mounting/consume_publication/handler.test.ts
 tests/p2/consumer/external_capability_mounting/create_mount/handler.test.ts
 tests/p2/consumer/external_capability_mounting/activate_mount/handler.test.ts
+tests/p2/consumer/external_capability_mounting/create_mount_set/handler.test.ts
+tests/p2/consumer/external_capability_mounting/activate_mount_set/handler.test.ts
 tests/p2/consumer/external_capability_mounting/rollback_mount/handler.test.ts
 tests/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.test.ts
 tests/p2/consumer/governed_data_consumption/consume_static_data/handler.test.ts

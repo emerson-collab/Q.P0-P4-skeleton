@@ -5,33 +5,21 @@
     "new_surface_kind_layer_created": false,
     "operation_bindings": {
       "create_material_set": {
-        "allowed_kind_codes": [
-          "M1",
-          "M6"
-        ],
+        "allowed_kind_codes": ["M1", "M6"],
         "binding_mode": "PRESERVE_EXACT_INPUT_Q_INTERFACE_OR_DECLARED_REGISTRY_BINDING",
         "creates_new_interface": false
       },
       "publish_capability": {
-        "allowed_kind_codes": [
-          "M1",
-          "M6"
-        ],
+        "allowed_kind_codes": ["M1", "M6"],
         "binding_mode": "PRESERVE_EXACT_INPUT_Q_INTERFACE_OR_DECLARED_REGISTRY_BINDING",
         "creates_new_interface": false
       }
     },
     "protocol_translation_mapping_wrapper_or_second_protocol_forbidden": true,
     "role": "provider",
-    "role_lineage_kind_codes": [
-      "M1",
-      "M6"
-    ],
-    "source_contract_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0119",
-    "surface_binding": {
-      "M1": "CALL",
-      "M6": "REGISTRY"
-    },
+    "role_lineage_kind_codes": ["M1", "M6"],
+    "source_contract_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120",
+    "surface_binding": {"M1": "CALL", "M6": "REGISTRY"},
     "system_interface_role_overlay_created_by_p2": false
   }
 }
