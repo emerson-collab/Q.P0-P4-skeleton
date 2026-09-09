@@ -31,8 +31,29 @@ function exactOperationRef(value: string): string {
   return value;
 }
 
+export function operationIdFromExactOperationRef(operationRef: string): string {
+  const exactRef = exactOperationRef(operationRef);
+  const marker = "#/operations/";
+  const markerIndex = exactRef.lastIndexOf(marker);
+  if (markerIndex <= 0) {
+    throw new StableRuntimeError(
+      "P1_RUNTIME_OPERATION_REF_INVALID",
+      "operation_ref must contain one exact #/operations/<operation_id> suffix",
+    );
+  }
+  const operationId = exactRef.slice(markerIndex + marker.length);
+  if (!/^[a-z0-9_]+$/.test(operationId) || operationId.includes("/")) {
+    throw new StableRuntimeError(
+      "P1_RUNTIME_OPERATION_REF_INVALID",
+      "operation_ref operation_id suffix is invalid",
+    );
+  }
+  return operationId;
+}
+
 export function bindBusinessOperationPort(binding: BusinessOperationPortBinding): void {
   const operationRef = exactOperationRef(binding.operation_ref);
+  operationIdFromExactOperationRef(operationRef);
   const existing = installedBindings.get(operationRef);
   if (existing !== undefined) {
     if (existing.handler === binding.handler && existing.ports === binding.ports) return;
