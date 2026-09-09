@@ -1,4 +1,0 @@
-Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178#/physical_model/materializer_projection
-src/p1/materializer/materializer.ts#materializeRelationalSchema
-tests/p1/materializer/relational_planner.test.ts
-tests/p1/materializer/materializer_fail_closed.test.ts
