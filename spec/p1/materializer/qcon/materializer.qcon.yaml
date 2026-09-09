@@ -1,9 +1,0 @@
-q_header: '1'
-q_id: Q.SS.P1.MATERIALIZER.QCON
-q_version: V0100
-stage_authority_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178
-role: P1_FIXED_RELATIONAL_MATERIALIZATION_FRAMEWORK
-source_root: src/p1/materializer
-semantic_owner: EXACT_CONTRACT_BOUND_INPUT
-steady_state_ai_required: false
-specific_domain_semantics_forbidden: true
