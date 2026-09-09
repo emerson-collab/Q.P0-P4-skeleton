@@ -7,8 +7,13 @@ import {
   compileCapabilityPersistenceSchema,
   sha256ExactBytes,
 } from "../../../src/p1/business_runtime/persistence_schema_compiler.ts";
+import type {
+  GovernedArtifactStore,
+  MigrationReceiptIndex,
+} from "../../../src/p1/business_runtime/persistence_schema_apply.ts";
 import {
   activateP1CapabilityWithRuntimeBinding,
+  type P1PersistenceRuntimeBinding,
 } from "../../../runtime/persistence/persistence_runtime_binding.ts";
 import type { PostgresqlSessionProvider } from "../../../runtime/persistence/postgresql_relational_executor.ts";
 
@@ -65,6 +70,29 @@ function createProvider(expectedRows: readonly Readonly<Record<string, unknown>>
   });
 }
 
+function artifactStore(artifacts: Map<string, Uint8Array>): GovernedArtifactStore {
+  return Object.freeze({
+    async writeImmutable(input): Promise<void> {
+      const existing = artifacts.get(input.artifact_ref);
+      if (existing !== undefined) assert.deepEqual(existing, input.bytes);
+      artifacts.set(input.artifact_ref, new Uint8Array(input.bytes));
+    },
+    async readImmutable(input): Promise<Uint8Array> {
+      const bytesValue = artifacts.get(input.artifact_ref);
+      assert.ok(bytesValue);
+      return new Uint8Array(bytesValue);
+    },
+  });
+}
+
+function receiptIndex(receiptBindings: string[]): MigrationReceiptIndex {
+  return Object.freeze({
+    async commit(input): Promise<void> {
+      receiptBindings.push(`${input.receipt_ref}|${input.receipt_hash}`);
+    },
+  });
+}
+
 test("P1 runtime binding activates persistent Capability through deterministic schema apply", async () => {
   const bytes = Buffer.from(canonicalJson(capabilityContract), "utf8");
   const sourceHash = sha256ExactBytes(bytes);
@@ -88,6 +116,13 @@ test("P1 runtime binding activates persistent Capability through deterministic s
   const artifacts = new Map<string, Uint8Array>();
   const receiptBindings: string[] = [];
   const statements: string[] = [];
+  const runtimeBinding: P1PersistenceRuntimeBinding = Object.freeze({
+    instance_persistence_binding: instanceBinding,
+    postgresql_session_provider: createProvider(expectedRows, statements),
+    artifact_store: artifactStore(artifacts),
+    migration_receipt_index: receiptIndex(receiptBindings),
+  });
+
   const result = await activateP1CapabilityWithRuntimeBinding(
     Object.freeze({
       implementation_ref: "implementation:test@example",
@@ -99,27 +134,7 @@ test("P1 runtime binding activates persistent Capability through deterministic s
       source_capability_contract_bytes: bytes,
       capability_contract: capabilityContract,
     }),
-    Object.freeze({
-      instance_persistence_binding: instanceBinding,
-      postgresql_session_provider: createProvider(expectedRows, statements),
-      artifact_store: Object.freeze({
-        async writeImmutable(input): Promise<void> {
-          const existing = artifacts.get(input.artifact_ref);
-          if (existing !== undefined) assert.deepEqual(existing, input.bytes);
-          artifacts.set(input.artifact_ref, new Uint8Array(input.bytes));
-        },
-        async readImmutable(input): Promise<Uint8Array> {
-          const bytesValue = artifacts.get(input.artifact_ref);
-          assert.ok(bytesValue);
-          return new Uint8Array(bytesValue);
-        },
-      }),
-      migration_receipt_index: Object.freeze({
-        async commit(input): Promise<void> {
-          receiptBindings.push(`${input.receipt_ref}|${input.receipt_hash}`);
-        },
-      }),
-    }),
+    runtimeBinding,
   );
 
   assert.equal(result.stage_extension.status, "active");
@@ -136,6 +151,12 @@ test("P1 runtime binding fails closed when caller supplies a different instance 
   const bytes = Buffer.from(canonicalJson(capabilityContract), "utf8");
   const sourceHash = sha256ExactBytes(bytes);
   const statements: string[] = [];
+  const runtimeBinding: P1PersistenceRuntimeBinding = Object.freeze({
+    instance_persistence_binding: instanceBinding,
+    postgresql_session_provider: createProvider([], statements),
+    artifact_store: artifactStore(new Map<string, Uint8Array>()),
+    migration_receipt_index: receiptIndex([]),
+  });
 
   await assert.rejects(
     () => activateP1CapabilityWithRuntimeBinding(
@@ -151,12 +172,7 @@ test("P1 runtime binding fails closed when caller supplies a different instance 
           schema_name: "q_other",
         }),
       }),
-      Object.freeze({
-        instance_persistence_binding: instanceBinding,
-        postgresql_session_provider: createProvider([], statements),
-        artifact_store: Object.freeze({ async writeImmutable() {}, async readImmutable() { return new Uint8Array(); } }),
-        migration_receipt_index: Object.freeze({ async commit() {} }),
-      }),
+      runtimeBinding,
     ),
     /does not match the injected runtime binding/,
   );
