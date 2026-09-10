@@ -11,7 +11,7 @@
     "protocol_translation_mapping_wrapper_or_second_protocol_forbidden": true,
     "role": "consumer",
     "role_lineage_kind_codes": ["M1", "M6", "M7", "M8"],
-    "source_contract_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122",
+    "source_contract_ref": "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123",
     "surface_binding": {"M1": "CALL", "M6": "REGISTRY", "M7": "REGISTRY", "M8": "REGISTRY"},
     "system_interface_role_overlay_created_by_p2": false
   }

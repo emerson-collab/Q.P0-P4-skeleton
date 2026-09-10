@@ -1,10 +1,10 @@
-Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0122
-Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122
+Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0123
+Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
 Projection mode: EXACT_PATH_SET
 Exact path count: 56
 
-standards/authority/stages/p2/desc/P2.DESC.V0122.txt
-standards/authority/stages/p2/drt/P2.DRT.V0122.txt
+standards/authority/stages/p2/desc/P2.DESC.V0123.txt
+standards/authority/stages/p2/drt/P2.DRT.V0123.txt
 spec/p2/provider/capability_publishing/capability_profile.qcon.yaml
 spec/p2/provider/capability_publishing/capability_objects.qreg
 spec/p2/provider/capability_publishing/capability_policy.qconfig

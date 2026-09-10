@@ -58,6 +58,18 @@ export interface OwnerLocalP2DurablePersistence {
     mount_set_hash: string;
     previous_active_pointer?: JsonObject;
   }>): Promise<void>;
+  persist_dependency_binding_record(input: Readonly<{
+    receiving_domain_ref: string;
+    exact_local_dependency_ref: string;
+    active_mount_set_hash: string;
+    binding_hash: string;
+    binding: JsonObject;
+  }>): Promise<void>;
+  read_dependency_binding_record(input: Readonly<{
+    receiving_domain_ref: string;
+    exact_local_dependency_ref: string;
+    active_mount_set_hash: string;
+  }>): Promise<JsonObject | undefined>;
 }
 
 export interface OwnerLocalP2DurablePersistenceOptions {
@@ -150,9 +162,14 @@ function digestKey(exactHash: string): string {
   return sha256Value(exactHash, "hash").slice("sha256:".length);
 }
 
+function stringDigest(value: string, field: string): string {
+  return createHash("sha256")
+    .update(nonEmptyString(value, field), "utf8")
+    .digest("hex");
+}
+
 function domainKey(receivingDomainRef: string): string {
-  const exact = nonEmptyString(receivingDomainRef, "receiving_domain_ref");
-  return createHash("sha256").update(exact, "utf8").digest("hex");
+  return stringDigest(receivingDomainRef, "receiving_domain_ref");
 }
 
 function isErrno(error: unknown, code: string): boolean {
@@ -198,8 +215,7 @@ async function readCanonicalObject(path: string): Promise<JsonObject | undefined
     );
   }
   const object = objectValue(parsed, "durable_runtime_fact");
-  const expected = canonicalBytes(object);
-  if (!bytes.equals(expected)) {
+  if (!bytes.equals(canonicalBytes(object))) {
     throw new OwnerLocalP2PersistenceError(
       "P2_DURABLE_EXACT_READBACK_MISMATCH",
       `durable runtime fact is not exact canonical bytes: ${path}`,
@@ -312,6 +328,77 @@ function resolverBinding(resolverState: JsonObject): ResolvedImplementationBindi
   });
 }
 
+function dependencyBindingIdentity(binding: JsonObject): Readonly<{
+  exact_local_dependency_ref: string;
+  active_mount_set_hash: string;
+  binding_hash: string;
+}> {
+  if (binding.source_binding_kind !== "ACTIVE_MOUNT_SET_MEMBER") {
+    throw new OwnerLocalP2PersistenceError(
+      "P2_DURABLE_DEPENDENCY_BINDING_INVALID",
+      "only ACTIVE_MOUNT_SET_MEMBER dependency realization is a mandatory durable mount fact",
+    );
+  }
+  if (binding.creates_or_writes_p1_business_semantics !== false) {
+    throw new OwnerLocalP2PersistenceError(
+      "P2_DURABLE_DEPENDENCY_BINDING_INVALID",
+      "durable dependency realization may not write P1 business semantics",
+    );
+  }
+  const verified = objectValue(
+    binding.verified_provider_binding_or_governed_data_binding,
+    "dependency_realization_binding.verified_provider_binding_or_governed_data_binding",
+  );
+  if (verified.source_binding_kind !== "ACTIVE_MOUNT_SET_MEMBER") {
+    throw new OwnerLocalP2PersistenceError(
+      "P2_DURABLE_DEPENDENCY_BINDING_INVALID",
+      "durable dependency realization must preserve ACTIVE_MOUNT_SET_MEMBER source identity",
+    );
+  }
+  const activeMountSetHash = sha256Value(
+    verified.active_mount_set_hash,
+    "dependency_realization_binding.active_mount_set_hash",
+  );
+  const exactOwnerCapabilityRef = nonEmptyString(
+    binding.exact_owner_capability_ref,
+    "dependency_realization_binding.exact_owner_capability_ref",
+  );
+  const exactReceivingOperationRef = nonEmptyString(
+    binding.exact_receiving_operation_ref,
+    "dependency_realization_binding.exact_receiving_operation_ref",
+  );
+  const exactLocalDependencyRef = nonEmptyString(
+    binding.exact_local_dependency_ref,
+    "dependency_realization_binding.exact_local_dependency_ref",
+  );
+  const p1DependencyInterfaceRef = nonEmptyString(
+    binding.p1_dependency_interface_ref,
+    "dependency_realization_binding.p1_dependency_interface_ref",
+  );
+  const bindingHash = sha256Value(
+    binding.binding_hash,
+    "dependency_realization_binding.binding_hash",
+  );
+  const expectedBindingHash = sha256Json({
+    verified_provider_binding_or_governed_data_binding: verified,
+    exact_owner_capability_ref: exactOwnerCapabilityRef,
+    exact_receiving_operation_ref: exactReceivingOperationRef,
+    exact_local_dependency_ref: exactLocalDependencyRef,
+    p1_dependency_interface_ref: p1DependencyInterfaceRef,
+  });
+  if (bindingHash !== expectedBindingHash) {
+    throw new OwnerLocalP2PersistenceError(
+      "P2_DURABLE_DEPENDENCY_BINDING_HASH_MISMATCH",
+      "durable dependency realization binding_hash mismatch",
+    );
+  }
+  return Object.freeze({
+    exact_local_dependency_ref: exactLocalDependencyRef,
+    active_mount_set_hash: activeMountSetHash,
+    binding_hash: bindingHash,
+  });
+}
+
 export function createOwnerLocalP2DurablePersistence(
   options: OwnerLocalP2DurablePersistenceOptions,
 ): OwnerLocalP2DurablePersistence {
@@ -328,14 +415,23 @@ export function createOwnerLocalP2DurablePersistence(
   const mountSetPath = (
     receivingDomainRef: string,
     mountSetHash: string,
-  ): string =>
-    join(
-      domainRoot(receivingDomainRef),
-      "mount_sets",
-      `${digestKey(mountSetHash)}.json`,
-    );
+  ): string => join(
+    domainRoot(receivingDomainRef),
+    "mount_sets",
+    `${digestKey(mountSetHash)}.json`,
+  );
   const pointerPath = (receivingDomainRef: string): string =>
     join(domainRoot(receivingDomainRef), "active_mount_set_pointer.json");
+  const dependencyBindingPath = (
+    receivingDomainRef: string,
+    exactLocalDependencyRef: string,
+    activeMountSetHash: string,
+  ): string => join(
+    domainRoot(receivingDomainRef),
+    "dependency_bindings",
+    stringDigest(exactLocalDependencyRef, "exact_local_dependency_ref"),
+    `${digestKey(activeMountSetHash)}.json`,
+  );
 
   const persistence: OwnerLocalP2DurablePersistence = {
     runtime_root: runtimeRoot,
@@ -351,10 +447,7 @@ export function createOwnerLocalP2DurablePersistence(
           "mount record key must match exact retained INACTIVE mount identity",
         );
       }
-      await persistImmutableExact(
-        mountPath(receiving_domain_ref, mount_hash),
-        mount,
-      );
+      await persistImmutableExact(mountPath(receiving_domain_ref, mount_hash), mount);
     },
 
     async read_mount_record({ receiving_domain_ref, mount_hash }) {
@@ -467,10 +560,7 @@ export function createOwnerLocalP2DurablePersistence(
       mount_set_hash,
       previous_active_pointer,
     }) {
-      const domain = nonEmptyString(
-        receiving_domain_ref,
-        "receiving_domain_ref",
-      );
+      const domain = nonEmptyString(receiving_domain_ref, "receiving_domain_ref");
       const nextHash = sha256Value(mount_set_hash, "mount_set_hash");
       const path = pointerPath(domain);
       const current = await readCanonicalObject(path);
@@ -492,14 +582,11 @@ export function createOwnerLocalP2DurablePersistence(
         );
       }
 
-      await replaceMutableExact(
-        path,
-        Object.freeze({
-          receiving_domain_ref: domain,
-          mount_set_hash: nextHash,
-          status: "ACTIVE",
-        }),
-      );
+      await replaceMutableExact(path, Object.freeze({
+        receiving_domain_ref: domain,
+        mount_set_hash: nextHash,
+        status: "ACTIVE",
+      }));
 
       const readback = await readCanonicalObject(path);
       if (
@@ -513,6 +600,77 @@ export function createOwnerLocalP2DurablePersistence(
           "active mount-set pointer exact durable readback failed",
         );
       }
+    },
+
+    async persist_dependency_binding_record({
+      receiving_domain_ref,
+      exact_local_dependency_ref,
+      active_mount_set_hash,
+      binding_hash,
+      binding,
+    }) {
+      const domain = nonEmptyString(receiving_domain_ref, "receiving_domain_ref");
+      const dependencyRef = nonEmptyString(
+        exact_local_dependency_ref,
+        "exact_local_dependency_ref",
+      );
+      const activeHash = sha256Value(active_mount_set_hash, "active_mount_set_hash");
+      const expectedBindingHash = sha256Value(binding_hash, "binding_hash");
+      const identity = dependencyBindingIdentity(binding);
+      if (
+        identity.exact_local_dependency_ref !== dependencyRef
+        || identity.active_mount_set_hash !== activeHash
+        || identity.binding_hash !== expectedBindingHash
+      ) {
+        throw new OwnerLocalP2PersistenceError(
+          "P2_DURABLE_DEPENDENCY_BINDING_IDENTITY_MISMATCH",
+          "dependency realization binding does not match the exact durable key",
+        );
+      }
+      const path = dependencyBindingPath(domain, dependencyRef, activeHash);
+      await persistImmutableExact(path, binding);
+      const readback = await readCanonicalObject(path);
+      if (readback === undefined || canonical(readback) !== canonical(binding)) {
+        throw new OwnerLocalP2PersistenceError(
+          "P2_DURABLE_EXACT_READBACK_MISMATCH",
+          "dependency realization exact durable readback failed",
+        );
+      }
+      const readbackIdentity = dependencyBindingIdentity(readback);
+      if (readbackIdentity.binding_hash !== expectedBindingHash) {
+        throw new OwnerLocalP2PersistenceError(
+          "P2_DURABLE_DEPENDENCY_BINDING_HASH_MISMATCH",
+          "dependency realization durable readback binding_hash mismatch",
+        );
+      }
+    },
+
+    async read_dependency_binding_record({
+      receiving_domain_ref,
+      exact_local_dependency_ref,
+      active_mount_set_hash,
+    }) {
+      const domain = nonEmptyString(receiving_domain_ref, "receiving_domain_ref");
+      const dependencyRef = nonEmptyString(
+        exact_local_dependency_ref,
+        "exact_local_dependency_ref",
+      );
+      const activeHash = sha256Value(active_mount_set_hash, "active_mount_set_hash");
+      const record = await readCanonicalObject(
+        dependencyBindingPath(domain, dependencyRef, activeHash),
+      );
+      if (record === undefined) return undefined;
+      const identity = dependencyBindingIdentity(record);
+      if (
+        identity.exact_local_dependency_ref !== dependencyRef
+        || identity.active_mount_set_hash !== activeHash
+      ) {
+        throw new OwnerLocalP2PersistenceError(
+          "P2_DURABLE_DEPENDENCY_BINDING_IDENTITY_MISMATCH",
+          "dependency realization durable record does not match the exact key",
+        );
+      }
+      return record;
     },
   };
 
