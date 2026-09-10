@@ -165,6 +165,7 @@ function isErrno(error: unknown, code: string): boolean {
 }
 
 async function syncDirectory(path: string): Promise<void> {
+  if (process.platform === "win32") return;
   const handle = await open(path, "r");
   try {
     await handle.sync();
