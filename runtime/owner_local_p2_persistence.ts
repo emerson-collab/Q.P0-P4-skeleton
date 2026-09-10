@@ -337,7 +337,7 @@ export function createOwnerLocalP2DurablePersistence(
   const pointerPath = (receivingDomainRef: string): string =>
     join(domainRoot(receivingDomainRef), "active_mount_set_pointer.json");
 
-  return Object.freeze({
+  const persistence: OwnerLocalP2DurablePersistence = {
     runtime_root: runtimeRoot,
 
     async persist_mount_record({ receiving_domain_ref, mount_hash, mount }) {
@@ -514,5 +514,7 @@ export function createOwnerLocalP2DurablePersistence(
         );
       }
     },
-  });
+  };
+
+  return Object.freeze(persistence);
 }
