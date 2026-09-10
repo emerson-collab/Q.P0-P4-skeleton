@@ -1,13 +1,13 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120
-  source_contract_hash: sha256:0446eb440364d0cbeb395c63c19380c1925a45f0d228e939402cfb41ca87893d
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122
+  source_contract_hash: sha256:5c49788394d81584b1a581d6e0d6fd2af66417a8e5c393a57c04eaf55d49ebb5
   role: consumer
   role_dimension: N2
   direction: INWARD
   capability_id: p1_dependency_realization
   canonical_name: p1_dependency_realization
   stable_code: P1_DEPENDENCY_REALIZATION
-  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/role_capability_catalog/consumer/capabilities/p1_dependency_realization
+  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/role_capability_catalog/consumer/capabilities/p1_dependency_realization
   purpose: bind an active mount-set member or governed-data consumption binding to an already-declared receiving-P1 local_dependency_ref and exact receiving Operation use
   semantic_authority: false
   projection_only: true
@@ -15,13 +15,13 @@ operations:
 - operation_id: realize_dependency
   canonical_name: realize_dependency
   stable_code: REALIZE_DEPENDENCY
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/operation_catalog/consumer/p1_dependency_realization
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/operation_catalog/consumer/p1_dependency_realization
   source_leaf: src/p2/consumer/p1_dependency_realization/realize_dependency/handler.ts
   test_leaf: tests/p2/consumer/p1_dependency_realization/realize_dependency/handler.test.ts
 - operation_id: bind_operation_use
   canonical_name: bind_operation_use
   stable_code: BIND_OPERATION_USE
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/operation_catalog/consumer/p1_dependency_realization
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/operation_catalog/consumer/p1_dependency_realization
   source_leaf: src/p2/consumer/p1_dependency_realization/bind_operation_use/handler.ts
   test_leaf: tests/p2/consumer/p1_dependency_realization/bind_operation_use/handler.test.ts
 boundaries:
