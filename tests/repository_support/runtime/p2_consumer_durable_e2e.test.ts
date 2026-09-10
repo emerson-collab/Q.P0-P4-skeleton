@@ -190,6 +190,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
     immutable: true,
     capability_contract_ref: providerContractRef,
     capability_contract_hash: `sha256:${"c".repeat(64)}`,
+    provider_interface_refs: Object.freeze([exactInterfaceRef]),
     publication_hash: publicationHash,
     publication_artifact_binding: Object.freeze({
       immutable: true,
