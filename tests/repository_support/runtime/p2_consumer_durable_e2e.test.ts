@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
+import { execFile as execFileCallback } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
+import { promisify } from "node:util";
 
 import {
   P0_CONTRACT_REF,
@@ -24,7 +26,6 @@ import {
 import {
   handler as activateMountSet,
   commit_active_mount_set_with_owner,
-  recover_active_mount_set_with_owner,
 } from "../../../src/p2/consumer/external_capability_mounting/activate_mount_set/handler.ts";
 import {
   handler as realizeDependency,
@@ -46,6 +47,7 @@ import {
 } from "../../../runtime/owner_local_p2_persistence.ts";
 
 type JsonObject = Readonly<Record<string, unknown>>;
+const execFile = promisify(execFileCallback);
 
 function stable(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(stable);
@@ -87,7 +89,72 @@ function request(
   });
 }
 
-test("P2 Consumer durable mount -> activate -> dependency bind -> local P0 execute -> pointer-first restart recovery", async (t) => {
+async function recoverInFreshNodeProcess(input: Readonly<{
+  repository_root: string;
+  receiving_domain_ref: string;
+  manifest: Uint8Array;
+  installed_file: Readonly<{ relative_path: string; bytes: Uint8Array }>;
+}>): Promise<JsonObject> {
+  const persistenceModuleUrl = new URL(
+    "../../../runtime/owner_local_p2_persistence.ts",
+    import.meta.url,
+  ).href;
+  const activationModuleUrl = new URL(
+    "../../../src/p2/consumer/external_capability_mounting/activate_mount_set/handler.ts",
+    import.meta.url,
+  ).href;
+  const materialModuleUrl = new URL(
+    "../../../runtime/implementation_material_runtime.ts",
+    import.meta.url,
+  ).href;
+
+  const childProgram = `
+const { createOwnerLocalP2DurablePersistence } = await import(${JSON.stringify(persistenceModuleUrl)});
+const { recover_active_mount_set_with_owner } = await import(${JSON.stringify(activationModuleUrl)});
+const { IMPLEMENTATION_MATERIAL_REPRESENTATION_ID } = await import(${JSON.stringify(materialModuleUrl)});
+const repositoryRoot = process.env.Q_REPOSITORY_ROOT;
+const receivingDomainRef = process.env.Q_RECEIVING_DOMAIN_REF;
+const relativePath = process.env.Q_FILE_PATH;
+if (!repositoryRoot || !receivingDomainRef || !relativePath) throw new Error("restart fixture environment incomplete");
+const manifest = Buffer.from(process.env.Q_MANIFEST_B64 ?? "", "base64");
+const fileBytes = Buffer.from(process.env.Q_FILE_B64 ?? "", "base64");
+const materialReadPort = Object.freeze({
+  async readExact() {
+    return Object.freeze({
+      representation_id: IMPLEMENTATION_MATERIAL_REPRESENTATION_ID,
+      manifest_bytes: manifest,
+      files: Object.freeze([Object.freeze({ relative_path: relativePath, bytes: fileBytes })]),
+    });
+  },
+});
+const persistence = createOwnerLocalP2DurablePersistence({
+  repository_root: repositoryRoot,
+  material_read_port: materialReadPort,
+});
+const recovered = await recover_active_mount_set_with_owner(receivingDomainRef, persistence);
+process.stdout.write(JSON.stringify(recovered));
+`;
+
+  const { stdout } = await execFile(
+    process.execPath,
+    ["--experimental-transform-types", "--input-type=module", "--eval", childProgram],
+    {
+      env: {
+        ...process.env,
+        Q_REPOSITORY_ROOT: input.repository_root,
+        Q_RECEIVING_DOMAIN_REF: input.receiving_domain_ref,
+        Q_MANIFEST_B64: Buffer.from(input.manifest).toString("base64"),
+        Q_FILE_PATH: input.installed_file.relative_path,
+        Q_FILE_B64: Buffer.from(input.installed_file.bytes).toString("base64"),
+      },
+      maxBuffer: 1024 * 1024,
+    },
+  );
+
+  return asObject(JSON.parse(stdout), "fresh_process_recovered_mount_set");
+}
+
+test("P2 Consumer durable mount -> activate -> real process restart -> pointer-first recovery -> dependency bind -> local P0 execute", async (t) => {
   const repositoryRoot = await mkdtemp(join(tmpdir(), "q-p2-consumer-e2e-"));
   t.after(async () => {
     await rm(repositoryRoot, { recursive: true, force: true });
@@ -228,15 +295,12 @@ test("P2 Consumer durable mount -> activate -> dependency bind -> local P0 execu
     status: "ACTIVE",
   });
 
-  const restartedPersistence = createOwnerLocalP2DurablePersistence({
+  const recovered = await recoverInFreshNodeProcess({
     repository_root: repositoryRoot,
-    material_read_port: materialReadPort,
+    receiving_domain_ref: receivingDomainRef,
+    manifest,
+    installed_file: installedFile,
   });
-
-  const recovered = await recover_active_mount_set_with_owner(
-    receivingDomainRef,
-    restartedPersistence,
-  );
   assert.equal(recovered.status, "ACTIVE");
   assert.equal(recovered.mount_set_hash, mountSet.mount_set_hash);
   const recoveredMounts = recovered.member_mounts;
