@@ -1,13 +1,13 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120
-  source_contract_hash: sha256:0446eb440364d0cbeb395c63c19380c1925a45f0d228e939402cfb41ca87893d
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122
+  source_contract_hash: sha256:5c49788394d81584b1a581d6e0d6fd2af66417a8e5c393a57c04eaf55d49ebb5
   role: provider
   role_dimension: N3
   direction: OUTWARD
   capability_id: governed_data_exposure
   canonical_name: governed_data_exposure
   stable_code: GOVERNED_DATA_EXPOSURE
-  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/role_capability_catalog/provider/capabilities/governed_data_exposure
+  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/role_capability_catalog/provider/capabilities/governed_data_exposure
   purpose: sole governed non-change outward exposure of source-owned facts for authorized cross-domain consumers
   semantic_authority: false
   projection_only: true
@@ -15,19 +15,19 @@ operations:
 - operation_id: expose_static_data
   canonical_name: expose_static_data
   stable_code: EXPOSE_STATIC_DATA
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/operation_catalog/provider/governed_data_exposure
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/operation_catalog/provider/governed_data_exposure
   source_leaf: src/p2/provider/governed_data_exposure/expose_static_data/handler.ts
   test_leaf: tests/p2/provider/governed_data_exposure/expose_static_data/handler.test.ts
 - operation_id: expose_dynamic_data
   canonical_name: expose_dynamic_data
   stable_code: EXPOSE_DYNAMIC_DATA
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/operation_catalog/provider/governed_data_exposure
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/operation_catalog/provider/governed_data_exposure
   source_leaf: src/p2/provider/governed_data_exposure/expose_dynamic_data/handler.ts
   test_leaf: tests/p2/provider/governed_data_exposure/expose_dynamic_data/handler.test.ts
 - operation_id: expose_runtime_data
   canonical_name: expose_runtime_data
   stable_code: EXPOSE_RUNTIME_DATA
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120#/operation_catalog/provider/governed_data_exposure
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122#/operation_catalog/provider/governed_data_exposure
   source_leaf: src/p2/provider/governed_data_exposure/expose_runtime_data/handler.ts
   test_leaf: tests/p2/provider/governed_data_exposure/expose_runtime_data/handler.test.ts
 boundaries:
