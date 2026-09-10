@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122
   role: consumer
   capability_id: external_capability_mounting
 rules:

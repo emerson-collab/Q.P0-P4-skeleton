@@ -1,7 +1,7 @@
 import { P0_CONTRACT_REF, P0_PROVIDER_SYMBOL_REF, deep_freeze } from "../../p0/runtime_contract.ts";
 import type { StageExtensionContract } from "../../p0/runtime_contract.ts";
 
-export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0178" as const;
+export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179" as const;
 
 export interface P1CapabilityOverlayBinding {
   readonly implementation_ref: string;
