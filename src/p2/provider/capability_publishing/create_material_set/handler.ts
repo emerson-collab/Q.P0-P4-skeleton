@@ -12,7 +12,7 @@ function canonical(value:unknown):string{return JSON.stringify(stableClone(value
 function sha256Json(value:unknown):string{return `sha256:${createHash("sha256").update(canonical(value),"utf8").digest("hex")}`;}
 function success(request:P2OperationRequest,runtime_result:JsonObject):P2OperationResponse{return Object.freeze({outcome_type:"response" as const,runtime_result:Object.freeze({...runtime_result}),trace_id:request.trace_id,request_id:request.request_id});}
 
-export const STAGE_CONTRACT_REF="Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0120" as const;
+export const STAGE_CONTRACT_REF="Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122" as const;
 export const ROLE="provider" as const;
 export const CAPABILITY_ID="capability_publishing" as const;
 export const OPERATION_ID="create_material_set" as const;
