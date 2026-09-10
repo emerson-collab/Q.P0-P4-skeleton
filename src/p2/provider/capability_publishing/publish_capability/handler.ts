@@ -13,6 +13,17 @@ function stableClone(value:unknown):unknown{if(Array.isArray(value))return Objec
 function canonical(value:unknown):string{return JSON.stringify(stableClone(value));}
 function sha256Json(value:unknown):string{return `sha256:${createHash("sha256").update(canonical(value),"utf8").digest("hex")}`;}
 function success(request:P2OperationRequest,runtime_result:JsonObject):P2OperationResponse{return Object.freeze({outcome_type:"response" as const,runtime_result:Object.freeze({...runtime_result}),trace_id:request.trace_id,request_id:request.request_id});}
+function exactProviderInterfaceRefs(value:unknown,capabilityContractRef:string):readonly string[]{
+ if(!Array.isArray(value)||value.length===0)throw new P2StableError("P2_INVALID_INPUT","provider_interface_refs must be a non-empty array");
+ const refs=value.map((item,index)=>stringValue(item,`provider_interface_refs[${index}]`));
+ const seen=new Set<string>();
+ for(const ref of refs){
+  if(!ref.startsWith(`${capabilityContractRef}#/interfaces/`))throw new P2StableError("P2_INTERFACE_MEMBER_MISMATCH","provider_interface_refs must be exact Interfaces owned by capability_contract_ref");
+  if(seen.has(ref))throw new P2StableError("P2_INVALID_INPUT","provider_interface_refs must not contain duplicates");
+  seen.add(ref);
+ }
+ return Object.freeze([...refs]);
+}
 
 export const STAGE_CONTRACT_REF="Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122" as const;
 export const ROLE="provider" as const;
@@ -29,6 +40,7 @@ function publicationIdentity(publication:JsonObject):Readonly<{capability_contra
   if(publication.provider_business_runtime_used!==false)throw new P2StableError("P2_PUBLICATION_INVALID","provider business runtime must not be used by P2 publication");
   const capability_contract_ref=exactCapabilityContractRef(publication.capability_contract_ref,"publication.capability_contract_ref");
   const capability_contract_hash=sha256Value(publication.capability_contract_hash,"publication.capability_contract_hash");
+  const provider_interface_refs=exactProviderInterfaceRefs(publication.provider_interface_refs,capability_contract_ref);
   const material_set_hash=sha256Value(publication.material_set_hash,"publication.material_set_hash");
   const binding=objectValue(publication.publication_artifact_binding,"publication.publication_artifact_binding");
   if(binding.immutable!==true)throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID","publication artifact binding must remain immutable");
@@ -39,14 +51,7 @@ function publicationIdentity(publication:JsonObject):Readonly<{capability_contra
     entry_symbol_ref:stringValue(binding.entry_symbol_ref,"publication.publication_artifact_binding.entry_symbol_ref"),
     immutable:true,
   });
-  const payload=stableClone({
-    capability_contract_ref,
-    capability_contract_hash,
-    material_set_hash,
-    publication_artifact_binding,
-    provider_lineage:publication.provider_lineage,
-    dependency_closure:publication.dependency_closure,
-  }) as JsonObject;
+  const payload=stableClone({capability_contract_ref,capability_contract_hash,provider_interface_refs,material_set_hash,publication_artifact_binding,provider_lineage:publication.provider_lineage,dependency_closure:publication.dependency_closure}) as JsonObject;
   const publication_hash=sha256Value(publication.publication_hash,"publication.publication_hash");
   if(publication_hash!==sha256Json(payload))throw new P2StableError("P2_INTEGRITY_BINDING_INVALID","publication_hash does not bind the exact immutable publication payload");
   return Object.freeze({capability_contract_ref,publication_hash});
@@ -66,18 +71,13 @@ export async function handler(request:P2OperationRequest,persistence:OwnerLocalP
   if(material_set.publication_eligible!==true)throw new P2StableError("P2_PUBLICATION_INVALID","material_set must be publication eligible");
   const capability_contract_ref=exactCapabilityContractRef(material_set.capability_contract_ref,"material_set.capability_contract_ref");
   const capability_contract_hash=sha256Value(material_set.capability_contract_hash,"material_set.capability_contract_hash");
+  const provider_interface_refs=exactProviderInterfaceRefs(material_set.provider_interface_refs,capability_contract_ref);
   const material_set_hash=sha256Value(material_set.material_set_hash,"material_set.material_set_hash");
   const supplied=objectValue(request.input.publication_artifact_binding,"publication_artifact_binding");
   if(supplied.immutable!==true)throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID","publication artifact binding must identify immutable executable implementation material");
-  const publication_artifact_binding=Object.freeze({
-    artifact_ref:stringValue(supplied.artifact_ref,"publication_artifact_binding.artifact_ref"),
-    content_hash:sha256Value(supplied.content_hash,"publication_artifact_binding.content_hash"),
-    provider_neutral_locator_binding:stableClone(objectValue(supplied.provider_neutral_locator_binding,"publication_artifact_binding.provider_neutral_locator_binding")) as JsonObject,
-    entry_symbol_ref:stringValue(supplied.entry_symbol_ref,"publication_artifact_binding.entry_symbol_ref"),
-    immutable:true,
-  });
+  const publication_artifact_binding=Object.freeze({artifact_ref:stringValue(supplied.artifact_ref,"publication_artifact_binding.artifact_ref"),content_hash:sha256Value(supplied.content_hash,"publication_artifact_binding.content_hash"),provider_neutral_locator_binding:stableClone(objectValue(supplied.provider_neutral_locator_binding,"publication_artifact_binding.provider_neutral_locator_binding")) as JsonObject,entry_symbol_ref:stringValue(supplied.entry_symbol_ref,"publication_artifact_binding.entry_symbol_ref"),immutable:true});
   for(const disallowed of ["mutable_repository_path","raw_provider_url","launcher_owned_binding"])if(supplied[disallowed]!==undefined)throw new P2StableError("P2_IMPLEMENTATION_MATERIAL_INVALID",`${disallowed} is not executable publication material`);
-  const payload=stableClone({capability_contract_ref,capability_contract_hash,material_set_hash,publication_artifact_binding,provider_lineage:material_set.provider_lineage,dependency_closure:material_set.dependency_closure}) as JsonObject;
+  const payload=stableClone({capability_contract_ref,capability_contract_hash,provider_interface_refs,material_set_hash,publication_artifact_binding,provider_lineage:material_set.provider_lineage,dependency_closure:material_set.dependency_closure}) as JsonObject;
   const publication=Object.freeze({...payload,publication_hash:sha256Json(payload),immutable:true,provider_business_runtime_used:false}) as JsonObject;
   await persist_published_capability_with_owner(publication,persistence);
   return success(request,{result_kind:"IMMUTABLE_PUBLICATION",publication});
