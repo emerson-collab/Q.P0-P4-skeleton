@@ -24,6 +24,10 @@ import type {
 } from "../src/p2/consumer/external_capability_mounting/activate_mount_set/handler.ts";
 import {
   handler as realizeDependency,
+  persist_dependency_realization_with_owner,
+} from "../src/p2/consumer/p1_dependency_realization/realize_dependency/handler.ts";
+import type {
+  OwnerLocalDependencyBindingPersistencePort,
 } from "../src/p2/consumer/p1_dependency_realization/realize_dependency/handler.ts";
 import {
   handler as bindOperationUse,
@@ -49,7 +53,8 @@ export interface ReceivingP1DependencyBinding {
 export type P2ConsumerRealizationPersistence =
   & OwnerLocalMountRecordPersistencePort
   & OwnerLocalMountSetPersistencePort
-  & OwnerLocalActiveMountSetPersistencePort;
+  & OwnerLocalActiveMountSetPersistencePort
+  & OwnerLocalDependencyBindingPersistencePort;
 
 export interface P2ConsumerDependencyRealizationInput {
   readonly publication: JsonObject;
@@ -145,8 +150,8 @@ function assertSelectedMountIsActiveMember(
 }
 
 /**
- * Non-semantic repository runtime support for the V0135 Skeleton P2 Consumer
- * realization closure. This function only sequences existing P2 V0122
+ * Non-semantic repository runtime support for the V0136 Skeleton P2 Consumer
+ * realization closure. This function only sequences existing P2 V0123
  * Operations and owner-local persistence. It does not define a new Q Interface,
  * Operation, Capability, dependency, Provider surface, or Runtime.
  */
@@ -223,6 +228,14 @@ export async function realizeP2ConsumerDependency(
   const dependencyRealizationBinding = objectValue(
     dependency.runtime_result.dependency_realization_binding,
     "dependency_realization_binding",
+  );
+
+  // P2 V0123: dependency realization is a mandatory owner-local durable fact.
+  // Exact persistence and exact readback must complete before bind_operation_use.
+  await persist_dependency_realization_with_owner(
+    receivingDomainRef,
+    dependencyRealizationBinding,
+    persistence,
   );
 
   const operationUse = await bindOperationUse(p2Request(Object.freeze({
