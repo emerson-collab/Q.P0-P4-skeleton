@@ -21,10 +21,22 @@ function asObject(value: unknown, field: string): JsonObject {
 function inMemoryPersistence(): Readonly<{
   persistence: P2ConsumerRealizationPersistence;
   activePointer(): JsonObject | undefined;
+  dependencyBinding(input: Readonly<{
+    receiving_domain_ref: string;
+    exact_local_dependency_ref: string;
+    active_mount_set_hash: string;
+  }>): JsonObject | undefined;
 }> {
   const mounts = new Map<string, JsonObject>();
   const mountSets = new Map<string, JsonObject>();
+  const dependencyBindings = new Map<string, JsonObject>();
   let pointer: JsonObject | undefined;
+
+  const dependencyKey = (input: Readonly<{
+    receiving_domain_ref: string;
+    exact_local_dependency_ref: string;
+    active_mount_set_hash: string;
+  }>) => `${input.receiving_domain_ref}\u0000${input.exact_local_dependency_ref}\u0000${input.active_mount_set_hash}`;
 
   const persistence: P2ConsumerRealizationPersistence = Object.freeze({
     async persist_mount_record({ receiving_domain_ref, mount_hash, mount }) {
@@ -61,11 +73,18 @@ function inMemoryPersistence(): Readonly<{
         status: "ACTIVE",
       });
     },
+    async persist_dependency_binding_record(input) {
+      dependencyBindings.set(dependencyKey(input), input.binding);
+    },
+    async read_dependency_binding_record(input) {
+      return dependencyBindings.get(dependencyKey(input));
+    },
   });
 
   return Object.freeze({
     persistence,
     activePointer: () => pointer,
+    dependencyBinding: (input) => dependencyBindings.get(dependencyKey(input)),
   });
 }
 
@@ -99,7 +118,7 @@ function fixture() {
 }
 
 test(
-  "V0135 repository runtime closes mount activation into exact receiving-P1 dependency realization",
+  "V0136 repository runtime durably closes mount activation into exact receiving-P1 dependency realization",
   async () => {
     const store = inMemoryPersistence();
     const source = fixture();
@@ -117,8 +136,8 @@ test(
         exact_receiving_operation_ref: receivingOperationRef,
         exact_local_dependency_ref: localDependencyRef,
       }),
-      trace_id: "trace-v0135",
-      request_id: "request-v0135",
+      trace_id: "trace-v0136",
+      request_id: "request-v0136",
     }), store.persistence);
 
     assert.deepEqual(result.operation_sequence, P2_CONSUMER_REALIZATION_SEQUENCE);
@@ -143,6 +162,13 @@ test(
     assert.equal(dependency.exact_local_dependency_ref, localDependencyRef);
     assert.equal(dependency.creates_or_writes_p1_business_semantics, false);
 
+    const durableDependency = store.dependencyBinding({
+      receiving_domain_ref: receivingDomainRef,
+      exact_local_dependency_ref: localDependencyRef,
+      active_mount_set_hash: String(result.active_mount_set.mount_set_hash),
+    });
+    assert.deepEqual(durableDependency, dependency);
+
     const operationUse = asObject(
       result.operation_use_binding,
       "operation_use_binding",
@@ -158,7 +184,7 @@ test(
 );
 
 test(
-  "V0135 repository runtime rejects an undeclared/empty receiving-P1 dependency identity before mount materialization",
+  "V0136 repository runtime rejects an undeclared/empty receiving-P1 dependency identity before mount materialization",
   async () => {
     const store = inMemoryPersistence();
     const source = fixture();
@@ -174,8 +200,8 @@ test(
             "Q.RECEIVER.CONTRACT.CAPABILITY.EXAMPLE@V0100#/operations/use_provider",
           exact_local_dependency_ref: "",
         }),
-        trace_id: "trace-v0135-invalid",
-        request_id: "request-v0135-invalid",
+        trace_id: "trace-v0136-invalid",
+        request_id: "request-v0136-invalid",
       }), store.persistence),
       /exact_local_dependency_ref must be a non-empty exact identity/,
     );
