@@ -1,15 +1,37 @@
-capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106
-capability_contract_hash: sha256:2554f49d8e782fbe44a80b024c2d1fdc736d8058e8be8b0ef21feb51ba40be8b
+capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111
+capability_contract_hash: sha256:fb48c676b347581c60237b041b1f7f8a42fd054e9da823d223f8f48419e743d4
 runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
 fixed_skeleton_mutation_forbidden: true
 extra_operation_file_forbidden_by_default: true
 module_layer_forbidden: true
 direct_handler_export_forbidden: true
 invariants:
-- UI Module does not own or alter source page/framework semantics
-- UI Module does not invent Business Operations or concrete theme values
-external_mount_requirements: []
+- UI_MODULE consumes concrete Business Capability semantics directly from an exact Capability Contract semantic projection and does not require Q.APP or Q.Platform
+  presentation material.
+- UI_MODULE preserves exact source Operation Interface request response StableError state permission and evidence lineage and may not execute or re-own source business
+  semantics.
+- UI_MODULE may derive control/view shape only from exact declared payload schemas; code AI runtime samples or presentation preference may not invent missing business
+  fields.
+- UI_MODULE does not decide application/platform presentation context navigation placement page hierarchy Surface layout Theme Render Host or server semantics.
+- The External Provider Surface contains only ui_module_resolution_invoke and downstream extraction Instance Package or P2 may not expand it.
+- The same exact source Capability Contract ref/hash and semantic projection produce the same canonical UI Module semantic artifact or fail closed.
+- UI_MODULE predeclares exactly one receiving-P1 dependency slot Q.UI.DEPENDENCY.SOURCE_BUSINESS_CAPABILITY@V0100 owned by UI_MODULE and bound to resolve_ui_module;
+  P2.Consumer may realize this slot but may not create or rename it.
+- An executable source Business action binding requires exact source Capability Contract ref/hash plus exact External Provider Surface ref/hash, and the bound source
+  Interface must be contained in that exact provider surface; internal or non-provider Interfaces are not P2-executable.
+external_mount_requirements:
+- requirement_id: source_business_capability
+  source_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/dependencies/external_dependencies/source_business_capability
+  realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+  p1_provider_implementation_forbidden: true
 persistence_requirements:
-  durable_business_state_owned_by_capability: false
-  database_object_ownership: DOMAIN_ONLY
-  cross_domain_database_ownership_forbidden: true
+  owner_local_persistence_required: false
+  database_objects_owned_by_capability: false
+  physical_persistence_realization_owner: exact repository owner-local Skeleton/runtime
+  retired_database_persistence_meta_contract_is_not_normative_dependency: true
+  domain_contract_required: false
+  cross_domain_database_ownership_created: false
+  persistence_may_not_expand_external_provider_surface: true
+  capability_contract_does_not_own_physical_database_objects: true
+  fixed_physical_table_names_required_by_capability_contract: false
+  retired_database_persistence_meta_contract_is_normative_dependency: false

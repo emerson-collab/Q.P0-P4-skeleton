@@ -1,17 +1,76 @@
 {
-  "capability_contract_hash": "sha256:337a3bbabd39b9a414cdbafa69b8ea2a0d53a3dd511927d11736d19afdfdd04d",
-  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106",
-  "capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0106",
-  "contracts": ["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface/request_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface/response_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface/request_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface/response_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/type_closure/outcome_contracts/call_outcome"],
-  "dependencies": ["Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106","Q.UI.CAPABILITY.UI_MODULE@V0106"],
+  "capability_contract_hash": "sha256:f784c2268b7db442229de9d7a97707e1bf3b4c666cfe37c99decf58496e56b88",
+  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111",
+  "capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0111",
+  "contracts": [
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/contracts/create_ui_surface_request_contract",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/contracts/create_ui_surface_response_contract",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/stable_error_contract",
+    "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179#/outcome_contracts/call_outcome",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/contracts/resolve_ui_surface_request_contract",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/contracts/resolve_ui_surface_response_contract"
+  ],
+  "dependencies": [
+    "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109",
+    "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106",
+    "Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134",
+    "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179",
+    "Q.SS.STD.META.CONTRACT.ARTIFACT@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.CONTRACT@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.SYSTEM_OBJECT_NAMING.MIN@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.PAYLOAD_SCHEMA_BOUNDARY@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.STAGE_ARTIFACT_FILE_NAMING@${CURRENT}",
+    "Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@${CURRENT}",
+    "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111"
+  ],
   "interfaces": [
-    {"interface_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_creation_invoke","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","status":"active"},
-    {"interface_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_resolution_invoke","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","status":"active"}
+    {
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/interfaces/ui_surface_creation_invoke",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/create_ui_surface",
+      "owner_capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0111",
+      "status": "active"
+    },
+    {
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/interfaces/ui_surface_resolution_invoke",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/resolve_ui_surface",
+      "owner_capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0111",
+      "status": "active"
+    }
   ],
   "operations": [
-    {"handler_path":"src/p1/ui_surface/create_ui_surface/handler.ts","interface_refs":["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_creation_invoke"],"operation_id":"create_ui_surface","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","test_path":"tests/p1/ui_surface/create_ui_surface/handler.test.ts"},
-    {"handler_path":"src/p1/ui_surface/resolve_ui_surface/handler.ts","interface_refs":["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_resolution_invoke"],"operation_id":"resolve_ui_surface","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","test_path":"tests/p1/ui_surface/resolve_ui_surface/handler.test.ts"}
+    {
+      "handler_path": "src/p1/ui_surface/create_ui_surface/handler.ts",
+      "interface_refs": [
+        "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/interfaces/ui_surface_creation_invoke"
+      ],
+      "operation_id": "create_ui_surface",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/create_ui_surface",
+      "owner_capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0111",
+      "test_path": "tests/p1/ui_surface/create_ui_surface/handler.test.ts"
+    },
+    {
+      "handler_path": "src/p1/ui_surface/resolve_ui_surface/handler.ts",
+      "interface_refs": [
+        "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/interfaces/ui_surface_resolution_invoke"
+      ],
+      "operation_id": "resolve_ui_surface",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/resolve_ui_surface",
+      "owner_capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0111",
+      "test_path": "tests/p1/ui_surface/resolve_ui_surface/handler.test.ts"
+    }
   ],
-  "stable_errors": ["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/stable_errors/create_ui_surface","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/stable_errors/resolve_ui_surface"],
-  "types": ["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/type_closure/artifact_contracts/ui_surface_artifact","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/type_closure/artifact_contracts/ui_module_artifact"]
+  "stable_errors": [
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/stable_error_contract"
+  ],
+  "types": [
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/type_closure/schemas/presentation_context_envelope",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/type_closure/schemas/surface_input",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/type_closure/schemas/resolution_input",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/type_closure/schemas/ui_surface_artifact",
+    "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/type_closure/schemas/ui_module_artifact"
+  ]
 }

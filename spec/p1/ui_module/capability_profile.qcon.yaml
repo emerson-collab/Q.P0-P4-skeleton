@@ -1,19 +1,43 @@
-capability_ref: Q.UI.CAPABILITY.UI_MODULE@V0106
-capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106
-capability_contract_hash: sha256:2554f49d8e782fbe44a80b024c2d1fdc736d8058e8be8b0ef21feb51ba40be8b
+capability_ref: Q.UI.CAPABILITY.UI_MODULE@V0111
+capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111
+capability_contract_hash: sha256:fb48c676b347581c60237b041b1f7f8a42fd054e9da823d223f8f48419e743d4
 capability_id: ui_module
-capability_version: V0106
+capability_version: V0111
 mode: PUBLICATION_ELIGIBLE
 public_operation_refs:
-- Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106#/operations/resolve_ui_module
+- Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/operations/resolve_ui_module
 public_interface_refs:
-- Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106#/interfaces/ui_module_resolution_invoke
+- Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/interfaces/ui_module_resolution_invoke
 runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
 public_entry_ref: src/p1/export/ui_module/entry.ts#entry
 metadata_ref: src/p1/export/ui_module/metadata.ts#capability_extraction_metadata
 direct_handler_export_forbidden: true
 p1_static_extraction_only: true
 p2_publication_and_mount_realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
-dependencies: {}
+dependencies:
+  local_dependencies: []
+  external_dependencies:
+    source_business_capability:
+      dependency_ref: Q.UI.DEPENDENCY.SOURCE_BUSINESS_CAPABILITY@V0100
+      classification: RECEIVING_DOMAIN_DEPENDENCY
+      exact_owner_capability_ref: Q.UI.CAPABILITY.UI_MODULE@V0111
+      exact_receiving_operation_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/operations/resolve_ui_module
+      exact_local_dependency_ref: Q.UI.DEPENDENCY.SOURCE_BUSINESS_CAPABILITY@V0100
+      p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179#/interfaces/dependency_invoke
+      p2_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+      provider_binding_cardinality: ONE_EXACT_SOURCE_CAPABILITY_PER_UI_MODULE_RESOLUTION
+      required_material:
+      - source_capability_contract_ref
+      - source_capability_contract_hash
+      - source_external_provider_surface_ref
+      - source_external_provider_surface_hash
+      - source_capability_semantic_projection
+      source_business_operation_execution_during_module_compilation_forbidden: true
+      provider_interface_execution_restricted_to_exact_external_provider_surface: true
+      direct_provider_runtime_or_sql_bypass_forbidden: true
+      p2_may_realize_but_may_not_create_dependency_identity: true
+  implicit_dependency_forbidden: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  dependency_creation_by_p2_forbidden: true
 fixed_skeleton_mutation_forbidden: true
 extra_operation_file_forbidden_by_default: true

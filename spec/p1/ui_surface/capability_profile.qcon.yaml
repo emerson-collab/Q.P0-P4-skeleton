@@ -1,15 +1,15 @@
-capability_ref: Q.UI.CAPABILITY.UI_SURFACE@V0106
-capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106
-capability_contract_hash: sha256:337a3bbabd39b9a414cdbafa69b8ea2a0d53a3dd511927d11736d19afdfdd04d
+capability_ref: Q.UI.CAPABILITY.UI_SURFACE@V0111
+capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111
+capability_contract_hash: sha256:f784c2268b7db442229de9d7a97707e1bf3b4c666cfe37c99decf58496e56b88
 capability_id: ui_surface
-capability_version: V0106
+capability_version: V0111
 mode: PUBLICATION_ELIGIBLE
 public_operation_refs:
-- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface
-- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface
+- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/create_ui_surface
+- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/resolve_ui_surface
 public_interface_refs:
-- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_creation_invoke
-- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_resolution_invoke
+- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/interfaces/ui_surface_creation_invoke
+- Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/interfaces/ui_surface_resolution_invoke
 runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
 public_entry_ref: src/p1/export/ui_surface/entry.ts#entry
 metadata_ref: src/p1/export/ui_surface/metadata.ts#capability_extraction_metadata
@@ -17,12 +17,58 @@ direct_handler_export_forbidden: true
 p1_static_extraction_only: true
 p2_publication_and_mount_realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
 dependencies:
-  ui_module:
-    classification: INTRA_DOMAIN_CAPABILITY_DEPENDENCY
-    provider_capability_ref: Q.UI.CAPABILITY.UI_MODULE@V0106
-    provider_capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106
-    cross_domain_realization_required: false
-    exact_target_ref_and_hash_resolved_before_use: true
-    direct_handler_import_forbidden: true
+  local_dependencies:
+    ui_module:
+      ref: Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111
+      classification: PROVIDER_INTERNAL_DEPENDENCY
+      role: business_semantic_ui_module_provider
+      p2_realization_required: false
+      exact_target_ref_and_hash_resolved_before_use: true
+  external_dependencies:
+    presentation_context:
+      selection_cardinality: EXACTLY_ONE_PER_SURFACE
+      allowed_candidates:
+        application:
+          ref: Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109
+          classification: RECEIVING_DOMAIN_DEPENDENCY
+          context_kind: APPLICATION
+          required_material: exact application_presentation_context ref/hash/artifact
+          realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+          direct_provider_implementation_forbidden: true
+          exact_target_ref_and_hash_resolved_before_use: true
+          dependency_ref: Q.UI.DEPENDENCY.APPLICATION_PRESENTATION@V0100
+          exact_owner_capability_ref: Q.UI.CAPABILITY.UI_SURFACE@V0111
+          exact_receiving_operation_ref: Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/create_ui_surface
+          exact_local_dependency_ref: Q.UI.DEPENDENCY.APPLICATION_PRESENTATION@V0100
+          provider_contract_ref: Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109
+          provider_interface_ref: Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/interfaces/application_presentation_invoke
+          provider_operation_ref: Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/operations/resolve_application_presentation
+          p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179#/interfaces/dependency_invoke
+          p2_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+          p2_may_realize_but_may_not_create_dependency_identity: true
+        platform:
+          ref: Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106
+          classification: RECEIVING_DOMAIN_DEPENDENCY
+          context_kind: PLATFORM
+          required_material: exact platform_presentation_context ref/hash/artifact
+          realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+          direct_provider_implementation_forbidden: true
+          exact_target_ref_and_hash_resolved_before_use: true
+          dependency_ref: Q.UI.DEPENDENCY.PLATFORM_WORKBENCH@V0100
+          exact_owner_capability_ref: Q.UI.CAPABILITY.UI_SURFACE@V0111
+          exact_receiving_operation_ref: Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0111#/operations/create_ui_surface
+          exact_local_dependency_ref: Q.UI.DEPENDENCY.PLATFORM_WORKBENCH@V0100
+          provider_contract_ref: Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106
+          provider_interface_ref: Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/interfaces/platform_workbench_invoke
+          provider_operation_ref: Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/operations/render_platform_workbench
+          p1_dependency_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179#/interfaces/dependency_invoke
+          p2_realization_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+          p2_may_realize_but_may_not_create_dependency_identity: true
+      dual_candidate_activation_for_one_surface_forbidden: true
+      selected_candidate_must_bind_exactly_one_local_dependency_ref: true
+      p2_may_realize_but_may_not_create_dependency_identity: true
+  implicit_dependency_forbidden: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  dependency_creation_by_p2_forbidden: true
 fixed_skeleton_mutation_forbidden: true
 extra_operation_file_forbidden_by_default: true

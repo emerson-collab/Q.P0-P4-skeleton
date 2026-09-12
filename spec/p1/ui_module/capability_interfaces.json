@@ -1,23 +1,40 @@
 {
-  "capability_contract_hash": "sha256:ef15f2e24dc48e26e1e48ae182ff4af45b608926c637a98bae34741ef5da144f",
-  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108",
+  "capability_contract_hash": "sha256:fb48c676b347581c60237b041b1f7f8a42fd054e9da823d223f8f48419e743d4",
+  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111",
   "interfaces": {
     "ui_module_resolution_invoke": {
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/interfaces/ui_module_resolution_invoke",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/operations/resolve_ui_module",
       "surface": "CALL",
-      "surface_code": "CALL",
-      "kind": "CALL_INVOKE",
       "kind_code": "M1",
-      "interface_action": "invoke",
+      "kind": "CALL_INVOKE",
       "method_ref": "resolve_ui_module",
-      "path": ["request_id", "trace_id"],
-      "static_mount": ["operation_contract"],
-      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref"],
-      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108#/operations/resolve_ui_module/request_contract",
-      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108#/operations/resolve_ui_module/response_contract",
-      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108#/stable_errors/resolve_ui_module",
-      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108#/type_closure/outcome_contracts/call_outcome",
-      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108#/operations/resolve_ui_module",
-      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0108#/interfaces/ui_module_resolution_invoke"
+      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/contracts/resolve_ui_module_request_contract",
+      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/contracts/resolve_ui_module_response_contract",
+      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0111#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179#/outcome_contracts/call_outcome",
+      "path": [
+        "capability_id",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "dependency_contract_ref",
+        "dependency_client_ref",
+        "dependency_binding_ref"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "dependency_request",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ]
     }
   }
 }

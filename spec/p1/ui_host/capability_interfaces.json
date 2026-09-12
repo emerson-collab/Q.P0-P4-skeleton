@@ -1,40 +1,70 @@
 {
-  "capability_contract_hash": "sha256:78870a22f4271b5a3a03ba02511d0a593287f090f790aed5e17108ad112dff56",
-  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108",
+  "capability_contract_hash": "sha256:6ff5e3055b970327cc53b3dc2188f4eec34a4efdb358d795b392833e1765f443",
+  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109",
   "interfaces": {
     "ui_host_activation_invoke": {
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/interfaces/ui_host_activation_invoke",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/operations/activate_ui_host",
       "surface": "CALL",
-      "surface_code": "CALL",
-      "kind": "CALL_INVOKE",
       "kind_code": "M1",
-      "interface_action": "invoke",
+      "kind": "CALL_INVOKE",
       "method_ref": "activate_ui_host",
-      "path": ["request_id", "trace_id"],
-      "static_mount": ["operation_contract"],
-      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref"],
-      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/activate_ui_host/request_contract",
-      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/activate_ui_host/response_contract",
-      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/stable_errors/activate_ui_host",
-      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/type_closure/outcome_contracts/call_outcome",
-      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/activate_ui_host",
-      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/interfaces/ui_host_activation_invoke"
+      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/operations/activate_ui_host/request_contract",
+      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/operations/activate_ui_host/response_contract",
+      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/stable_errors/activate_ui_host",
+      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/type_closure/outcome_contracts/call_outcome",
+      "path": [
+        "capability_id",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract",
+        "dependency_contract_ref",
+        "dependency_client_ref",
+        "dependency_binding_ref"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "dependency_request",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ]
     },
     "ui_host_deactivation_invoke": {
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/interfaces/ui_host_deactivation_invoke",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/operations/deactivate_ui_host",
       "surface": "CALL",
-      "surface_code": "CALL",
-      "kind": "CALL_INVOKE",
       "kind_code": "M1",
-      "interface_action": "invoke",
+      "kind": "CALL_INVOKE",
       "method_ref": "deactivate_ui_host",
-      "path": ["request_id", "trace_id"],
-      "static_mount": ["operation_contract"],
-      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref"],
-      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/deactivate_ui_host/request_contract",
-      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/deactivate_ui_host/response_contract",
-      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/stable_errors/deactivate_ui_host",
-      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/type_closure/outcome_contracts/call_outcome",
-      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/deactivate_ui_host",
-      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/interfaces/ui_host_deactivation_invoke"
+      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/operations/deactivate_ui_host/request_contract",
+      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/operations/deactivate_ui_host/response_contract",
+      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/stable_errors/deactivate_ui_host",
+      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0109#/type_closure/outcome_contracts/call_outcome",
+      "path": [
+        "capability_id",
+        "operation_id",
+        "trace_id",
+        "request_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "execution_receipt",
+        "evidence_ref"
+      ]
     }
   }
 }
