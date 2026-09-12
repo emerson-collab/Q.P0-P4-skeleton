@@ -1,0 +1,79 @@
+{
+  "capability_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109",
+  "interface_refs": [
+    "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/interfaces/application_presentation_invoke"
+  ],
+  "interfaces": {
+    "application_presentation_invoke": {
+      "interface_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/interfaces/application_presentation_invoke",
+      "operation_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/operations/resolve_application_presentation",
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "resolve_application_presentation",
+      "path": [
+        "request_id",
+        "trace_id"
+      ],
+      "static_mount": [
+        "operation_contract"
+      ],
+      "dynamic_mount": [
+        "input",
+        "runtime_context",
+        "outcome_type",
+        "runtime_result",
+        "stable_error",
+        "evidence_ref",
+        "execution_receipt"
+      ],
+      "request_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_request_contract",
+      "response_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_response_contract",
+      "stable_error_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/outcome_contracts/call_outcome",
+      "payload_boundary_key": "input",
+      "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+      "payload_schema_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_request_contract"
+    }
+  },
+  "payload_schema_bindings": {
+    "binding_count": 2,
+    "binding_ids": [
+      "resolve_application_presentation_input",
+      "resolve_application_presentation_runtime_result"
+    ],
+    "bindings": {
+      "resolve_application_presentation_input": {
+        "payload_boundary_key": "input",
+        "payload_owner_context_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/interfaces/application_presentation_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_request_contract",
+        "payload_schema_fragment_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_request_contract",
+        "payload_schema_integrity_binding": "BOUND_TO_EXACT_OWNER_CONTRACT_IDENTITY"
+      },
+      "resolve_application_presentation_runtime_result": {
+        "payload_boundary_key": "runtime_result",
+        "payload_owner_context_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/interfaces/application_presentation_invoke",
+        "payload_schema_authority_mode": "INLINE_OWNER_CONTRACT_SCHEMA",
+        "payload_schema_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_response_contract",
+        "payload_schema_fragment_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_response_contract",
+        "payload_schema_integrity_binding": "BOUND_TO_EXACT_OWNER_CONTRACT_IDENTITY"
+      }
+    },
+    "canonical_interface_primary_bindings": {
+      "input": "request_contract_ref",
+      "runtime_result": "response_contract_ref",
+      "stable_error": "stable_error_contract_ref",
+      "outcome": "outcome_contract_ref"
+    },
+    "instance_local_grammar_extension_forbidden": true
+  },
+  "request_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_request_contract",
+  "response_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/contracts/resolve_application_presentation_response_contract",
+  "stable_error_contract_ref": "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/stable_error_contract",
+  "public_type_refs": [
+    "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/type_closure/schemas/application_design_requirements",
+    "Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109#/type_closure/schemas/application_presentation_context",
+    "Q.APP.CONTRACT.CAPABILITY.CAPABILITY_PRESENTATION@V0109#/type_closure/schemas/capability_presentation_design_artifact"
+  ]
+}

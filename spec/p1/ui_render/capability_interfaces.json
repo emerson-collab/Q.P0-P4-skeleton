@@ -1,0 +1,23 @@
+{
+  "capability_contract_hash": "sha256:5ac55a4cd4d1ae285f091e2b841cb949bba2f4f332c7c027394cd8c91403d74a",
+  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108",
+  "interfaces": {
+    "ui_render_execution_invoke": {
+      "surface": "CALL",
+      "surface_code": "CALL",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "interface_action": "invoke",
+      "method_ref": "execute_ui_render",
+      "path": ["request_id", "trace_id"],
+      "static_mount": ["operation_contract"],
+      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref"],
+      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108#/operations/execute_ui_render/request_contract",
+      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108#/operations/execute_ui_render/response_contract",
+      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108#/stable_errors/execute_ui_render",
+      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108#/type_closure/outcome_contracts/call_outcome",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108#/operations/execute_ui_render",
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0108#/interfaces/ui_render_execution_invoke"
+    }
+  }
+}

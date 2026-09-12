@@ -1,0 +1,18 @@
+capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106
+capability_contract_hash: sha256:337a3bbabd39b9a414cdbafa69b8ea2a0d53a3dd511927d11736d19afdfdd04d
+runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+fixed_skeleton_mutation_forbidden: true
+extra_operation_file_forbidden_by_default: true
+module_layer_forbidden: true
+direct_handler_export_forbidden: true
+invariants:
+- Surface region existence must be traceable to source framework requirements or standard realization necessities
+- Surface composition may not create new business/framework authority
+- visual styling is not owned by this operation
+- target structure may differ while framework semantic equivalence remains exact
+- target realization cannot change visual-theme authority
+external_mount_requirements: []
+persistence_requirements:
+  durable_business_state_owned_by_capability: false
+  database_object_ownership: DOMAIN_ONLY
+  cross_domain_database_ownership_forbidden: true

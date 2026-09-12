@@ -1,0 +1,12 @@
+operation_refs:
+- Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/operations/render_platform_workbench
+interface_refs:
+- Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/interfaces/platform_workbench_invoke
+public_operation_refs:
+- Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/operations/render_platform_workbench
+public_interface_refs:
+- Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/interfaces/platform_workbench_invoke
+extraction_profile_registration:
+  register_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/business_registry_register
+  lookup_interface_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/interfaces/business_registry_lookup
+  profile_ref: spec/p1/platform_workbench/capability_profile.qcon.yaml

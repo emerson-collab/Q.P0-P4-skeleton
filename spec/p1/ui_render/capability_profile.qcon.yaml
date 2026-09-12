@@ -1,0 +1,34 @@
+capability_ref: Q.UI.CAPABILITY.UI_RENDER@V0106
+capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0106
+capability_contract_hash: sha256:7b86844c4b1a07d3940d29a3aad42ab37f5777b8b603d203fa2f6da5d3b188d4
+capability_id: ui_render
+capability_version: V0106
+mode: PUBLICATION_ELIGIBLE
+public_operation_refs:
+- Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0106#/operations/execute_ui_render
+public_interface_refs:
+- Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0106#/interfaces/ui_render_execution_invoke
+runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+public_entry_ref: src/p1/export/ui_render/entry.ts#entry
+metadata_ref: src/p1/export/ui_render/metadata.ts#capability_extraction_metadata
+direct_handler_export_forbidden: true
+p1_static_extraction_only: true
+p2_publication_and_mount_realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+dependencies:
+  ui_surface:
+    classification: INTRA_DOMAIN_CAPABILITY_DEPENDENCY
+    provider_capability_ref: Q.UI.CAPABILITY.UI_SURFACE@V0106
+    provider_capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106
+    cross_domain_realization_required: false
+    exact_target_ref_and_hash_resolved_before_use: true
+    direct_handler_import_forbidden: true
+  theme_binding:
+    classification: CROSS_DOMAIN_CAPABILITY_DEPENDENCY
+    provider_domain_ref: Q.THEME.CONTRACT.DOMAIN@V0106
+    provider_capability_contract_ref: Q.THEME.CONTRACT.CAPABILITY.THEME_BINDING@V0104
+    required_material: theme_binding_artifact/ref/hash
+    realization_owner: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+    exact_target_ref_and_hash_resolved_before_use: true
+    direct_provider_implementation_forbidden: true
+fixed_skeleton_mutation_forbidden: true
+extra_operation_file_forbidden_by_default: true

@@ -1,0 +1,40 @@
+{
+  "capability_contract_hash": "sha256:78870a22f4271b5a3a03ba02511d0a593287f090f790aed5e17108ad112dff56",
+  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108",
+  "interfaces": {
+    "ui_host_activation_invoke": {
+      "surface": "CALL",
+      "surface_code": "CALL",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "interface_action": "invoke",
+      "method_ref": "activate_ui_host",
+      "path": ["request_id", "trace_id"],
+      "static_mount": ["operation_contract"],
+      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref"],
+      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/activate_ui_host/request_contract",
+      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/activate_ui_host/response_contract",
+      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/stable_errors/activate_ui_host",
+      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/type_closure/outcome_contracts/call_outcome",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/activate_ui_host",
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/interfaces/ui_host_activation_invoke"
+    },
+    "ui_host_deactivation_invoke": {
+      "surface": "CALL",
+      "surface_code": "CALL",
+      "kind": "CALL_INVOKE",
+      "kind_code": "M1",
+      "interface_action": "invoke",
+      "method_ref": "deactivate_ui_host",
+      "path": ["request_id", "trace_id"],
+      "static_mount": ["operation_contract"],
+      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref"],
+      "request_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/deactivate_ui_host/request_contract",
+      "response_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/deactivate_ui_host/response_contract",
+      "stable_error_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/stable_errors/deactivate_ui_host",
+      "outcome_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/type_closure/outcome_contracts/call_outcome",
+      "operation_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/operations/deactivate_ui_host",
+      "interface_ref": "Q.UI.CONTRACT.CAPABILITY.UI_HOST@V0108#/interfaces/ui_host_deactivation_invoke"
+    }
+  }
+}

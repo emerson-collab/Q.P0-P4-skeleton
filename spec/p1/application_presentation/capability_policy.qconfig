@@ -1,0 +1,59 @@
+capability_contract_ref: Q.APP.CONTRACT.CAPABILITY.APPLICATION_PRESENTATION@V0109
+capability_rules:
+  operation_count: 1
+  interface_count: 1
+  minimum_operation_count_satisfied: true
+  every_operation_owned_by_exact_capability: true
+  every_interface_owned_by_capability_operation: true
+  surface_kind_method_and_three_layers_preserved: true
+  request_response_stable_error_closure_explicit: true
+  transitive_public_type_closure_complete: true
+  every_dependency_explicit_and_classified: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  renderer_neutral_output_only: true
+  concrete_business_domain_semantics_forbidden: true
+  q_ui_module_render_host_creation_forbidden: true
+  q_theme_visual_semantic_ownership_forbidden: true
+  p2_consumer_mount_creation_forbidden: true
+  repository_src_p1_export_projection_forbidden: true
+  persistence_required: false
+  capability_owned_physical_database_objects: false
+  new_q_wide_field_surface_kind_layer_stage_role_or_module_created: false
+  upper_standard_conformance_required: true
+dependencies:
+  local_dependencies:
+    capability_presentation:
+      ref: Q.APP.CONTRACT.CAPABILITY.CAPABILITY_PRESENTATION@V0109
+      classification: PROVIDER_INTERNAL_DEPENDENCY
+      role: standalone_capability_presentation_design_provider
+      p2_realization_required: false
+      exact_target_ref_and_hash_resolved_before_use: true
+  external_dependencies: {}
+  local_dependency_direction:
+  - capability_presentation
+  - application_presentation
+  local_reverse_or_cycle_forbidden: true
+  implicit_dependency_forbidden: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  dependency_creation_by_p2_forbidden: true
+  concrete_business_domain_dependency_forbidden: true
+  q_ui_is_downstream_consumer_not_dependency: true
+  q_app_p2_consumer_mount_to_concrete_business_domain_forbidden: true
+persistence_requirements:
+  owner_local_persistence_required: false
+  database_objects_owned_by_capability: false
+  domain_contract_required: false
+  cross_domain_database_ownership_created: false
+  persistence_required: false
+  persistence_activation_materialization_required: false
+forbidden:
+- concrete Business Domain Capability Operation Interface payload state data outcome or permission semantics as Q.APP-owned input or output
+- Q.UI Module generation inside Q.APP
+- Q.UI Surface Render or Host execution inside Q.APP
+- Q.Theme visual semantic ownership
+- Domain Contract as live semantic authority
+- public boundary inference from repository code or AI
+- Q.APP-owned P2.Consumer mount or direct runtime dependency to a concrete Business Domain
+- repository src/p1/export projection as a concrete Q.APP P1 Capability physical path
+- obsolete non-normative persistence-authority assumption as CURRENT authority
+- owner-local duplicate of CAPABILITY_PRESENTATION dependency-owned capability_presentation_design_artifact schema

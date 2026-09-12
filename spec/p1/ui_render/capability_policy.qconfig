@@ -1,0 +1,20 @@
+capability_contract_ref: Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0106
+capability_contract_hash: sha256:7b86844c4b1a07d3940d29a3aad42ab37f5777b8b603d203fa2f6da5d3b188d4
+runtime_contract_ref: Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134
+fixed_skeleton_mutation_forbidden: true
+extra_operation_file_forbidden_by_default: true
+module_layer_forbidden: true
+direct_handler_export_forbidden: true
+invariants:
+- Q.UI applies but does not author theme semantics
+- theme cannot create/delete/re-own framework regions during render
+- render cannot change Business Domain data or outcomes
+external_mount_requirements:
+- requirement_id: theme_binding
+  source_ref: Q.UI.CONTRACT.CAPABILITY.UI_RENDER@V0106#/dependencies/theme_binding
+  realization_owner: P2_OR_RECEIVING_DOMAIN
+  p1_implementation_of_provider_forbidden: true
+persistence_requirements:
+  durable_business_state_owned_by_capability: false
+  database_object_ownership: DOMAIN_ONLY
+  cross_domain_database_ownership_forbidden: true

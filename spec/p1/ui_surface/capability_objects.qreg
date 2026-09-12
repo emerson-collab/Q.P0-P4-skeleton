@@ -1,0 +1,17 @@
+{
+  "capability_contract_hash": "sha256:337a3bbabd39b9a414cdbafa69b8ea2a0d53a3dd511927d11736d19afdfdd04d",
+  "capability_contract_ref": "Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106",
+  "capability_ref": "Q.UI.CAPABILITY.UI_SURFACE@V0106",
+  "contracts": ["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface/request_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface/response_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface/request_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface/response_contract","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/type_closure/outcome_contracts/call_outcome"],
+  "dependencies": ["Q.UI.CONTRACT.CAPABILITY.UI_MODULE@V0106","Q.UI.CAPABILITY.UI_MODULE@V0106"],
+  "interfaces": [
+    {"interface_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_creation_invoke","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","status":"active"},
+    {"interface_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_resolution_invoke","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","status":"active"}
+  ],
+  "operations": [
+    {"handler_path":"src/p1/ui_surface/create_ui_surface/handler.ts","interface_refs":["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_creation_invoke"],"operation_id":"create_ui_surface","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/create_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","test_path":"tests/p1/ui_surface/create_ui_surface/handler.test.ts"},
+    {"handler_path":"src/p1/ui_surface/resolve_ui_surface/handler.ts","interface_refs":["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/interfaces/ui_surface_resolution_invoke"],"operation_id":"resolve_ui_surface","operation_ref":"Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/operations/resolve_ui_surface","owner_capability_ref":"Q.UI.CAPABILITY.UI_SURFACE@V0106","test_path":"tests/p1/ui_surface/resolve_ui_surface/handler.test.ts"}
+  ],
+  "stable_errors": ["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/stable_errors/create_ui_surface","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/stable_errors/resolve_ui_surface"],
+  "types": ["Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/type_closure/artifact_contracts/ui_surface_artifact","Q.UI.CONTRACT.CAPABILITY.UI_SURFACE@V0106#/type_closure/artifact_contracts/ui_module_artifact"]
+}

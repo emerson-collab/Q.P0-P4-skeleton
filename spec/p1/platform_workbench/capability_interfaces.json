@@ -1,0 +1,39 @@
+{
+  "public_interface_contracts": [
+    {
+      "interface_ref": "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/interfaces/platform_workbench_invoke",
+      "operation_ref": "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/operations/render_platform_workbench",
+      "surface": "CALL",
+      "kind_code": "M1",
+      "kind": "CALL_INVOKE",
+      "method_ref": "render_platform_workbench",
+      "request_contract_ref": "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/contracts/render_platform_workbench_request_contract",
+      "response_contract_ref": "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/contracts/render_platform_workbench_response_contract",
+      "stable_error_contract_ref": "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/stable_error_contract",
+      "outcome_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@${CURRENT}#/outcome_contracts/call_outcome",
+      "path": ["request_id", "trace_id"],
+      "static_mount": ["operation_contract"],
+      "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref", "execution_receipt"]
+    }
+  ],
+  "outcome_contracts": {
+    "call_outcome": {
+      "discriminator": "outcome_type",
+      "allowed_values": ["response", "stable_error"],
+      "exactly_one_variant": true
+    }
+  },
+  "public_type_closure": [
+    "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/type_closure/schemas/platform_design_requirements",
+    "Q.PLATFORM.CONTRACT.CAPABILITY.PLATFORM_WORKBENCH@V0106#/type_closure/schemas/platform_presentation_context"
+  ],
+  "surface_kind_method": {
+    "surface": "CALL",
+    "kind_code": "M1",
+    "kind": "CALL_INVOKE",
+    "method_ref": "render_platform_workbench"
+  },
+  "path": ["request_id", "trace_id"],
+  "static_mount": ["operation_contract"],
+  "dynamic_mount": ["input", "runtime_context", "outcome_type", "runtime_result", "stable_error", "evidence_ref", "execution_receipt"]
+}

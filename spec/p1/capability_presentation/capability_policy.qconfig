@@ -1,0 +1,64 @@
+capability_contract_ref: Q.APP.CONTRACT.CAPABILITY.CAPABILITY_PRESENTATION@V0109
+capability_contract_hash: sha256:819518a183e82facc11c2d8832a27607dcff1d5a3bfd60d9c2d2e53187ec9873
+capability_rules:
+  operation_count: 1
+  interface_count: 1
+  minimum_operation_count_satisfied: true
+  every_operation_owned_by_exact_capability: true
+  every_interface_owned_by_capability_operation: true
+  surface_kind_method_and_three_layers_preserved: true
+  request_response_stable_error_closure_explicit: true
+  transitive_public_type_closure_complete: true
+  every_dependency_explicit_and_classified: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  semantic_group_kind_exact_set:
+  - RESOURCE
+  - TASK
+  - CONTEXT
+  - SYSTEM
+  navigation_intent_exact_set:
+  - PRIMARY
+  - SECONDARY
+  - NONE
+  presentation_priority_level_exact_set:
+  - PRIMARY
+  - SECONDARY
+  - OVERFLOW
+  - BACKGROUND
+  renderer_neutral_design_only: true
+  concrete_business_semantic_input_forbidden: true
+  q_ui_execution_forbidden: true
+  q_theme_visual_semantic_ownership_forbidden: true
+  p2_consumer_mount_creation_forbidden: true
+  business_execution_or_reownership_forbidden: true
+  new_q_wide_field_surface_kind_layer_stage_role_or_module_created: false
+  upper_standard_conformance_required: true
+dependencies:
+  local_dependencies: []
+  external_dependencies: {}
+  implicit_dependency_forbidden: true
+  cross_domain_dependency_realization_owned_by_p2: true
+  dependency_creation_by_p2_forbidden: true
+  concrete_business_domain_dependency_forbidden: true
+  q_ui_is_downstream_consumer_not_dependency: true
+  q_app_p2_consumer_mount_to_concrete_business_domain_forbidden: true
+persistence_requirements:
+  owner_local_persistence_required: false
+  database_objects_owned_by_capability: false
+  domain_contract_required: false
+  cross_domain_database_ownership_created: false
+  persistence_required: false
+  persistence_activation_materialization_required: false
+forbidden:
+- concrete Business Domain Capability Operation Interface payload state data outcome or permission semantics as input or owned output
+- Q.UI Module Surface Render or Host execution
+- Q.Theme visual semantic ownership
+- Domain Contract as live semantic authority
+- public boundary inference from repository code or AI
+- Q.APP-owned P2.Consumer mount or direct runtime dependency to a concrete Business Domain
+- repository src/p1/export projection as a concrete Q.APP P1 Capability physical path
+- obsolete non-normative persistence-authority assumption as CURRENT authority
+- copy Contract authority bytes into implementation repository
+- direct handler import used as dependency authority
+- moving CURRENT alias in resolved runtime or generation snapshot
+- Q.Gate PASS implementation activation or runtime ACTIVE claim from this Contract alone
