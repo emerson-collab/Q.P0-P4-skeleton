@@ -1,0 +1,18 @@
+Q.SS.STD.P2.DESC.CROSS_DOMAIN_REALIZATION@V0124
+
+Status: active.
+Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0124.
+Update classification: INCOMPATIBLE.
+Predecessor: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123, hash sha256:73d09d3f190151cfc1d4d054ac078d5245911173fa290b1b7ae006aee242b84c.
+
+V0124 preserves the exact 17-Operation / 56-path Provider/Consumer model, Provider publication, mount/mount-set lifecycle, receiving-local P0 execution and Gate boundaries. It closes receiving-owner Capability/Operation successor coexistence for durable dependency realization.
+
+Durable receiving-P1 dependency identity closure:
+- For ACTIVE_MOUNT_SET_MEMBER realization, realize_dependency still realizes only an already-predeclared receiving-P1 dependency identified by exact_owner_capability_ref, exact_receiving_operation_ref and exact_local_dependency_ref.
+- dependency_realization_binding remains a mandatory immutable receiving-owner-local durable fact.
+- Its durable key is receiving_domain_ref + exact_owner_capability_ref + exact_receiving_operation_ref + exact_local_dependency_ref + active_mount_set_hash.
+- This permits immutable predecessor and successor receiving Capability/Operation bindings to coexist for the same local dependency and active mount set without overwrite.
+- Exact read-back and binding_hash reverification remain required before bind_operation_use.
+- Restart recovery remains active-mount-set-pointer-first and must resolve the exact owner-and-operation-qualified dependency binding.
+- operation_use_binding remains non-mandatory durable state.
+- No new P2 Capability, Operation, Interface, physical Stage leaf path, database ownership, second runtime, Provider semantic authority, or business semantic authority is introduced.
