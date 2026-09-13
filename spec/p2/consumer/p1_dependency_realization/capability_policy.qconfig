@@ -1,5 +1,5 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0124
   role: consumer
   capability_id: p1_dependency_realization
 rules:
@@ -24,6 +24,8 @@ rules:
   active_mount_set_member_dependency_realization_binding_durable: true
   dependency_realization_durable_key_exact:
   - receiving_domain_ref
+  - exact_owner_capability_ref
+  - exact_receiving_operation_ref
   - exact_local_dependency_ref
   - active_mount_set_hash
   dependency_realization_exact_readback_before_bind_operation_use_required: true
