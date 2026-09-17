@@ -262,8 +262,8 @@ async function bindDurableOperationUse(
 }
 
 /**
- * Non-semantic repository runtime support for the V0136 Skeleton P2 Consumer
- * realization closure. It sequences existing P2 V0123 Operations and owner-local
+ * Non-semantic repository runtime support for the receiving Skeleton P2 Consumer
+ * realization closure. It sequences existing P2 V0124 Operations and owner-local
  * durability. It does not define a new Q Interface, Operation, Capability,
  * dependency, Provider surface, database owner, or Runtime.
  */
@@ -369,7 +369,7 @@ export async function realizeP2ConsumerDependency(
  * Pointer-first restart recovery for one predeclared receiving-P1 dependency.
  * The active mount set and implementation material are recovered/reverified
  * first; the durable dependency binding is then resolved by the exact current
- * active_mount_set_hash and revalidated before operation use is reconstructed.
+ * five-field durable key and revalidated before operation use is reconstructed.
  */
 export async function recoverP2ConsumerDependency(
   input: P2ConsumerDependencyRecoveryInput,
@@ -391,6 +391,8 @@ export async function recoverP2ConsumerDependency(
   const durableBinding = await persistence.read_dependency_binding_record(
     Object.freeze({
       receiving_domain_ref: receivingDomainRef,
+      exact_owner_capability_ref: declaredBinding.exact_owner_capability_ref,
+      exact_receiving_operation_ref: declaredBinding.exact_receiving_operation_ref,
       exact_local_dependency_ref: declaredBinding.exact_local_dependency_ref,
       active_mount_set_hash: activeMountSetHash,
     }),
