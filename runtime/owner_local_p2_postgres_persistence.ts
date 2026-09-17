@@ -237,6 +237,81 @@ function resolverBinding(resolverState: JsonObject): ResolvedImplementationBindi
   });
 }
 
+function dependencyBindingIdentity(binding: JsonObject): Readonly<{
+  exact_owner_capability_ref: string;
+  exact_receiving_operation_ref: string;
+  exact_local_dependency_ref: string;
+  active_mount_set_hash: string;
+  binding_hash: string;
+}> {
+  if (binding.source_binding_kind !== "ACTIVE_MOUNT_SET_MEMBER") {
+    throw new OwnerLocalP2PostgresError(
+      "P2_DATABASE_DEPENDENCY_BINDING_INVALID",
+      "mounted dependency persistence requires ACTIVE_MOUNT_SET_MEMBER binding",
+    );
+  }
+  if (binding.creates_or_writes_p1_business_semantics !== false) {
+    throw new OwnerLocalP2PostgresError(
+      "P2_DATABASE_DEPENDENCY_BINDING_INVALID",
+      "persisted dependency realization must not write P1 business semantics",
+    );
+  }
+  const verified = objectValue(
+    binding.verified_provider_binding_or_governed_data_binding,
+    "dependency_realization_binding.verified_provider_binding_or_governed_data_binding",
+  );
+  if (verified.source_binding_kind !== "ACTIVE_MOUNT_SET_MEMBER") {
+    throw new OwnerLocalP2PostgresError(
+      "P2_DATABASE_DEPENDENCY_BINDING_INVALID",
+      "durable dependency realization must preserve ACTIVE_MOUNT_SET_MEMBER source identity",
+    );
+  }
+  const activeMountSetHash = sha256Value(
+    verified.active_mount_set_hash,
+    "dependency_realization_binding.active_mount_set_hash",
+  );
+  const exactOwnerCapabilityRef = nonEmptyString(
+    binding.exact_owner_capability_ref,
+    "dependency_realization_binding.exact_owner_capability_ref",
+  );
+  const exactReceivingOperationRef = nonEmptyString(
+    binding.exact_receiving_operation_ref,
+    "dependency_realization_binding.exact_receiving_operation_ref",
+  );
+  const exactLocalDependencyRef = nonEmptyString(
+    binding.exact_local_dependency_ref,
+    "dependency_realization_binding.exact_local_dependency_ref",
+  );
+  const p1DependencyInterfaceRef = nonEmptyString(
+    binding.p1_dependency_interface_ref,
+    "dependency_realization_binding.p1_dependency_interface_ref",
+  );
+  const bindingHash = sha256Value(
+    binding.binding_hash,
+    "dependency_realization_binding.binding_hash",
+  );
+  const expectedBindingHash = sha256Json({
+    verified_provider_binding_or_governed_data_binding: verified,
+    exact_owner_capability_ref: exactOwnerCapabilityRef,
+    exact_receiving_operation_ref: exactReceivingOperationRef,
+    exact_local_dependency_ref: exactLocalDependencyRef,
+    p1_dependency_interface_ref: p1DependencyInterfaceRef,
+  });
+  if (bindingHash !== expectedBindingHash) {
+    throw new OwnerLocalP2PostgresError(
+      "P2_DATABASE_DEPENDENCY_BINDING_HASH_MISMATCH",
+      "dependency realization binding_hash mismatch",
+    );
+  }
+  return Object.freeze({
+    exact_owner_capability_ref: exactOwnerCapabilityRef,
+    exact_receiving_operation_ref: exactReceivingOperationRef,
+    exact_local_dependency_ref: exactLocalDependencyRef,
+    active_mount_set_hash: activeMountSetHash,
+    binding_hash: bindingHash,
+  });
+}
+
 export interface ProviderPublicationSearchResult {
   readonly capability_contract_ref: string;
   readonly publication_hash: string;
@@ -292,6 +367,8 @@ export interface OwnerLocalP2PostgresPersistence {
 
   persist_dependency_binding_record(input: Readonly<{
     receiving_domain_ref: string;
+    exact_owner_capability_ref: string;
+    exact_receiving_operation_ref: string;
     exact_local_dependency_ref: string;
     active_mount_set_hash: string;
     binding_hash: string;
@@ -299,6 +376,8 @@ export interface OwnerLocalP2PostgresPersistence {
   }>): Promise<void>;
   read_dependency_binding_record(input: Readonly<{
     receiving_domain_ref: string;
+    exact_owner_capability_ref: string;
+    exact_receiving_operation_ref: string;
     exact_local_dependency_ref: string;
     active_mount_set_hash: string;
   }>): Promise<JsonObject | undefined>;
@@ -597,33 +676,96 @@ export function createOwnerLocalP2PostgresPersistence(
       );
     },
 
-    async persist_dependency_binding_record({ receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash, binding_hash, binding }) {
+    async persist_dependency_binding_record({
+      receiving_domain_ref,
+      exact_owner_capability_ref,
+      exact_receiving_operation_ref,
+      exact_local_dependency_ref,
+      active_mount_set_hash,
+      binding_hash,
+      binding,
+    }) {
       const domain = nonEmptyString(receiving_domain_ref, "receiving_domain_ref");
+      const ownerCapabilityRef = nonEmptyString(exact_owner_capability_ref, "exact_owner_capability_ref");
+      const receivingOperationRef = nonEmptyString(exact_receiving_operation_ref, "exact_receiving_operation_ref");
       const localDependency = nonEmptyString(exact_local_dependency_ref, "exact_local_dependency_ref");
       const mountSetHash = sha256Value(active_mount_set_hash, "active_mount_set_hash");
       const bindingHash = sha256Value(binding_hash, "binding_hash");
+      const identity = dependencyBindingIdentity(binding);
+      if (
+        identity.exact_owner_capability_ref !== ownerCapabilityRef
+        || identity.exact_receiving_operation_ref !== receivingOperationRef
+        || identity.exact_local_dependency_ref !== localDependency
+        || identity.active_mount_set_hash !== mountSetHash
+        || identity.binding_hash !== bindingHash
+      ) {
+        throw new OwnerLocalP2PostgresError(
+          "P2_DATABASE_DEPENDENCY_BINDING_IDENTITY_MISMATCH",
+          "dependency realization binding does not match the exact five-field durable key",
+        );
+      }
       const recordText = canonical(binding);
       await options.database.query(
-        `insert into ${dependencyTable} (receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash, binding_hash, record_text) values ($1,$2,$3,$4,$5) on conflict (receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash) do nothing`,
-        [domain, localDependency, mountSetHash, bindingHash, recordText],
+        `insert into ${dependencyTable} (receiving_domain_ref, exact_owner_capability_ref, exact_receiving_operation_ref, exact_local_dependency_ref, active_mount_set_hash, binding_hash, record_text) values ($1,$2,$3,$4,$5,$6,$7) on conflict (receiving_domain_ref, exact_owner_capability_ref, exact_receiving_operation_ref, exact_local_dependency_ref, active_mount_set_hash) do nothing`,
+        [domain, ownerCapabilityRef, receivingOperationRef, localDependency, mountSetHash, bindingHash, recordText],
       );
-      const readback = await store.read_dependency_binding_record({ receiving_domain_ref: domain, exact_local_dependency_ref: localDependency, active_mount_set_hash: mountSetHash });
+      const readback = await store.read_dependency_binding_record({
+        receiving_domain_ref: domain,
+        exact_owner_capability_ref: ownerCapabilityRef,
+        exact_receiving_operation_ref: receivingOperationRef,
+        exact_local_dependency_ref: localDependency,
+        active_mount_set_hash: mountSetHash,
+      });
       if (readback === undefined || canonical(readback) !== recordText) {
         throw new OwnerLocalP2PostgresError("P2_DATABASE_EXACT_READBACK_MISMATCH", "dependency realization binding exact database readback failed");
       }
+      const readbackIdentity = dependencyBindingIdentity(readback);
+      if (
+        readbackIdentity.exact_owner_capability_ref !== ownerCapabilityRef
+        || readbackIdentity.exact_receiving_operation_ref !== receivingOperationRef
+        || readbackIdentity.exact_local_dependency_ref !== localDependency
+        || readbackIdentity.active_mount_set_hash !== mountSetHash
+        || readbackIdentity.binding_hash !== bindingHash
+      ) {
+        throw new OwnerLocalP2PostgresError(
+          "P2_DATABASE_DEPENDENCY_BINDING_IDENTITY_MISMATCH",
+          "dependency realization database readback identity mismatch",
+        );
+      }
     },
 
-    async read_dependency_binding_record({ receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash }) {
+    async read_dependency_binding_record({
+      receiving_domain_ref,
+      exact_owner_capability_ref,
+      exact_receiving_operation_ref,
+      exact_local_dependency_ref,
+      active_mount_set_hash,
+    }) {
       const domain = nonEmptyString(receiving_domain_ref, "receiving_domain_ref");
+      const ownerCapabilityRef = nonEmptyString(exact_owner_capability_ref, "exact_owner_capability_ref");
+      const receivingOperationRef = nonEmptyString(exact_receiving_operation_ref, "exact_receiving_operation_ref");
       const localDependency = nonEmptyString(exact_local_dependency_ref, "exact_local_dependency_ref");
       const mountSetHash = sha256Value(active_mount_set_hash, "active_mount_set_hash");
       const rows = await options.database.query<{ readonly record_text: string }>(
-        `select record_text from ${dependencyTable} where receiving_domain_ref=$1 and exact_local_dependency_ref=$2 and active_mount_set_hash=$3`,
-        [domain, localDependency, mountSetHash],
+        `select record_text from ${dependencyTable} where receiving_domain_ref=$1 and exact_owner_capability_ref=$2 and exact_receiving_operation_ref=$3 and exact_local_dependency_ref=$4 and active_mount_set_hash=$5`,
+        [domain, ownerCapabilityRef, receivingOperationRef, localDependency, mountSetHash],
       );
       if (rows.length === 0) return undefined;
       if (rows.length !== 1) throw new OwnerLocalP2PostgresError("P2_DATABASE_RECORD_INVALID", "dependency binding lookup returned duplicate rows");
-      return parseCanonicalRecord(rows[0]?.record_text, "dependency_binding.record_text");
+      const record = parseCanonicalRecord(rows[0]?.record_text, "dependency_binding.record_text");
+      const identity = dependencyBindingIdentity(record);
+      if (
+        identity.exact_owner_capability_ref !== ownerCapabilityRef
+        || identity.exact_receiving_operation_ref !== receivingOperationRef
+        || identity.exact_local_dependency_ref !== localDependency
+        || identity.active_mount_set_hash !== mountSetHash
+      ) {
+        throw new OwnerLocalP2PostgresError(
+          "P2_DATABASE_DEPENDENCY_BINDING_IDENTITY_MISMATCH",
+          "dependency realization database record does not match the exact five-field key",
+        );
+      }
+      return record;
     },
   };
 
