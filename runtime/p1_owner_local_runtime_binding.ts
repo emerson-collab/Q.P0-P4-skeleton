@@ -6,12 +6,12 @@ export interface P1OwnerLocalRuntimeBindingIdentity {
   readonly capability_contract_ref: string;
   readonly operation_ref: string;
   readonly interface_ref: string;
+  readonly binding_set_ref: string;
+  readonly port_refs: readonly string[];
 }
 
 export interface P1OwnerLocalRuntimeBindingResolution {
-  readonly binding_set_ref?: string;
   readonly attributes: JsonObject;
-  readonly port_refs?: readonly string[];
 }
 
 export interface P1OwnerLocalRuntimeBindingResolver {
@@ -51,12 +51,12 @@ function attributesObject(value: unknown): JsonObject {
 }
 
 /**
- * Repository-runtime support for resolving one exact owner-local P1 binding.
+ * Repository-runtime support for resolving one already-selected owner-local P1 binding.
  *
- * This helper owns no Capability, Operation, Interface, provider selection, or
- * business semantics. The receiving repository supplies the resolver; the
- * Skeleton only preserves exact identity and returns the resolved opaque
- * binding material for injection into the existing P0 RuntimeContext.
+ * Capability Instance / binding authority selects binding_set_ref and port_refs before
+ * runtime resolution. This helper owns no Capability, Operation, Interface, Port,
+ * Provider, or binding selection semantics; it only resolves opaque runtime resources
+ * for the exact already-governed identity supplied by the receiving repository.
  */
 export async function resolve_p1_owner_local_runtime_binding(
   identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>,
@@ -84,21 +84,16 @@ export async function resolve_p1_owner_local_runtime_binding(
       "interfaces",
       "interface_ref",
     ),
-  });
+    binding_set_ref: nonEmptyString(identity.binding_set_ref, "binding_set_ref"),
+    port_refs: identity.port_refs.map((value, index) =>
+      nonEmptyString(value, `port_refs[${index}]`)
+    ),
+  } satisfies P1OwnerLocalRuntimeBindingIdentity);
 
   const resolved = await resolver.resolveExact(exactIdentity);
   if (resolved === undefined) return undefined;
 
-  const bindingSetRef = resolved.binding_set_ref === undefined
-    ? undefined
-    : nonEmptyString(resolved.binding_set_ref, "binding_set_ref");
-  const portRefs = resolved.port_refs === undefined
-    ? undefined
-    : resolved.port_refs.map((value, index) => nonEmptyString(value, `port_refs[${index}]`));
-
   return deep_freeze({
-    ...(bindingSetRef === undefined ? {} : { binding_set_ref: bindingSetRef }),
     attributes: { ...attributesObject(resolved.attributes) },
-    ...(portRefs === undefined ? {} : { port_refs: [...portRefs] }),
   });
 }
