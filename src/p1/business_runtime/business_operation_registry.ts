@@ -1,6 +1,7 @@
 import { StableRuntimeError, deep_freeze } from "../../p0/runtime_contract.ts";
+import type { RuntimeContext, RuntimeOperation } from "../../p0/runtime_contract.ts";
 
-export type BusinessOperationHandler = (input: unknown) => unknown | Promise<unknown>;
+export type BusinessOperationHandler = RuntimeOperation<unknown, unknown>;
 
 export interface BusinessRegistryEntry {
   readonly object_ref: string;
@@ -21,8 +22,18 @@ export function register_business_operation(operation_ref: string, handler: Busi
 
 export function resolve_business_operation(operation_ref: string): BusinessOperationHandler {
   const handler = operations.get(operation_ref);
-  if (handler === undefined) throw new StableRuntimeError("P1_OPERATION_NOT_REGISTERED", "Operation ref is not registered");
+  if (handler === undefined) {
+    throw new StableRuntimeError("P1_OPERATION_NOT_REGISTERED", "Operation ref is not registered");
+  }
   return handler;
+}
+
+export async function invoke_business_operation(
+  operation_ref: string,
+  input: unknown,
+  runtime_context: RuntimeContext,
+): Promise<unknown> {
+  return await resolve_business_operation(operation_ref)(input, runtime_context);
 }
 
 export function registered_business_operation_refs(): readonly string[] {
