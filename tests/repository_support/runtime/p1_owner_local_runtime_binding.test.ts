@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   resolve_p1_owner_local_runtime_binding,
+  type P1OwnerLocalRuntimeBindingIdentity,
   type P1OwnerLocalRuntimeBindingResolver,
 } from "../../../runtime/p1_owner_local_runtime_binding.ts";
 
@@ -9,62 +10,54 @@ const CAPABILITY_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 const OPERATION_REF = `${CAPABILITY_REF}#/operations/read_example`;
 const INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_read_invoke`;
 
-test("owner-local P1 runtime binding preserves exact dynamic identity and opaque ports", async () => {
-  let seen: unknown;
+const IDENTITY: P1OwnerLocalRuntimeBindingIdentity = Object.freeze({
+  capability_contract_ref: CAPABILITY_REF,
+  operation_ref: OPERATION_REF,
+  interface_ref: INTERFACE_REF,
+  binding_set_ref: "Q.CAPABILITY_INSTANCE.EXAMPLE.DEFAULT@V0100#binding_set",
+  port_refs: Object.freeze(["Q.TEST.PORT.EXAMPLE@V0100"]),
+});
+
+test("owner-local P1 runtime binding preserves governed identity and resolves only opaque runtime attributes", async () => {
+  let seen: Readonly<P1OwnerLocalRuntimeBindingIdentity> | undefined;
   const resolver: P1OwnerLocalRuntimeBindingResolver = Object.freeze({
-    resolveExact(identity) {
+    resolveExact(identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) {
       seen = identity;
       return {
-        binding_set_ref: "binding-set:test",
         attributes: {
           readExample: async () => ({ value: "ok" }),
         },
-        port_refs: ["port:test"],
       };
     },
   });
 
-  const resolved = await resolve_p1_owner_local_runtime_binding(
-    {
-      capability_contract_ref: CAPABILITY_REF,
-      operation_ref: OPERATION_REF,
-      interface_ref: INTERFACE_REF,
-    },
-    resolver,
-  );
+  const resolved = await resolve_p1_owner_local_runtime_binding(IDENTITY, resolver);
 
-  assert.deepEqual(seen, {
-    capability_contract_ref: CAPABILITY_REF,
-    operation_ref: OPERATION_REF,
-    interface_ref: INTERFACE_REF,
-  });
-  assert.equal(resolved?.binding_set_ref, "binding-set:test");
+  assert.deepEqual(seen, IDENTITY);
   assert.equal(typeof resolved?.attributes.readExample, "function");
-  assert.deepEqual(resolved?.port_refs, ["port:test"]);
   assert.ok(Object.isFrozen(resolved));
   assert.ok(Object.isFrozen(resolved?.attributes));
 });
 
-test("owner-local P1 runtime binding returns undefined when receiving repository has no binding", async () => {
+test("owner-local P1 runtime binding returns undefined when receiving repository has no exact binding", async () => {
   const resolved = await resolve_p1_owner_local_runtime_binding(
-    {
-      capability_contract_ref: CAPABILITY_REF,
-      operation_ref: OPERATION_REF,
-      interface_ref: INTERFACE_REF,
-    },
-    Object.freeze({ resolveExact: () => undefined }),
+    IDENTITY,
+    Object.freeze({
+      resolveExact: (_identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) => undefined,
+    }),
   );
   assert.equal(resolved, undefined);
 });
 
 test("owner-local P1 runtime binding rejects cross-capability Operation or Interface identity", async () => {
-  const resolver = Object.freeze({ resolveExact: () => undefined });
+  const resolver: P1OwnerLocalRuntimeBindingResolver = Object.freeze({
+    resolveExact: (_identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) => undefined,
+  });
   await assert.rejects(
     () => resolve_p1_owner_local_runtime_binding(
       {
-        capability_contract_ref: CAPABILITY_REF,
+        ...IDENTITY,
         operation_ref: "Q.TEST.CONTRACT.CAPABILITY.OTHER@V0100#/operations/read_example",
-        interface_ref: INTERFACE_REF,
       },
       resolver,
     ),
@@ -73,12 +66,27 @@ test("owner-local P1 runtime binding rejects cross-capability Operation or Inter
   await assert.rejects(
     () => resolve_p1_owner_local_runtime_binding(
       {
-        capability_contract_ref: CAPABILITY_REF,
-        operation_ref: OPERATION_REF,
+        ...IDENTITY,
         interface_ref: "Q.TEST.CONTRACT.CAPABILITY.OTHER@V0100#/interfaces/example_read_invoke",
       },
       resolver,
     ),
     /interface_ref must be an exact member of capability_contract_ref/,
+  );
+});
+
+test("owner-local P1 runtime binding requires preselected binding_set_ref", async () => {
+  const resolver: P1OwnerLocalRuntimeBindingResolver = Object.freeze({
+    resolveExact: (_identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) => undefined,
+  });
+  await assert.rejects(
+    () => resolve_p1_owner_local_runtime_binding(
+      {
+        ...IDENTITY,
+        binding_set_ref: "",
+      },
+      resolver,
+    ),
+    /binding_set_ref must be a non-empty string/,
   );
 });
