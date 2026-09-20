@@ -10,28 +10,14 @@ export interface BusinessRegistryEntry {
   readonly registry_rule: unknown;
 }
 
-export type InvokeBoundBusinessOperation =
-  (input: unknown, runtime_context?: RuntimeContext) => Promise<unknown>;
-
-export type BusinessEventConsumeAdapter = (
-  input: unknown,
-  runtime_context: RuntimeContext,
-  invoke_bound_operation: InvokeBoundBusinessOperation,
-) => unknown | Promise<unknown>;
-
 export interface BusinessEventInterfaceBinding {
   readonly capability_contract_ref: string;
   readonly interface_ref: string;
   readonly operation_ref: string;
   readonly surface: "EVENT";
   readonly kind: BusinessEventInterfaceKind;
-  /**
-   * Concrete Capability Interface method identity. It may be Capability-owned
-   * (for example consume_standard_registration); P1 framework dispatch remains
-   * consume_business_event / publish_business_event by EVENT kind.
-   */
-  readonly method_ref: string;
-  readonly consume_adapter?: BusinessEventConsumeAdapter;
+  /** P1 framework EVENT method identity declared by the exact Capability Interface. */
+  readonly method_ref: "publish_business_event" | "consume_business_event";
 }
 
 export interface BusinessEventPublishRequest {
@@ -143,10 +129,12 @@ export function register_business_event_interface(
       "EVENT binding kind must be EVENT_PUBLISH or EVENT_CONSUME",
     );
   }
-  if (binding.kind === "EVENT_PUBLISH" && binding.consume_adapter !== undefined) {
+  const expectedMethodRef =
+    binding.kind === "EVENT_PUBLISH" ? "publish_business_event" : "consume_business_event";
+  if (methodRef !== expectedMethodRef) {
     throw new StableRuntimeError(
       "P1_EVENT_BINDING_INVALID",
-      "consume_adapter is allowed only for EVENT_CONSUME",
+      `EVENT ${binding.kind} method_ref must equal ${expectedMethodRef}`,
     );
   }
 
@@ -156,10 +144,7 @@ export function register_business_event_interface(
     operation_ref: operationRef,
     surface: "EVENT",
     kind: binding.kind,
-    method_ref: methodRef,
-    ...(binding.consume_adapter === undefined
-      ? {}
-      : { consume_adapter: binding.consume_adapter }),
+    method_ref: expectedMethodRef,
   } satisfies BusinessEventInterfaceBinding);
 
   const existing = event_interfaces.get(interfaceRef);
@@ -169,7 +154,6 @@ export function register_business_event_interface(
       || existing.operation_ref !== exactBinding.operation_ref
       || existing.kind !== exactBinding.kind
       || existing.method_ref !== exactBinding.method_ref
-      || existing.consume_adapter !== exactBinding.consume_adapter
     ) {
       throw new StableRuntimeError(
         "P1_EVENT_INTERFACE_DUPLICATE",
@@ -255,30 +239,11 @@ export async function consume_business_event(
     operation_ref: binding.operation_ref,
   } satisfies RuntimeContext);
 
-  const invokeBoundOperation: InvokeBoundBusinessOperation = async (
-    adaptedInput,
-    adaptedRuntimeContext = boundRuntimeContext,
-  ) => {
-    const exactRuntimeContext = deep_freeze({
-      ...adaptedRuntimeContext,
-      stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
-      operation_ref: binding.operation_ref,
-    } satisfies RuntimeContext);
-    return await invoke_business_operation(
-      binding.operation_ref,
-      adaptedInput,
-      exactRuntimeContext,
-    );
-  };
-
-  if (binding.consume_adapter !== undefined) {
-    return await binding.consume_adapter(
-      input,
-      boundRuntimeContext,
-      invokeBoundOperation,
-    );
-  }
-  return await invokeBoundOperation(input);
+  return await invoke_business_operation(
+    binding.operation_ref,
+    input,
+    boundRuntimeContext,
+  );
 }
 
 /**
