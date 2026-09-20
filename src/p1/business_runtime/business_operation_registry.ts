@@ -19,6 +19,17 @@ export interface BusinessEventInterfaceBinding {
   readonly method_ref: "publish_business_event" | "consume_business_event";
 }
 
+export interface BusinessEventPublishRequest {
+  readonly interface_ref: string;
+  readonly operation_ref: string;
+  readonly input: unknown;
+  readonly runtime_context: RuntimeContext;
+}
+
+export interface BusinessEventPublisher {
+  publish(request: Readonly<BusinessEventPublishRequest>): unknown | Promise<unknown>;
+}
+
 const operations = new Map<string, BusinessOperationHandler>();
 const business_objects = new Map<string, BusinessRegistryEntry>();
 const event_interfaces = new Map<string, BusinessEventInterfaceBinding>();
@@ -178,55 +189,54 @@ export function registered_business_event_interface_refs(): readonly string[] {
   return deep_freeze([...event_interfaces.keys()].sort());
 }
 
-async function dispatch_business_event(
-  interface_ref: string,
-  expected_kind: BusinessEventInterfaceKind,
-  input: unknown,
-  runtime_context: RuntimeContext,
-): Promise<unknown> {
-  const binding = resolve_business_event_interface(interface_ref, expected_kind);
-  if (runtime_context.operation_ref !== binding.operation_ref) {
-    throw new StableRuntimeError(
-      "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH",
-      "RuntimeContext operation_ref must equal the exact Operation bound by the EVENT Interface",
-    );
-  }
-  return await invoke_business_operation(binding.operation_ref, input, runtime_context);
-}
-
 /**
- * P1 EVENT_PUBLISH realization. Dispatch is keyed by the exact verified EVENT
- * Interface binding, not by a caller-selected Operation ref.
+ * P1 EVENT_PUBLISH realization.
+ *
+ * The exact EVENT_PUBLISH Interface is preverified against its owning Operation.
+ * Publication occurs only after that Operation has produced its authoritative
+ * fact/finalized outcome. This method therefore does not execute the Operation;
+ * it delegates delivery to an injected non-semantic transport publisher.
  */
 export async function publish_business_event(
   interface_ref: string,
   input: unknown,
   runtime_context: RuntimeContext,
+  publisher: BusinessEventPublisher,
 ): Promise<unknown> {
-  return await dispatch_business_event(
-    interface_ref,
-    "EVENT_PUBLISH",
+  const binding = resolve_business_event_interface(interface_ref, "EVENT_PUBLISH");
+  if (runtime_context.operation_ref !== binding.operation_ref) {
+    throw new StableRuntimeError(
+      "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH",
+      "RuntimeContext operation_ref must equal the exact Operation bound by the EVENT_PUBLISH Interface",
+    );
+  }
+  return await publisher.publish(deep_freeze({
+    interface_ref: binding.interface_ref,
+    operation_ref: binding.operation_ref,
     input,
     runtime_context,
-  );
+  } satisfies BusinessEventPublishRequest));
 }
 
 /**
- * P1 EVENT_CONSUME realization. Transport delivers one exact Interface ref;
- * P1 resolves its preverified binding and invokes only the existing bound
- * concrete Capability Operation.
+ * P1 EVENT_CONSUME realization.
+ *
+ * Transport supplies the exact Interface identity plus opaque event input/context.
+ * The Operation identity is derived only from the preverified Interface binding;
+ * transport/caller Operation selection is ignored rather than treated as authority.
  */
 export async function consume_business_event(
   interface_ref: string,
   input: unknown,
   runtime_context: RuntimeContext,
 ): Promise<unknown> {
-  return await dispatch_business_event(
-    interface_ref,
-    "EVENT_CONSUME",
-    input,
-    runtime_context,
-  );
+  const binding = resolve_business_event_interface(interface_ref, "EVENT_CONSUME");
+  const boundRuntimeContext = deep_freeze({
+    ...runtime_context,
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
+    operation_ref: binding.operation_ref,
+  } satisfies RuntimeContext);
+  return await invoke_business_operation(binding.operation_ref, input, boundRuntimeContext);
 }
 
 /**
