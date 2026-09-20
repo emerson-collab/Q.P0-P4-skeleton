@@ -2,10 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { RuntimeContext } from "../../../src/p0/runtime_contract.ts";
 import {
-  register_business_event_interface,
-  register_business_operation,
-} from "../../../src/p1/business_runtime/business_operation_registry.ts";
-import {
+  start_p1_capability_event_runtime,
   start_p1_event_transport_runtime,
   type P1EventTransportConnector,
   type P1EventTransportDelivery,
@@ -15,6 +12,18 @@ import {
 const CAPABILITY_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 const OPERATION_REF = `${CAPABILITY_REF}#/operations/read_example`;
 const EVENT_INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_event_consume`;
+const CAPABILITY_VARIABLES = Object.freeze({
+  exact_source_capability_contract_ref: CAPABILITY_REF,
+  exact_source_capability_contract_hash: `sha256:${"b".repeat(64)}`,
+  general_facts: Object.freeze({
+    capability_contract_ref: CAPABILITY_REF,
+    capability_id: "example",
+    operation_ref: OPERATION_REF,
+    event_interface_ref: EVENT_INTERFACE_REF,
+    event_interface_kind: "EVENT_CONSUME" as const,
+    event_method_ref: "consume_business_event" as const,
+  }),
+});
 
 function dynamicRuntimeContext(suffix: string): RuntimeContext {
   return Object.freeze({
@@ -34,20 +43,6 @@ test("P1 EVENT runtime consumes direct DYNAMIC_MOUNT values without Capability I
   let handled: unknown;
   let handledContext: RuntimeContext | undefined;
   const context = dynamicRuntimeContext("event");
-
-  register_business_operation(OPERATION_REF, async (input, runtimeContext) => {
-    handled = input;
-    handledContext = runtimeContext;
-    return { ok: true };
-  });
-  register_business_event_interface({
-    capability_contract_ref: CAPABILITY_REF,
-    interface_ref: EVENT_INTERFACE_REF,
-    operation_ref: OPERATION_REF,
-    surface: "EVENT",
-    kind: "EVENT_CONSUME",
-    method_ref: "consume_business_event",
-  });
 
   let connectCount = 0;
   let closeCount = 0;
@@ -97,8 +92,18 @@ test("P1 EVENT runtime consumes direct DYNAMIC_MOUNT values without Capability I
     },
   });
 
-  const controller = start_p1_event_transport_runtime(connector);
+  const controller = start_p1_capability_event_runtime({
+    capability_variables: CAPABILITY_VARIABLES,
+    operation_handler: async (input, runtimeContext) => {
+      handled = input;
+      handledContext = runtimeContext;
+      return { ok: true };
+    },
+    connector,
+  });
   await controller.ready;
+  assert.equal(controller.connection.event_interface_binding.interface_ref, EVENT_INTERFACE_REF);
+  assert.equal(controller.connection.event_interface_binding.operation_ref, OPERATION_REF);
 
   for (let i = 0; i < 20 && handled === undefined; i += 1) {
     await new Promise((resolve) => setTimeout(resolve, 0));
