@@ -181,12 +181,9 @@ export function start_p1_event_transport_runtime(
           await connector.waitBeforeReconnect(error);
         }
       } finally {
-        if (session !== undefined) {
-          try {
-            await session.close();
-          } finally {
-            if (activeSession === session) activeSession = undefined;
-          }
+        if (session !== undefined && activeSession === session) {
+          activeSession = undefined;
+          await session.close();
         }
       }
     }
@@ -202,7 +199,9 @@ export function start_p1_event_transport_runtime(
       }
       stopRequested = true;
       if (activeSession !== undefined) {
-        await activeSession.close();
+        const session = activeSession;
+        activeSession = undefined;
+        await session.close();
       }
       await stopped;
     },
