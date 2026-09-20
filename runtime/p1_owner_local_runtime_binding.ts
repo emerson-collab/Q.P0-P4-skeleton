@@ -1,4 +1,10 @@
-import { deep_freeze, exact_ref } from "../src/p0/runtime_contract.ts";
+import {
+  StableRuntimeError,
+  deep_freeze,
+  exact_ref,
+} from "../src/p0/runtime_contract.ts";
+import type { RuntimeContext } from "../src/p0/runtime_contract.ts";
+import { consume_business_event } from "../src/p1/business_runtime/business_operation_registry.ts";
 
 export type JsonObject = Readonly<Record<string, unknown>>;
 
@@ -21,6 +27,28 @@ export interface P1OwnerLocalRuntimeBindingResolver {
     | P1OwnerLocalRuntimeBindingResolution
     | undefined
     | Promise<P1OwnerLocalRuntimeBindingResolution | undefined>;
+}
+
+export interface P1EventTransportDelivery {
+  readonly interface_ref: string;
+  readonly input: unknown;
+  readonly runtime_context: RuntimeContext;
+}
+
+export interface P1EventTransportSession {
+  receive(): Promise<P1EventTransportDelivery>;
+  close(): void | Promise<void>;
+}
+
+export interface P1EventTransportConnector {
+  connect(): Promise<P1EventTransportSession>;
+  waitBeforeReconnect?(error: unknown): void | Promise<void>;
+}
+
+export interface P1EventTransportRuntimeController {
+  readonly ready: Promise<void>;
+  readonly stopped: Promise<void>;
+  stop(): Promise<void>;
 }
 
 function nonEmptyString(value: unknown, field: string): string {
@@ -96,4 +124,87 @@ export async function resolve_p1_owner_local_runtime_binding(
   return deep_freeze({
     attributes: { ...attributesObject(resolved.attributes) },
   });
+}
+
+/**
+ * Starts one non-semantic EVENT transport lifecycle inside the existing repository
+ * runtime-support root. The connector owns provider/channel mechanics; P1 owns only
+ * exact Interface-to-Operation dispatch through consume_business_event.
+ *
+ * A broken session is closed and reconnected. No polling/cron worker, listener
+ * business Operation, EVENT-specific directory, second Runtime, or P0 EVENT surface
+ * is created here.
+ */
+export function start_p1_event_transport_runtime(
+  connector: P1EventTransportConnector,
+): P1EventTransportRuntimeController {
+  let stopRequested = false;
+  let activeSession: P1EventTransportSession | undefined;
+  let readyResolved = false;
+  let resolveReady!: () => void;
+  const ready = new Promise<void>((resolve) => {
+    resolveReady = resolve;
+  });
+
+  const stopped = (async () => {
+    while (!stopRequested) {
+      let session: P1EventTransportSession | undefined;
+      try {
+        session = await connector.connect();
+        if (stopRequested) {
+          await session.close();
+          break;
+        }
+        activeSession = session;
+        if (!readyResolved) {
+          readyResolved = true;
+          resolveReady();
+        }
+
+        while (!stopRequested) {
+          const delivery = await session.receive();
+          if (!exact_ref(delivery.interface_ref)) {
+            throw new StableRuntimeError(
+              "P1_EVENT_DELIVERY_INTERFACE_INVALID",
+              "Transport delivery interface_ref must be exact-versioned",
+            );
+          }
+          await consume_business_event(
+            delivery.interface_ref,
+            delivery.input,
+            delivery.runtime_context,
+          );
+        }
+      } catch (error) {
+        if (stopRequested) break;
+        if (connector.waitBeforeReconnect !== undefined) {
+          await connector.waitBeforeReconnect(error);
+        }
+      } finally {
+        if (session !== undefined) {
+          try {
+            await session.close();
+          } finally {
+            if (activeSession === session) activeSession = undefined;
+          }
+        }
+      }
+    }
+  })();
+
+  return deep_freeze({
+    ready,
+    stopped,
+    async stop(): Promise<void> {
+      if (stopRequested) {
+        await stopped;
+        return;
+      }
+      stopRequested = true;
+      if (activeSession !== undefined) {
+        await activeSession.close();
+      }
+      await stopped;
+    },
+  } satisfies P1EventTransportRuntimeController);
 }
