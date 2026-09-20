@@ -148,9 +148,18 @@ export function start_p1_event_transport_runtime(
 
   const stopped = (async () => {
     while (!stopRequested) {
-      let session: P1EventTransportSession | undefined;
+      let session: P1EventTransportSession;
       try {
         session = await connector.connect();
+      } catch (error) {
+        if (stopRequested) break;
+        if (connector.waitBeforeReconnect !== undefined) {
+          await connector.waitBeforeReconnect(error);
+        }
+        continue;
+      }
+
+      try {
         if (stopRequested) {
           await session.close();
           break;
@@ -161,27 +170,45 @@ export function start_p1_event_transport_runtime(
           resolveReady();
         }
 
+        let reconnect = false;
         while (!stopRequested) {
-          const delivery = await session.receive();
+          let delivery: P1EventTransportDelivery;
+          try {
+            delivery = await session.receive();
+          } catch (error) {
+            if (stopRequested) break;
+            if (connector.waitBeforeReconnect !== undefined) {
+              await connector.waitBeforeReconnect(error);
+            }
+            reconnect = true;
+            break;
+          }
+
           if (!exact_ref(delivery.interface_ref)) {
             throw new StableRuntimeError(
               "P1_EVENT_DELIVERY_INTERFACE_INVALID",
               "Transport delivery interface_ref must be exact-versioned",
             );
           }
+
+          // Dispatch/binding failures are semantic failures, not transport
+          // disconnects. They intentionally escape this lifecycle and fail
+          // closed instead of entering the reconnect path.
           await consume_business_event(
             delivery.interface_ref,
             delivery.input,
             delivery.runtime_context,
           );
         }
-      } catch (error) {
-        if (stopRequested) break;
-        if (connector.waitBeforeReconnect !== undefined) {
-          await connector.waitBeforeReconnect(error);
+
+        if (!reconnect && !stopRequested) {
+          throw new StableRuntimeError(
+            "P1_EVENT_TRANSPORT_STOPPED",
+            "EVENT transport session stopped without a transport disconnect or requested shutdown",
+          );
         }
       } finally {
-        if (session !== undefined && activeSession === session) {
+        if (activeSession === session) {
           activeSession = undefined;
           await session.close();
         }
