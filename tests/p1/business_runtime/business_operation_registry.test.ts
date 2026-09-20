@@ -68,7 +68,7 @@ test("P1 business operation registry fails closed on duplicate different handler
   );
 });
 
-test("P1 EVENT_CONSUME dispatches through concrete Interface adapter to the exact existing Operation", async () => {
+test("P1 EVENT_CONSUME dispatches exact opaque input to the exact existing Operation", async () => {
   register_business_operation(
     CONSUME_OPERATION_REF,
     async (input, runtimeContext) => ({
@@ -82,14 +82,7 @@ test("P1 EVENT_CONSUME dispatches through concrete Interface adapter to the exac
     operation_ref: CONSUME_OPERATION_REF,
     surface: "EVENT",
     kind: "EVENT_CONSUME",
-    method_ref: "consume_standard_registration",
-    consume_adapter: async (input, runtimeContext, invokeBoundOperation) => {
-      const event = input as { id: number };
-      return await invokeBoundOperation(
-        { subject_source_binding: { source_ref: `event:${event.id}` } },
-        runtimeContext,
-      );
-    },
+    method_ref: "consume_business_event",
   });
 
   assert.equal(resolve_business_event_interface(CONSUME_INTERFACE_REF), binding);
@@ -101,7 +94,7 @@ test("P1 EVENT_CONSUME dispatches through concrete Interface adapter to the exac
       contextFor(`${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`),
     ),
     {
-      consumed: { subject_source_binding: { source_ref: "event:7" } },
+      consumed: { id: 7 },
       operation_ref: CONSUME_OPERATION_REF,
     },
   );
