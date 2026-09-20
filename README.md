@@ -8,21 +8,21 @@ Authoritative Contract bytes are resolved from Q Cloud Storage. Repository-side 
 
 ## Current baseline
 
-- Repository Skeleton: `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0136`
-- Capability Contract: `Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0106`
+- Repository Skeleton: `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0142`
+- Capability Contract: `Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0115`
 - Capability Package: `Q.SS.STD.META.CONTRACT.CAPABILITY_PACKAGE@V0115`
 - P0: `Q.SS.STD.P0.DRT.RUNTIME_CORE@V0134`
-- P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0179`
-- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0123`
+- P1: `Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0181`
+- P2: `Q.SS.STD.P2.DRT.CROSS_DOMAIN_REALIZATION@V0124`
 - P3: `Q.SS.STD.P3.DRT.EVOLUTION@V0145`
 - P4: `Q.SS.STD.P4.DRT.COORDINATION@V0141`
 
-P1 concrete Capability implementations remain add-only overlays over the fixed P1 Business Runtime skeleton. `PUBLICATION_ELIGIBLE` extraction is an exact derived projection of the Capability Contract External Provider Surface; P1, code scanning, AI, Capability Package, and P2 may not expand that public boundary.
+P1 concrete Capability implementations remain add-only overlays over the fixed P1 Business Runtime skeleton. P1 V0181 EVENT execution resolves exact concrete EVENT Interface bindings before dispatch; EVENT_CONSUME invokes only the existing bound Operation, while EVENT_PUBLISH transport delivery occurs only after the owning Operation has produced its authoritative fact/finalized outcome. `PUBLICATION_ELIGIBLE` extraction is an exact derived projection of the Capability Contract External Provider Surface; P1, code scanning, AI, Capability Package, and P2 may not expand that public boundary.
 
 Capability Package V0115 preserves QCPIM1 immutable implementation-material semantics without a Database Persistence Meta commit authority. P2 Provider publication is complete only after durable exact publication readback.
 
-P2 mounted execution delegates only to the receiving repository local P0 runtime. Under P2 V0123, retained mounts, immutable mount sets, active mount-set pointer state, dependency-realization bindings, and execution receipts are receiving-owner-local durable runtime facts; activation mutates the active pointer last within the mount lifecycle and restart recovery is pointer-first with implementation-material and dependency-binding reverification. P2 owns lifecycle invariants and no Stage-level database objects.
+P2 mounted execution delegates only to the receiving repository local P0 runtime. Under P2 V0124, retained mounts, immutable mount sets, active mount-set pointer state, dependency-realization bindings, and execution receipts are receiving-owner-local durable runtime facts; activation mutates the active pointer last within the mount lifecycle and restart recovery is pointer-first with implementation-material and dependency-binding reverification. P2 owns lifecycle invariants and no Stage-level database objects.
 
-Repository Skeleton V0136 closes the receiving-P1 Consumer chain after active mount-set establishment: the receiving Capability must already declare `exact_owner_capability_ref`, `exact_receiving_operation_ref`, and `exact_local_dependency_ref`; repository runtime support executes P2 V0123 `realize_dependency`, persists and exact-readback verifies the resulting dependency-realization binding, and only then executes `bind_operation_use`. `operation_use_binding` remains runtime-derived and is not a mandatory durable fact. P2 does not create the receiving dependency, redefine its business semantics, or create another Runtime.
+Repository Skeleton V0142 preserves the receiving-P1 Consumer chain after active mount-set establishment and adds P1 EVENT transport lifecycle support only inside the existing non-stage `runtime/` support root. EVENT dispatch must resolve one exact verified concrete Interface-to-existing-Operation binding; transport or caller input cannot select the business Operation. Persistent connection/reconnect is allowed for an owner-declared transport binding, while EVENT-specific/listener directories, polling/cron substitutes, P0 EVENT Interfaces, and a second Runtime remain forbidden.
 
 Q.Workflow verification remains owned by the CURRENT System Interface and Q.Gate remains verdict authority.
