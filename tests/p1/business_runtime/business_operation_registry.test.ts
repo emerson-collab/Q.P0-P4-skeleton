@@ -88,7 +88,7 @@ test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Opera
     await consume_business_event(
       CONSUME_INTERFACE_REF,
       { id: 7 },
-      contextFor(CONSUME_OPERATION_REF),
+      contextFor(`${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`),
     ),
     { consumed: { id: 7 } },
   );
@@ -105,8 +105,13 @@ test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Opera
   );
 });
 
-test("P1 EVENT binding rejects transport/caller Operation override and kind mismatch", async () => {
-  register_business_operation(PUBLISH_OPERATION_REF, async () => "ok");
+test("P1 EVENT publish uses exact binding after owner fact and never re-executes the owning Operation", async () => {
+  let operationAttempts = 0;
+  let published: unknown;
+  register_business_operation(PUBLISH_OPERATION_REF, async () => {
+    operationAttempts += 1;
+    return "must-not-run";
+  });
   register_business_event_interface({
     capability_contract_ref: CAPABILITY_REF,
     interface_ref: PUBLISH_INTERFACE_REF,
@@ -117,10 +122,28 @@ test("P1 EVENT binding rejects transport/caller Operation override and kind mism
   });
 
   const context = contextFor(PUBLISH_OPERATION_REF);
-  assert.equal(
-    await publish_business_event(PUBLISH_INTERFACE_REF, {}, context),
-    "ok",
+  assert.deepEqual(
+    await publish_business_event(
+      PUBLISH_INTERFACE_REF,
+      { authoritative_fact: "ready" },
+      context,
+      Object.freeze({
+        publish(request: unknown) {
+          published = request;
+          return { published: true };
+        },
+      }),
+    ),
+    { published: true },
   );
+  assert.equal(operationAttempts, 0);
+  assert.deepEqual(published, {
+    interface_ref: PUBLISH_INTERFACE_REF,
+    operation_ref: PUBLISH_OPERATION_REF,
+    input: { authoritative_fact: "ready" },
+    runtime_context: context,
+  });
+
   await assert.rejects(
     () => consume_business_event(PUBLISH_INTERFACE_REF, {}, context),
     (error: unknown) =>
@@ -134,7 +157,12 @@ test("P1 EVENT binding rejects transport/caller Operation override and kind mism
     operation_ref: `${CAPABILITY_REF}#/operations/other`,
   });
   await assert.rejects(
-    () => publish_business_event(PUBLISH_INTERFACE_REF, {}, wrongContext),
+    () => publish_business_event(
+      PUBLISH_INTERFACE_REF,
+      {},
+      wrongContext,
+      Object.freeze({ publish: async () => ({ published: true }) }),
+    ),
     (error: unknown) =>
       error instanceof Error
       && "code" in error
