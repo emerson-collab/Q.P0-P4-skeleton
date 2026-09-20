@@ -3,8 +3,13 @@ import {
   deep_freeze,
   exact_ref,
 } from "../src/p0/runtime_contract.ts";
-import type { RuntimeContext } from "../src/p0/runtime_contract.ts";
+import type { RuntimeContext, RuntimeOperation } from "../src/p0/runtime_contract.ts";
 import { consume_business_event } from "../src/p1/business_runtime/business_operation_registry.ts";
+import {
+  connect_p1_capability_event_runtime,
+  type P1CapabilityCodeVariableSource,
+  type P1CapabilityEventRuntimeConnection,
+} from "./p1_capability_dynamic_variable_binding.ts";
 
 /**
  * One EVENT delivery into the fixed P1 skeleton.
@@ -33,6 +38,21 @@ export interface P1EventTransportRuntimeController {
   readonly ready: Promise<void>;
   readonly stopped: Promise<void>;
   stop(): Promise<void>;
+}
+
+export interface P1CapabilityEventRuntimeBootstrap {
+  readonly capability_variables: Readonly<P1CapabilityCodeVariableSource>;
+  readonly operation_handler: RuntimeOperation<unknown, unknown>;
+  /**
+   * Owner-declared non-semantic repository runtime transport material.
+   * This connector is not Capability business semantics and cannot select an Operation.
+   */
+  readonly connector: P1EventTransportConnector;
+}
+
+export interface P1CapabilityEventRuntimeController
+  extends P1EventTransportRuntimeController {
+  readonly connection: P1CapabilityEventRuntimeConnection;
 }
 
 /**
@@ -142,4 +162,33 @@ export function start_p1_event_transport_runtime(
       await stopped;
     },
   } satisfies P1EventTransportRuntimeController);
+}
+
+
+/**
+ * Skeleton-owned P1 EVENT runtime bootstrap.
+ *
+ * Concrete P1 Capability code supplies only its exact Contract GENERAL variable
+ * projection and its existing Operation implementation. Repository runtime support
+ * supplies the already-owner-declared non-semantic transport connector. The
+ * Skeleton resolves variables, registers the exact Interface-to-Operation binding,
+ * starts the listener lifecycle, and dispatches EVENT_CONSUME directly to the
+ * existing Operation. No adapter, bridge, listener Operation, wrapper Operation,
+ * Capability Instance materialization, or second Runtime participates.
+ */
+export function start_p1_capability_event_runtime(
+  bootstrap: Readonly<P1CapabilityEventRuntimeBootstrap>,
+): P1CapabilityEventRuntimeController {
+  const connection = connect_p1_capability_event_runtime(
+    bootstrap.capability_variables,
+    bootstrap.operation_handler,
+  );
+  const transport = start_p1_event_transport_runtime(bootstrap.connector);
+
+  return deep_freeze({
+    connection,
+    ready: transport.ready,
+    stopped: transport.stopped,
+    stop: () => transport.stop(),
+  } satisfies P1CapabilityEventRuntimeController);
 }
