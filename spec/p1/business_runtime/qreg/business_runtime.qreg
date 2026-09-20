@@ -1,5 +1,5 @@
 {
-  "stage_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0180",
+  "stage_contract_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
   "interfaces": [
     "business_operation_invoke",
     "internal_call_invoke",
