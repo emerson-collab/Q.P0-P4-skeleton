@@ -7,7 +7,6 @@ import type { RuntimeOperation } from "../src/p0/runtime_contract.ts";
 import {
   register_business_event_interface,
   register_business_operation,
-  type BusinessEventConsumeAdapter,
   type BusinessEventInterfaceBinding,
   type BusinessEventInterfaceKind,
 } from "../src/p1/business_runtime/business_operation_registry.ts";
@@ -37,10 +36,6 @@ export interface P1ResolvedRuntimeTokenBinding {
   readonly exact_source_capability_contract_hash: string;
   readonly exact_source_fact_key: string;
   readonly value: unknown;
-}
-
-export interface P1CapabilityEventRuntimeConnectionOptions {
-  readonly consume_adapter?: BusinessEventConsumeAdapter;
 }
 
 export interface P1CapabilityEventRuntimeConnection {
@@ -240,14 +235,25 @@ function eventKind(value: unknown): BusinessEventInterfaceKind {
   return value;
 }
 
-function eventMethod(value: unknown): string {
-  return nonEmptyString(value, "event_method_ref");
+function eventMethod(
+  value: unknown,
+  kind: BusinessEventInterfaceKind,
+): "publish_business_event" | "consume_business_event" {
+  const methodRef = nonEmptyString(value, "event_method_ref");
+  const expectedMethodRef =
+    kind === "EVENT_PUBLISH" ? "publish_business_event" : "consume_business_event";
+  if (methodRef !== expectedMethodRef) {
+    throw new StableRuntimeError(
+      "P1_DYNAMIC_VARIABLE_BINDING_INVALID",
+      `event_method_ref for ${kind} must equal ${expectedMethodRef}`,
+    );
+  }
+  return expectedMethodRef;
 }
 
 export function connect_p1_capability_event_runtime(
   source: Readonly<P1CapabilityCodeVariableSource>,
   handler: RuntimeOperation<unknown, unknown>,
-  options: Readonly<P1CapabilityEventRuntimeConnectionOptions> = {},
 ): P1CapabilityEventRuntimeConnection {
   const bindings = resolve_p1_capability_code_variables(
     source,
@@ -282,7 +288,10 @@ export function connect_p1_capability_event_runtime(
     "event_interface_ref",
   );
   const kind = eventKind(valueByVariableId(bindings, "event_interface_kind"));
-  const methodRef = eventMethod(valueByVariableId(bindings, "event_method_ref"));
+  const methodRef = eventMethod(
+    valueByVariableId(bindings, "event_method_ref"),
+    kind,
+  );
 
   register_business_operation(operationRef, handler);
   const eventInterfaceBinding = register_business_event_interface({
@@ -292,9 +301,6 @@ export function connect_p1_capability_event_runtime(
     surface: "EVENT",
     kind,
     method_ref: methodRef,
-    ...(options.consume_adapter === undefined
-      ? {}
-      : { consume_adapter: options.consume_adapter }),
   });
 
   return deep_freeze({
