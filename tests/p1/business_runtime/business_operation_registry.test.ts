@@ -68,10 +68,13 @@ test("P1 business operation registry fails closed on duplicate different handler
   );
 });
 
-test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Operation binding", async () => {
+test("P1 EVENT_CONSUME dispatches through concrete Interface adapter to the exact existing Operation", async () => {
   register_business_operation(
     CONSUME_OPERATION_REF,
-    async (input) => ({ consumed: input }),
+    async (input, runtimeContext) => ({
+      consumed: input,
+      operation_ref: runtimeContext.operation_ref,
+    }),
   );
   const binding = register_business_event_interface({
     capability_contract_ref: CAPABILITY_REF,
@@ -79,7 +82,14 @@ test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Opera
     operation_ref: CONSUME_OPERATION_REF,
     surface: "EVENT",
     kind: "EVENT_CONSUME",
-    method_ref: "consume_business_event",
+    method_ref: "consume_standard_registration",
+    consume_adapter: async (input, runtimeContext, invokeBoundOperation) => {
+      const event = input as { id: number };
+      return await invokeBoundOperation(
+        { subject_source_binding: { source_ref: `event:${event.id}` } },
+        runtimeContext,
+      );
+    },
   });
 
   assert.equal(resolve_business_event_interface(CONSUME_INTERFACE_REF), binding);
@@ -90,7 +100,10 @@ test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Opera
       { id: 7 },
       contextFor(`${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`),
     ),
-    { consumed: { id: 7 } },
+    {
+      consumed: { subject_source_binding: { source_ref: "event:7" } },
+      operation_ref: CONSUME_OPERATION_REF,
+    },
   );
   await assert.rejects(
     () => consume_business_event(
