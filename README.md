@@ -25,4 +25,6 @@ P2 mounted execution delegates only to the receiving repository local P0 runtime
 
 Repository Skeleton V0142 preserves the receiving-P1 Consumer chain after active mount-set establishment and adds P1 EVENT transport lifecycle support only inside the existing non-stage `runtime/` support root. EVENT dispatch must resolve one exact verified concrete Interface-to-existing-Operation binding; transport or caller input cannot select the business Operation. Persistent connection/reconnect is allowed for an owner-declared transport binding, while EVENT-specific/listener directories, polling/cron substitutes, P0 EVENT Interfaces, and a second Runtime remain forbidden.
 
+P1 Capability runtime connection uses Repository Skeleton V0142 dynamic-variable binding: exact Capability code projections expose only Contract GENERAL facts together with exact Contract ref/hash lineage, and the Skeleton fills predeclared runtime tokens before registering the exact EVENT Interface-to-existing-Operation binding. Capability Instance material is not required for GENERAL EVENT identity binding, and missing/duplicate/ambiguous variables fail closed.
+
 Q.Workflow verification remains owned by the CURRENT System Interface and Q.Gate remains verdict authority.
