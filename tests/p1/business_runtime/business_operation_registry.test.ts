@@ -22,7 +22,7 @@ const PUBLISH_INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_event_publi
 
 function contextFor(operation_ref: string): RuntimeContext {
   return Object.freeze({
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182",
     operation_ref,
     trace_id: "trace:test",
     request_id: "request:test",
