@@ -105,7 +105,7 @@ test("P1 EVENT runtime support reconnects transport and dispatches through exact
   let handled: unknown;
   const context: RuntimeContext = Object.freeze({
     stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
-    operation_ref: OPERATION_REF,
+    operation_ref: `${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`,
     trace_id: "trace:event",
     request_id: "request:event",
     invocation_id: "invocation:event",
