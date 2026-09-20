@@ -18,3 +18,5 @@ enabled_rule
 p0_runtime_hook_evaluate_ref
 object_contract
 registry_rule
+result_contract_ref
+receipt_contract_ref
