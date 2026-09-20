@@ -19,7 +19,7 @@ function sourceFor(code: string): P1CapabilityCodeVariableSource {
       operation_ref: `${contractRef}#/operations/consume_registered_event`,
       event_interface_ref: `${contractRef}#/interfaces/standard_registration_consume`,
       event_interface_kind: "EVENT_CONSUME",
-      event_method_ref: "consume_standard_registration",
+      event_method_ref: "consume_business_event",
     }),
   });
 }
@@ -35,14 +35,6 @@ test("Skeleton connects exact P1 Capability GENERAL code variables to EVENT runt
       seenInput = input;
       seenOperationRef = context.operation_ref;
       return { ok: true };
-    },
-    {
-      consume_adapter: async (input, runtimeContext, invokeBoundOperation) => {
-        return await invokeBoundOperation(
-          Object.freeze({ adapted_event: input }),
-          runtimeContext,
-        );
-      },
     },
   );
 
@@ -66,7 +58,7 @@ test("Skeleton connects exact P1 Capability GENERAL code variables to EVENT runt
     ),
     { ok: true },
   );
-  assert.deepEqual(seenInput, { adapted_event: { event_id: "event:dynamic" } });
+  assert.deepEqual(seenInput, { event_id: "event:dynamic" });
   assert.equal(seenOperationRef, source.general_facts.operation_ref);
 });
 
@@ -121,6 +113,27 @@ test("Skeleton dynamic-variable binding rejects a cross-Contract Operation proje
         general_facts: Object.freeze({
           ...source.general_facts,
           operation_ref: "Q.TEST.CONTRACT.CAPABILITY.OTHER@V0100#/operations/consume_registered_event",
+        }),
+      },
+      async () => undefined,
+    ),
+    (error: unknown) =>
+      error instanceof Error
+      && "code" in error
+      && (error as { code: string }).code === "P1_DYNAMIC_VARIABLE_BINDING_INVALID",
+  );
+});
+
+
+test("Skeleton rejects Capability-owned EVENT method names instead of installing an adapter path", () => {
+  const source = sourceFor("LEGACY_METHOD");
+  assert.throws(
+    () => connect_p1_capability_event_runtime(
+      {
+        ...source,
+        general_facts: Object.freeze({
+          ...source.general_facts,
+          event_method_ref: "consume_standard_registration",
         }),
       },
       async () => undefined,
