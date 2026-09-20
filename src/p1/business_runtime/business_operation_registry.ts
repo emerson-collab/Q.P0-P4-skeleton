@@ -41,7 +41,37 @@ export function registered_business_operation_refs(): readonly string[] {
 }
 
 /**
- * P1 V0179 REGISTRY_REGISTER realization.
+ * P1 V0180 EVENT_PUBLISH framework realization.
+ *
+ * Event meaning, payload contracts, and Operation binding remain owned by the
+ * concrete Capability Contract. This method only dispatches the declared
+ * owning Operation through the existing P1 operation registry.
+ */
+export async function publish_business_event(
+  operation_ref: string,
+  input: unknown,
+  runtime_context: RuntimeContext,
+): Promise<unknown> {
+  return await invoke_business_operation(operation_ref, input, runtime_context);
+}
+
+/**
+ * P1 V0180 EVENT_CONSUME framework realization.
+ *
+ * Transport is deliberately outside this method. The repository runtime
+ * transport supplies the declared event input and this method invokes only the
+ * exact concrete Capability Operation bound by its EVENT_CONSUME Interface.
+ */
+export async function consume_business_event(
+  operation_ref: string,
+  input: unknown,
+  runtime_context: RuntimeContext,
+): Promise<unknown> {
+  return await invoke_business_operation(operation_ref, input, runtime_context);
+}
+
+/**
+ * P1 V0180 REGISTRY_REGISTER realization.
  *
  * The registry stores only the exact static object_contract + registry_rule supplied by
  * the governed Capability projection. It does not infer public interfaces, expand a
@@ -70,7 +100,7 @@ export function register_business_object(
   return entry;
 }
 
-/** P1 V0179 REGISTRY_RESOLVE realization using the exact registered object_ref as resolution key. */
+/** P1 V0180 REGISTRY_RESOLVE realization using the exact registered object_ref as resolution key. */
 export function resolve_business_object(resolution_key: string): BusinessRegistryEntry {
   const entry = business_objects.get(resolution_key);
   if (entry === undefined) {
@@ -79,7 +109,7 @@ export function resolve_business_object(resolution_key: string): BusinessRegistr
   return entry;
 }
 
-/** P1 V0179 REGISTRY_LOOKUP realization; lookup is read-only and never invokes business Operations. */
+/** P1 V0180 REGISTRY_LOOKUP realization; lookup is read-only and never invokes business Operations. */
 export function lookup_business_object(lookup_query: string): BusinessRegistryEntry | undefined {
   return business_objects.get(lookup_query);
 }
