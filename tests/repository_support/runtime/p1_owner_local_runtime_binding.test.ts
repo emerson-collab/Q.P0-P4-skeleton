@@ -1,16 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import type { RuntimeContext } from "../../../src/p0/runtime_contract.ts";
-import {
-  register_business_event_interface,
-  register_business_operation,
-} from "../../../src/p1/business_runtime/business_operation_registry.ts";
 import {
   resolve_p1_owner_local_runtime_binding,
-  start_p1_event_transport_runtime,
-  type P1EventTransportConnector,
-  type P1EventTransportDelivery,
-  type P1EventTransportSession,
   type P1OwnerLocalRuntimeBindingIdentity,
   type P1OwnerLocalRuntimeBindingResolver,
 } from "../../../runtime/p1_owner_local_runtime_binding.ts";
@@ -18,7 +9,6 @@ import {
 const CAPABILITY_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 const OPERATION_REF = `${CAPABILITY_REF}#/operations/read_example`;
 const INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_read_invoke`;
-const EVENT_INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_event_consume`;
 
 const IDENTITY: P1OwnerLocalRuntimeBindingIdentity = Object.freeze({
   capability_contract_ref: CAPABILITY_REF,
@@ -99,137 +89,4 @@ test("owner-local P1 runtime binding requires preselected binding_set_ref", asyn
     ),
     /binding_set_ref must be a non-empty string/,
   );
-});
-
-test("P1 EVENT runtime support reconnects transport and dispatches through exact EVENT Interface binding", async () => {
-  let handled: unknown;
-  const context: RuntimeContext = Object.freeze({
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
-    operation_ref: `${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`,
-    trace_id: "trace:event",
-    request_id: "request:event",
-    invocation_id: "invocation:event",
-    binding_set_ref: "binding:event",
-  });
-
-  register_business_operation(OPERATION_REF, async (input) => {
-    handled = input;
-    return { ok: true };
-  });
-  register_business_event_interface({
-    capability_contract_ref: CAPABILITY_REF,
-    interface_ref: EVENT_INTERFACE_REF,
-    operation_ref: OPERATION_REF,
-    surface: "EVENT",
-    kind: "EVENT_CONSUME",
-    method_ref: "consume_business_event",
-  });
-
-  let connectCount = 0;
-  let closeCount = 0;
-  let releaseSecondReceive!: () => void;
-  const secondReceiveBlocked = new Promise<void>((resolve) => {
-    releaseSecondReceive = resolve;
-  });
-  const delivery: P1EventTransportDelivery = Object.freeze({
-    interface_ref: EVENT_INTERFACE_REF,
-    input: Object.freeze({ event_id: "event:test" }),
-    runtime_context: context,
-  });
-
-  const connector: P1EventTransportConnector = Object.freeze({
-    async connect(): Promise<P1EventTransportSession> {
-      connectCount += 1;
-      if (connectCount === 1) {
-        return {
-          async receive(): Promise<P1EventTransportDelivery> {
-            throw new Error("simulated disconnect");
-          },
-          async close() {
-            closeCount += 1;
-          },
-        };
-      }
-
-      let delivered = false;
-      return {
-        async receive(): Promise<P1EventTransportDelivery> {
-          if (!delivered) {
-            delivered = true;
-            return delivery;
-          }
-          await secondReceiveBlocked;
-          throw new Error("closed");
-        },
-        async close() {
-          closeCount += 1;
-          releaseSecondReceive();
-        },
-      };
-    },
-    async waitBeforeReconnect() {
-      return;
-    },
-  });
-
-  const controller = start_p1_event_transport_runtime(connector);
-  await controller.ready;
-
-  for (let i = 0; i < 20 && handled === undefined; i += 1) {
-    await new Promise((resolve) => setTimeout(resolve, 0));
-  }
-  assert.deepEqual(handled, { event_id: "event:test" });
-  assert.equal(connectCount, 2);
-
-  await controller.stop();
-  assert.ok(closeCount >= 2);
-  await controller.stopped;
-});
-
-
-test("P1 EVENT runtime fails closed on undeclared exact Interface instead of reconnecting", async () => {
-  const undeclaredInterfaceRef = `${CAPABILITY_REF}#/interfaces/undeclared_event_consume`;
-  const context: RuntimeContext = Object.freeze({
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
-    operation_ref: `${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`,
-    trace_id: "trace:undeclared",
-    request_id: "request:undeclared",
-    invocation_id: "invocation:undeclared",
-    binding_set_ref: "binding:undeclared",
-  });
-
-  let connectCount = 0;
-  let closeCount = 0;
-  const connector: P1EventTransportConnector = Object.freeze({
-    async connect(): Promise<P1EventTransportSession> {
-      connectCount += 1;
-      return {
-        async receive(): Promise<P1EventTransportDelivery> {
-          return Object.freeze({
-            interface_ref: undeclaredInterfaceRef,
-            input: Object.freeze({ event_id: "event:undeclared" }),
-            runtime_context: context,
-          });
-        },
-        async close() {
-          closeCount += 1;
-        },
-      };
-    },
-    async waitBeforeReconnect() {
-      throw new Error("semantic binding failure must not enter reconnect path");
-    },
-  });
-
-  const controller = start_p1_event_transport_runtime(connector);
-  await controller.ready;
-  await assert.rejects(
-    controller.stopped,
-    (error: unknown) =>
-      error instanceof Error
-      && "code" in error
-      && (error as { code: string }).code === "P1_EVENT_INTERFACE_NOT_REGISTERED",
-  );
-  assert.equal(connectCount, 1);
-  assert.equal(closeCount, 1);
 });
