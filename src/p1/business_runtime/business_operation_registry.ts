@@ -235,7 +235,7 @@ export async function consume_business_event(
   const binding = resolve_business_event_interface(interface_ref, "EVENT_CONSUME");
   const boundRuntimeContext = deep_freeze({
     ...runtime_context,
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182",
     operation_ref: binding.operation_ref,
   } satisfies RuntimeContext);
 
