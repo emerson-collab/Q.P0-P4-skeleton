@@ -185,3 +185,51 @@ test("P1 EVENT runtime support reconnects transport and dispatches through exact
   assert.ok(closeCount >= 2);
   await controller.stopped;
 });
+
+
+test("P1 EVENT runtime fails closed on undeclared exact Interface instead of reconnecting", async () => {
+  const undeclaredInterfaceRef = `${CAPABILITY_REF}#/interfaces/undeclared_event_consume`;
+  const context: RuntimeContext = Object.freeze({
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
+    operation_ref: `${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`,
+    trace_id: "trace:undeclared",
+    request_id: "request:undeclared",
+    invocation_id: "invocation:undeclared",
+    binding_set_ref: "binding:undeclared",
+  });
+
+  let connectCount = 0;
+  let closeCount = 0;
+  const connector: P1EventTransportConnector = Object.freeze({
+    async connect(): Promise<P1EventTransportSession> {
+      connectCount += 1;
+      return {
+        async receive(): Promise<P1EventTransportDelivery> {
+          return Object.freeze({
+            interface_ref: undeclaredInterfaceRef,
+            input: Object.freeze({ event_id: "event:undeclared" }),
+            runtime_context: context,
+          });
+        },
+        async close() {
+          closeCount += 1;
+        },
+      };
+    },
+    async waitBeforeReconnect() {
+      throw new Error("semantic binding failure must not enter reconnect path");
+    },
+  });
+
+  const controller = start_p1_event_transport_runtime(connector);
+  await controller.ready;
+  await assert.rejects(
+    controller.stopped,
+    (error: unknown) =>
+      error instanceof Error
+      && "code" in error
+      && (error as { code: string }).code === "P1_EVENT_INTERFACE_NOT_REGISTERED",
+  );
+  assert.equal(connectCount, 1);
+  assert.equal(closeCount, 1);
+});
