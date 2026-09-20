@@ -13,3 +13,4 @@ consumer_id
 object_ref
 resolution_key
 lookup_query
+subject_ref
