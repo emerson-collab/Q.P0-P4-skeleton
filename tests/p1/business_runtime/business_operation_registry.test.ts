@@ -15,17 +15,22 @@ import {
 
 const CAPABILITY_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 const OPERATION_REF = `${CAPABILITY_REF}#/operations/example`;
+const CONSUME_OPERATION_REF = `${CAPABILITY_REF}#/operations/example_event_consume`;
+const PUBLISH_OPERATION_REF = `${CAPABILITY_REF}#/operations/example_event_publish`;
 const CONSUME_INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_event_consume`;
 const PUBLISH_INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_event_publish`;
-const CONTEXT: RuntimeContext = Object.freeze({
-  stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
-  operation_ref: OPERATION_REF,
-  trace_id: "trace:test",
-  request_id: "request:test",
-  invocation_id: "invocation:test",
-  binding_set_ref: "binding:test",
-  attributes: Object.freeze({ injected: "yes" }),
-});
+
+function contextFor(operation_ref: string): RuntimeContext {
+  return Object.freeze({
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
+    operation_ref,
+    trace_id: "trace:test",
+    request_id: "request:test",
+    invocation_id: "invocation:test",
+    binding_set_ref: "binding:test",
+    attributes: Object.freeze({ injected: "yes" }),
+  });
+}
 
 test("P1 business operation registry preserves RuntimeContext during invocation", async () => {
   const handler = async (input: unknown, context: RuntimeContext) => ({
@@ -36,11 +41,12 @@ test("P1 business operation registry preserves RuntimeContext during invocation"
   });
 
   register_business_operation(OPERATION_REF, handler);
+  const context = contextFor(OPERATION_REF);
 
   assert.equal(resolve_business_operation(OPERATION_REF), handler);
   assert.ok(registered_business_operation_refs().includes(OPERATION_REF));
   assert.deepEqual(
-    await invoke_business_operation(OPERATION_REF, { value: 1 }, CONTEXT),
+    await invoke_business_operation(OPERATION_REF, { value: 1 }, context),
     {
       input: { value: 1 },
       operation_ref: OPERATION_REF,
@@ -51,7 +57,7 @@ test("P1 business operation registry preserves RuntimeContext during invocation"
 });
 
 test("P1 business operation registry fails closed on duplicate different handler", () => {
-  const ref = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100#/operations/duplicate";
+  const ref = `${CAPABILITY_REF}#/operations/duplicate`;
   register_business_operation(ref, async () => "first");
   assert.throws(
     () => register_business_operation(ref, async () => "second"),
@@ -63,11 +69,14 @@ test("P1 business operation registry fails closed on duplicate different handler
 });
 
 test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Operation binding", async () => {
-  register_business_operation(OPERATION_REF, async (input) => ({ consumed: input }));
+  register_business_operation(
+    CONSUME_OPERATION_REF,
+    async (input) => ({ consumed: input }),
+  );
   const binding = register_business_event_interface({
     capability_contract_ref: CAPABILITY_REF,
     interface_ref: CONSUME_INTERFACE_REF,
-    operation_ref: OPERATION_REF,
+    operation_ref: CONSUME_OPERATION_REF,
     surface: "EVENT",
     kind: "EVENT_CONSUME",
     method_ref: "consume_business_event",
@@ -76,11 +85,19 @@ test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Opera
   assert.equal(resolve_business_event_interface(CONSUME_INTERFACE_REF), binding);
   assert.ok(registered_business_event_interface_refs().includes(CONSUME_INTERFACE_REF));
   assert.deepEqual(
-    await consume_business_event(CONSUME_INTERFACE_REF, { id: 7 }, CONTEXT),
+    await consume_business_event(
+      CONSUME_INTERFACE_REF,
+      { id: 7 },
+      contextFor(CONSUME_OPERATION_REF),
+    ),
     { consumed: { id: 7 } },
   );
   await assert.rejects(
-    () => consume_business_event(OPERATION_REF, { id: 7 }, CONTEXT),
+    () => consume_business_event(
+      CONSUME_OPERATION_REF,
+      { id: 7 },
+      contextFor(CONSUME_OPERATION_REF),
+    ),
     (error: unknown) =>
       error instanceof Error
       && "code" in error
@@ -89,19 +106,23 @@ test("P1 EVENT_CONSUME dispatches only through exact Interface-to-existing-Opera
 });
 
 test("P1 EVENT binding rejects transport/caller Operation override and kind mismatch", async () => {
-  register_business_operation(OPERATION_REF, async () => "ok");
+  register_business_operation(PUBLISH_OPERATION_REF, async () => "ok");
   register_business_event_interface({
     capability_contract_ref: CAPABILITY_REF,
     interface_ref: PUBLISH_INTERFACE_REF,
-    operation_ref: OPERATION_REF,
+    operation_ref: PUBLISH_OPERATION_REF,
     surface: "EVENT",
     kind: "EVENT_PUBLISH",
     method_ref: "publish_business_event",
   });
 
-  assert.equal(await publish_business_event(PUBLISH_INTERFACE_REF, {}, CONTEXT), "ok");
+  const context = contextFor(PUBLISH_OPERATION_REF);
+  assert.equal(
+    await publish_business_event(PUBLISH_INTERFACE_REF, {}, context),
+    "ok",
+  );
   await assert.rejects(
-    () => consume_business_event(PUBLISH_INTERFACE_REF, {}, CONTEXT),
+    () => consume_business_event(PUBLISH_INTERFACE_REF, {}, context),
     (error: unknown) =>
       error instanceof Error
       && "code" in error
@@ -109,7 +130,7 @@ test("P1 EVENT binding rejects transport/caller Operation override and kind mism
   );
 
   const wrongContext = Object.freeze({
-    ...CONTEXT,
+    ...context,
     operation_ref: `${CAPABILITY_REF}#/operations/other`,
   });
   await assert.rejects(
