@@ -19,7 +19,7 @@ function sourceFor(code: string): P1CapabilityCodeVariableSource {
       operation_ref: `${contractRef}#/operations/consume_registered_event`,
       event_interface_ref: `${contractRef}#/interfaces/standard_registration_consume`,
       event_interface_kind: "EVENT_CONSUME",
-      event_method_ref: "consume_business_event",
+      event_method_ref: "consume_standard_registration",
     }),
   });
 }
@@ -35,6 +35,14 @@ test("Skeleton connects exact P1 Capability GENERAL code variables to EVENT runt
       seenInput = input;
       seenOperationRef = context.operation_ref;
       return { ok: true };
+    },
+    {
+      consume_adapter: async (input, runtimeContext, invokeBoundOperation) => {
+        return await invokeBoundOperation(
+          Object.freeze({ adapted_event: input }),
+          runtimeContext,
+        );
+      },
     },
   );
 
@@ -58,7 +66,7 @@ test("Skeleton connects exact P1 Capability GENERAL code variables to EVENT runt
     ),
     { ok: true },
   );
-  assert.deepEqual(seenInput, { event_id: "event:dynamic" });
+  assert.deepEqual(seenInput, { adapted_event: { event_id: "event:dynamic" } });
   assert.equal(seenOperationRef, source.general_facts.operation_ref);
 });
 
