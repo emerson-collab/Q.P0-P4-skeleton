@@ -1,4 +1,4 @@
-policy_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181
+policy_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182
 one_operation_one_capability: true
 formal_business_operation_type_forbidden: true
 direct_same_domain_handler_import_forbidden: true
@@ -12,4 +12,8 @@ event_publish_after_owner_operation_authoritative_fact_required: true
 event_transport_is_non_semantic: true
 event_transport_polling_or_cron_substitute_forbidden: true
 event_listener_business_operation_forbidden: true
-event_runtime_support_uses_existing_runtime_root_only: true
+event_listener_transport_lifecycle_owned_by_p1: false
+event_listener_transport_lifecycle_owned_by_repository_skeleton: false
+event_listener_transport_lifecycle_requires_exact_capability_contract: true
+event_listener_execution_runtime: EXISTING_P0_RUNTIME_ONLY
+event_input_semantic_transformation_forbidden: true
