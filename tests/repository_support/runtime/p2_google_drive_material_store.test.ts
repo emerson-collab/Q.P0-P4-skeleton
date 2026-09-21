@@ -11,7 +11,7 @@ import {
 } from "../../../runtime/p2_google_drive_material_store.ts";
 
 function hash(bytes: Uint8Array): string {
-  return \`sha256:\${createHash("sha256").update(bytes).digest("hex")}\`;
+  return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 }
 
 function fakeTransport() {
@@ -39,7 +39,7 @@ function fakeTransport() {
 
     async createFolder(input) {
       const child = Object.freeze({
-        id: \`folder-\${nextId++}\`,
+        id: `folder-${nextId++}`,
         name: input.name,
         mime_type: "application/vnd.google-apps.folder",
       });
@@ -49,13 +49,13 @@ function fakeTransport() {
 
     async createJsonFile(input) {
       const child: GoogleDriveWrittenFile = Object.freeze({
-        id: \`file-\${nextId++}\`,
+        id: `file-${nextId++}`,
         name: input.name,
         mime_type: "application/json",
-        revision_id: \`rev-\${nextRevision++}\`,
+        revision_id: `rev-${nextRevision++}`,
       });
       addChild(input.parent_id, child);
-      revisions.set(\`\${child.id}@\${child.revision_id}\`, Uint8Array.from(input.bytes));
+      revisions.set(`${child.id}@${child.revision_id}`, Uint8Array.from(input.bytes));
       return child;
     },
 
@@ -68,14 +68,14 @@ function fakeTransport() {
         id: input.file_id,
         name: input.name,
         mime_type: "application/json",
-        revision_id: \`rev-\${nextRevision++}\`,
+        revision_id: `rev-${nextRevision++}`,
       });
-      revisions.set(\`\${written.id}@\${written.revision_id}\`, Uint8Array.from(input.bytes));
+      revisions.set(`${written.id}@${written.revision_id}`, Uint8Array.from(input.bytes));
       return written;
     },
 
     async readRevision(input) {
-      const bytes = revisions.get(\`\${input.file_id}@\${input.revision_id}\`);
+      const bytes = revisions.get(`${input.file_id}@${input.revision_id}`);
       assert.ok(bytes);
       return Uint8Array.from(bytes);
     },
@@ -102,7 +102,7 @@ test("P2 Google Drive store materializes exactly static.json, dynamic.json, runt
       data_category: category,
       material: { category, value: 1 },
       trace_id: "trace-1",
-      request_id: \`request-\${category}\`,
+      request_id: `request-${category}`,
     }));
   }
 
@@ -170,7 +170,7 @@ test("P2 Google Drive store fails closed before write when expected hash does no
       subject_ref: "subject",
       data_category: "STATIC",
       exact_json_bytes: bytes,
-      expected_content_hash: \`sha256:\${"0".repeat(64)}\`,
+      expected_content_hash: `sha256:${"0".repeat(64)}`,
       trace_id: "trace",
       request_id: "request",
     }),
