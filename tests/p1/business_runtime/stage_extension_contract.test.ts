@@ -8,5 +8,5 @@ test("static StageExtension remains publication-active and aligned to CURRENT P1
     provided_interface_refs: ["Q.TEST.INTERFACE.EXAMPLE@V0100"],
   });
   assert.equal(extension.status, "active");
-  assert.equal(extension.stage_contract_ref, "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181");
+  assert.equal(extension.stage_contract_ref, "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182");
 });
