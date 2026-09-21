@@ -65,7 +65,7 @@ const receiving = {
 };
 
 test("realize_dependency is bound to P2 V0124", () => {
-  assert.equal(STAGE_CONTRACT_REF, "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0124");
+  assert.equal(STAGE_CONTRACT_REF, "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125");
 });
 
 test("realize_dependency accepts exact active mount-set member", async () => {

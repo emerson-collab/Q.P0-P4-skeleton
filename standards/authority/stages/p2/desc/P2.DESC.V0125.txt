@@ -1,0 +1,16 @@
+Q.SS.STD.P2.DESC.CROSS_DOMAIN_REALIZATION@V0125
+
+
+Status: active.
+Authority: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125.
+Update classification: ADD_ONLY.
+Predecessor: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0124, hash sha256:18247a92282363c145e415324d6e82f39ec692090327aa000fff37e28f7700db.
+
+
+V0125 is a version-matched standard-release projection closure over V0124. It preserves the exact five-Capability / seventeen-Operation / 56-path Provider/Consumer model and all mounted-execution, owner-local persistence and receiving-P1 dependency-realization semantics unchanged.
+
+
+The only normative cleanup in this successor is removal of stale V0123 standard-release projection residue: physical_model.standard_release_files and the version-matched DRT projection now reference P2.DESC.V0125.txt and P2.DRT.V0125.txt.
+
+
+No Capability, Operation, Interface, Surface, Layer, Q-wide field, connection mode, request/response mapping, StableError, P0 runtime rule, Provider publication rule, Consumer mount rule, mounted execution rule, dependency-realization rule, Rule payload or Rule version is added, removed or redefined.

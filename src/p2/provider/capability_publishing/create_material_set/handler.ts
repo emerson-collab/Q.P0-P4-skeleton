@@ -24,7 +24,7 @@ function exactProviderInterfaceRefs(value:unknown,capabilityContractRef:string):
  return Object.freeze([...refs]);
 }
 
-export const STAGE_CONTRACT_REF="Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123" as const;
+export const STAGE_CONTRACT_REF="Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125" as const;
 export const ROLE="provider" as const;
 export const CAPABILITY_ID="capability_publishing" as const;
 export const OPERATION_ID="create_material_set" as const;
