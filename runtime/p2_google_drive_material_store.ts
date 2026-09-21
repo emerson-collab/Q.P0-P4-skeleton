@@ -127,7 +127,7 @@ function nonEmptyString(value: unknown, field: string): string {
   if (typeof value !== "string" || value.length === 0) {
     throw new P2GoogleDriveMaterialStoreError(
       "P2_MATERIAL_STORE_INVALID",
-      \`\${field} must be a non-empty string\`,
+      `${field} must be a non-empty string`,
     );
   }
   return value;
@@ -144,7 +144,7 @@ function exactCategory(value: unknown): P2GovernedDataCategory {
 }
 
 function sha256(bytes: Uint8Array): string {
-  return \`sha256:\${createHash("sha256").update(bytes).digest("hex")}\`;
+  return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
 }
 
 function validateHash(value: unknown, field: string): string {
@@ -152,7 +152,7 @@ function validateHash(value: unknown, field: string): string {
   if (!/^sha256:[0-9a-f]{64}$/.test(text)) {
     throw new P2GoogleDriveMaterialStoreError(
       "P2_MATERIAL_STORE_INVALID",
-      \`\${field} must be an exact sha256 binding\`,
+      `${field} must be an exact sha256 binding`,
     );
   }
   return text;
@@ -162,7 +162,7 @@ function objectValue(value: unknown, field: string): JsonObject {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
     throw new P2GoogleDriveMaterialStoreError(
       "P2_MATERIAL_STORE_INVALID",
-      \`\${field} must be an object\`,
+      `${field} must be an object`,
     );
   }
   return value as JsonObject;
@@ -181,7 +181,7 @@ function stableValue(value: unknown): unknown {
 
 export function serializeP2MaterialJson(material: JsonObject): Uint8Array {
   objectValue(material, "material");
-  return Buffer.from(\`\${JSON.stringify(stableValue(material))}\n\`, "utf8");
+  return Buffer.from(`${JSON.stringify(stableValue(material))}\n`, "utf8");
 }
 
 function assertJsonBytes(bytes: Uint8Array): void {
@@ -201,7 +201,7 @@ function exactlyOne<T>(items: readonly T[], field: string): T | undefined {
   if (items.length > 1) {
     throw new P2GoogleDriveMaterialStoreError(
       "P2_MATERIAL_STORE_AMBIGUOUS",
-      \`multiple Google Drive entries matched \${field}\`,
+      `multiple Google Drive entries matched ${field}`,
     );
   }
   return items[0];
@@ -292,7 +292,7 @@ export function createGoogleDriveP2MaterialStore(
           trace_id: traceId,
           request_id: requestId,
         }),
-        \`\${ownerRef}/\${subjectRef}/\${fileName}\`,
+        `${ownerRef}/${subjectRef}/${fileName}`,
       );
 
       const written = existing === undefined
@@ -462,13 +462,13 @@ export function createGoogleDriveFetchP2MaterialTransport(
   ): Promise<Response> {
     const token = await auth(traceId, requestId);
     const headers = new Headers(init.headers);
-    headers.set("Authorization", \`Bearer \${token}\`);
+    headers.set("Authorization", `Bearer ${token}`);
     const response = await fetchImpl(url, { ...init, headers });
     if (!response.ok) {
       const body = await response.text();
       throw new P2GoogleDriveMaterialStoreError(
         "P2_GOOGLE_DRIVE_REQUEST_FAILED",
-        \`Google Drive request failed with HTTP \${response.status}\`,
+        `Google Drive request failed with HTTP ${response.status}`,
         Object.freeze({ body: body.slice(0, 1000) }),
       );
     }
@@ -487,7 +487,7 @@ export function createGoogleDriveFetchP2MaterialTransport(
 
   return Object.freeze({
     async findChildren(input) {
-      const q = \`'\${driveQueryLiteral(input.parent_id)}' in parents and name = '\${driveQueryLiteral(input.name)}' and mimeType = '\${driveQueryLiteral(input.mime_type)}' and trashed = false\`;
+      const q = `'${driveQueryLiteral(input.parent_id)}' in parents and name = '${driveQueryLiteral(input.name)}' and mimeType = '${driveQueryLiteral(input.mime_type)}' and trashed = false`;
       const url = new URL("https://www.googleapis.com/drive/v3/files");
       url.searchParams.set("q", q);
       url.searchParams.set("pageSize", "10");
@@ -541,20 +541,20 @@ export function createGoogleDriveFetchP2MaterialTransport(
     async createJsonFile(input) {
       const boundary = "q-p2-material-boundary";
       const prefix = Buffer.from(
-        \`--\${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n\${JSON.stringify({
+        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({
           name: input.name,
           mimeType: JSON_MIME,
           parents: [input.parent_id],
-        })}\r\n--\${boundary}\r\nContent-Type: application/json\r\n\r\n\`,
+        })}\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`,
         "utf8",
       );
-      const suffix = Buffer.from(\`\r\n--\${boundary}--\r\n\`, "utf8");
+      const suffix = Buffer.from(`\r\n--${boundary}--\r\n`, "utf8");
       const body = Buffer.concat([prefix, Buffer.from(input.bytes), suffix]);
       const payload = await jsonResponse(
         "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,mimeType,headRevisionId",
         {
           method: "POST",
-          headers: { "Content-Type": \`multipart/related; boundary=\${boundary}\` },
+          headers: { "Content-Type": `multipart/related; boundary=${boundary}` },
           body: arrayBuffer(body),
         },
         input.trace_id,
@@ -565,7 +565,7 @@ export function createGoogleDriveFetchP2MaterialTransport(
 
     async replaceJsonFile(input) {
       const payload = await jsonResponse(
-        \`https://www.googleapis.com/upload/drive/v3/files/\${encodeURIComponent(input.file_id)}?uploadType=media&fields=id,name,mimeType,headRevisionId\`,
+        `https://www.googleapis.com/upload/drive/v3/files/${encodeURIComponent(input.file_id)}?uploadType=media&fields=id,name,mimeType,headRevisionId`,
         {
           method: "PATCH",
           headers: { "Content-Type": JSON_MIME },
@@ -586,7 +586,7 @@ export function createGoogleDriveFetchP2MaterialTransport(
 
     async readRevision(input) {
       const response = await checkedFetch(
-        \`https://www.googleapis.com/drive/v3/files/\${encodeURIComponent(input.file_id)}/revisions/\${encodeURIComponent(input.revision_id)}?alt=media\`,
+        `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(input.file_id)}/revisions/${encodeURIComponent(input.revision_id)}?alt=media`,
         { method: "GET" },
         input.trace_id,
         input.request_id,
