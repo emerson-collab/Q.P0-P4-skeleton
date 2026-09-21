@@ -145,7 +145,7 @@ test(
       ): Promise<readonly Row[]> {
         if (statement.startsWith('insert into "qtest"."dependency_binding"')) {
           if (dependencyRecordText === undefined) {
-            dependencyRecordText = String(parameters[4]);
+            dependencyRecordText = String(parameters[6]);
           }
           return Object.freeze([]) as readonly Row[];
         }
