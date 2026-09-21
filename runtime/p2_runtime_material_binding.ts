@@ -34,14 +34,14 @@ export interface P2RuntimeMaterialAttributeFactory {
 
 function nonEmptyString(value: unknown, field: string): string {
   if (typeof value !== "string" || value.length === 0) {
-    throw new TypeError(\`\${field} must be a non-empty string\`);
+    throw new TypeError(`${field} must be a non-empty string`);
   }
   return value;
 }
 
 function objectValue(value: unknown, field: string): JsonObject {
   if (value === null || typeof value !== "object" || Array.isArray(value)) {
-    throw new TypeError(\`\${field} must be an object\`);
+    throw new TypeError(`${field} must be an object`);
   }
   return value as JsonObject;
 }
