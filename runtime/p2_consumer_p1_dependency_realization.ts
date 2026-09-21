@@ -260,7 +260,7 @@ async function bindDurableOperationUse(
  */
 export async function realizeP2DeclaredDependency(
   input: P2ConsumerDeclaredDependencyInput,
-  persistence: P2ConsumerRealizationPersistence,
+  persistence: P2ConsumerDependencyPersistence,
 ): Promise<P2ConsumerDeclaredDependencyResult> {
   const receivingDomainRef = nonEmptyString(
     input.receiving_domain_ref,
@@ -361,7 +361,7 @@ export async function recoverP2ConsumerDependency(
     "receiving_domain_ref",
   );
   const declaredBinding = receivingBinding(input.receiving_p1_binding);
-  const activeMountSet = await recover_active_mount_set_with_owner(
+  const activeMountSet = await recoverP2ConsumerMount(
     receivingDomainRef,
     persistence,
   );
