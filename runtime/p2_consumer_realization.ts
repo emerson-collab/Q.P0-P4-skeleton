@@ -33,16 +33,31 @@ import type {
 import {
   handler as bindOperationUse,
 } from "../src/p2/consumer/p1_dependency_realization/bind_operation_use/handler.ts";
+import {
+  handler as executeMountedCapability,
+} from "../src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts";
+import type {
+  MountedCapabilityExecutionDependencies,
+} from "../src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts";
 
 export type JsonObject = Readonly<Record<string, unknown>>;
 
-export const P2_CONSUMER_REALIZATION_SEQUENCE = Object.freeze([
+export const P2_CONSUMER_MOUNT_SEQUENCE = Object.freeze([
   "consume_publication",
   "create_mount",
   "create_mount_set",
   "activate_mount_set",
+] as const);
+
+export const P2_CONSUMER_DEPENDENCY_SEQUENCE = Object.freeze([
   "realize_dependency",
   "bind_operation_use",
+] as const);
+
+/** Backward-compatible convenience sequence for callers that explicitly need both mount and P1 dependency realization. */
+export const P2_CONSUMER_REALIZATION_SEQUENCE = Object.freeze([
+  ...P2_CONSUMER_MOUNT_SEQUENCE,
+  ...P2_CONSUMER_DEPENDENCY_SEQUENCE,
 ] as const);
 
 export interface ReceivingP1DependencyBinding {
@@ -51,11 +66,71 @@ export interface ReceivingP1DependencyBinding {
   readonly exact_local_dependency_ref: string;
 }
 
-export type P2ConsumerRealizationPersistence =
+export type P2ConsumerMountPersistence =
   & OwnerLocalMountRecordPersistencePort
   & OwnerLocalMountSetPersistencePort
-  & OwnerLocalActiveMountSetPersistencePort
-  & OwnerLocalDependencyBindingPersistencePort;
+  & OwnerLocalActiveMountSetPersistencePort;
+
+export type P2ConsumerDependencyPersistence =
+  OwnerLocalDependencyBindingPersistencePort;
+
+export type P2ConsumerRealizationPersistence =
+  & P2ConsumerMountPersistence
+  & P2ConsumerDependencyPersistence;
+
+export interface P2ConsumerMountRealizationInput {
+  readonly publication: JsonObject;
+  readonly verification: JsonObject;
+  readonly receiving_domain_ref: string;
+  readonly mount_policy?: JsonObject;
+  readonly additional_retained_mounts?: readonly JsonObject[];
+  readonly current_active_mount_set?: JsonObject;
+  readonly runtime_context?: JsonObject;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export interface P2ConsumerMountRecoveryInput {
+  readonly receiving_domain_ref: string;
+}
+
+export interface P2ConsumerMountRealizationResult {
+  readonly operation_sequence: typeof P2_CONSUMER_MOUNT_SEQUENCE;
+  readonly verified_publication: JsonObject;
+  readonly mount: JsonObject;
+  readonly mount_set: JsonObject;
+  readonly active_mount_set: JsonObject;
+}
+
+export interface P2ConsumerMountRecoveryResult {
+  readonly active_mount_set: JsonObject;
+}
+
+export interface P2ConsumerDeclaredDependencyInput {
+  readonly receiving_domain_ref: string;
+  readonly active_mount_set: JsonObject;
+  readonly selected_mount: JsonObject;
+  readonly receiving_p1_binding: ReceivingP1DependencyBinding;
+  readonly runtime_context?: JsonObject;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export interface P2ConsumerDeclaredDependencyResult {
+  readonly operation_sequence: typeof P2_CONSUMER_DEPENDENCY_SEQUENCE;
+  readonly dependency_realization_binding: JsonObject;
+  readonly operation_use_binding: JsonObject;
+}
+
+export interface P2MountedCapabilityExecutionInput {
+  readonly receiving_domain_ref: string;
+  readonly requested_provider_capability_contract_ref: string;
+  readonly exact_interface_binding: JsonObject;
+  readonly operation_input: unknown;
+  readonly runtime_context?: JsonObject;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
 
 export interface P2ConsumerDependencyRealizationInput {
   readonly publication: JsonObject;
@@ -259,6 +334,164 @@ async function bindDurableOperationUse(
     operationUse.runtime_result.operation_use_binding,
     "operation_use_binding",
   );
+}
+
+/**
+ * Mount-only P2.Consumer realization.
+ *
+ * This closes at one ACTIVE mount set and intentionally does not require, infer,
+ * persist, or bind any receiving-P1 local dependency.
+ */
+export async function realizeP2ConsumerMount(
+  input: P2ConsumerMountRealizationInput,
+  persistence: P2ConsumerMountPersistence,
+): Promise<P2ConsumerMountRealizationResult> {
+  const receivingDomainRef = nonEmptyString(
+    input.receiving_domain_ref,
+    "receiving_domain_ref",
+  );
+
+  const consumed = await consumePublication(request(Object.freeze({
+    publication: input.publication,
+    verification: input.verification,
+  }), input));
+  const verifiedPublication = objectValue(
+    consumed.runtime_result.verified_publication,
+    "verified_publication",
+  );
+
+  const mounted = await createMount(request(Object.freeze({
+    verified_publication: verifiedPublication,
+    receiving_domain_ref: receivingDomainRef,
+    mount_policy: input.mount_policy ?? Object.freeze({}),
+  }), input));
+  const mount = objectValue(mounted.runtime_result.mount, "mount");
+  await persist_created_mount_with_owner(mount, persistence);
+
+  const mounts = Object.freeze([
+    ...(input.additional_retained_mounts ?? Object.freeze([])),
+    mount,
+  ]);
+  const createdSet = await createMountSet(request(Object.freeze({
+    receiving_domain_ref: receivingDomainRef,
+    mounts,
+  }), input));
+  const mountSet = objectValue(createdSet.runtime_result.mount_set, "mount_set");
+  await persist_created_mount_set_with_owner(mountSet, mounts, persistence);
+
+  const activated = await activateMountSet(request(Object.freeze({
+    mount_set: mountSet,
+    ...(input.current_active_mount_set === undefined
+      ? {}
+      : { current_active_mount_set: input.current_active_mount_set }),
+  }), input));
+  const activeMountSet = objectValue(
+    activated.runtime_result.active_mount_set,
+    "active_mount_set",
+  );
+  await commit_active_mount_set_with_owner(activeMountSet, persistence);
+
+  return Object.freeze({
+    operation_sequence: P2_CONSUMER_MOUNT_SEQUENCE,
+    verified_publication: verifiedPublication,
+    mount,
+    mount_set: mountSet,
+    active_mount_set: activeMountSet,
+  });
+}
+
+export async function recoverP2ConsumerMount(
+  input: P2ConsumerMountRecoveryInput,
+  persistence: P2ConsumerMountPersistence,
+): Promise<P2ConsumerMountRecoveryResult> {
+  const activeMountSet = await recover_active_mount_set_with_owner(
+    nonEmptyString(input.receiving_domain_ref, "receiving_domain_ref"),
+    persistence,
+  );
+  return Object.freeze({ active_mount_set: activeMountSet });
+}
+
+/**
+ * Realizes one already-declared receiving-P1 dependency against one exact member
+ * of an already ACTIVE mount set. It never creates the P1 dependency.
+ */
+export async function realizeP2DeclaredDependency(
+  input: P2ConsumerDeclaredDependencyInput,
+  persistence: P2ConsumerDependencyPersistence,
+): Promise<P2ConsumerDeclaredDependencyResult> {
+  const receivingDomainRef = nonEmptyString(
+    input.receiving_domain_ref,
+    "receiving_domain_ref",
+  );
+  const declaredBinding = receivingBinding(input.receiving_p1_binding);
+  const selectedMount = objectValue(input.selected_mount, "selected_mount");
+  const verifiedPublication = objectValue(
+    selectedMount.verified_publication,
+    "selected_mount.verified_publication",
+  );
+  const providerCapabilityContractRef = nonEmptyString(
+    verifiedPublication.capability_contract_ref,
+    "selected_mount.verified_publication.capability_contract_ref",
+  );
+  assertSelectedMountIsActiveMember(
+    objectValue(input.active_mount_set, "active_mount_set"),
+    providerCapabilityContractRef,
+    selectedMount,
+  );
+
+  const dependency = await realizeDependency(request(Object.freeze({
+    verified_provider_binding_or_governed_data_binding: Object.freeze({
+      source_binding_kind: "ACTIVE_MOUNT_SET_MEMBER",
+      active_mount_set_hash: input.active_mount_set.mount_set_hash,
+      provider_capability_contract_ref: providerCapabilityContractRef,
+      selected_mount: selectedMount,
+    }),
+    receiving_p1_binding: declaredBinding,
+    create_p1_dependency: false,
+  }), input));
+  const dependencyRealizationBinding = objectValue(
+    dependency.runtime_result.dependency_realization_binding,
+    "dependency_realization_binding",
+  );
+  await persist_dependency_realization_with_owner(
+    receivingDomainRef,
+    dependencyRealizationBinding,
+    persistence,
+  );
+  const operationUseBinding = await bindDurableOperationUse(
+    dependencyRealizationBinding,
+    declaredBinding,
+    input,
+  );
+  return Object.freeze({
+    operation_sequence: P2_CONSUMER_DEPENDENCY_SEQUENCE,
+    dependency_realization_binding: dependencyRealizationBinding,
+    operation_use_binding: operationUseBinding,
+  });
+}
+
+/**
+ * Recovers the receiving Domain ACTIVE mount set, then invokes one exact mounted
+ * Provider Capability through the existing execute_mounted_capability Operation
+ * and the receiving repository local P0 runtime.
+ */
+export async function executeP2MountedCapability(
+  input: P2MountedCapabilityExecutionInput,
+  persistence: P2ConsumerMountPersistence,
+  dependencies: MountedCapabilityExecutionDependencies,
+): Promise<JsonObject> {
+  const recovered = await recoverP2ConsumerMount(
+    Object.freeze({ receiving_domain_ref: input.receiving_domain_ref }),
+    persistence,
+  );
+  const response = await executeMountedCapability(request(Object.freeze({
+    active_mount_set: recovered.active_mount_set,
+    requested_provider_capability_contract_ref:
+      input.requested_provider_capability_contract_ref,
+    exact_interface_binding: input.exact_interface_binding,
+    operation_input: input.operation_input,
+  }), input), dependencies);
+  return objectValue(response.runtime_result, "mounted_capability_runtime_result");
 }
 
 /**
