@@ -24,6 +24,12 @@ import type {
   OwnerLocalActiveMountSetPersistencePort,
 } from "../src/p2/consumer/external_capability_mounting/activate_mount_set/handler.ts";
 import {
+  handler as executeMountedCapability,
+} from "../src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts";
+import type {
+  MountedCapabilityExecutionDependencies,
+} from "../src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts";
+import {
   handler as realizeDependency,
   persist_dependency_realization_with_owner,
 } from "../src/p2/consumer/p1_dependency_realization/realize_dependency/handler.ts";
@@ -36,11 +42,15 @@ import {
 
 export type JsonObject = Readonly<Record<string, unknown>>;
 
-export const P2_CONSUMER_REALIZATION_SEQUENCE = Object.freeze([
+export const P2_CONSUMER_MOUNT_SEQUENCE = Object.freeze([
   "consume_publication",
   "create_mount",
   "create_mount_set",
   "activate_mount_set",
+] as const);
+
+export const P2_CONSUMER_REALIZATION_SEQUENCE = Object.freeze([
+  ...P2_CONSUMER_MOUNT_SEQUENCE,
   "realize_dependency",
   "bind_operation_use",
 ] as const);
@@ -51,23 +61,54 @@ export interface ReceivingP1DependencyBinding {
   readonly exact_local_dependency_ref: string;
 }
 
-export type P2ConsumerRealizationPersistence =
+export type P2ConsumerMountPersistence =
   & OwnerLocalMountRecordPersistencePort
   & OwnerLocalMountSetPersistencePort
-  & OwnerLocalActiveMountSetPersistencePort
+  & OwnerLocalActiveMountSetPersistencePort;
+
+export type P2ConsumerRealizationPersistence =
+  & P2ConsumerMountPersistence
   & OwnerLocalDependencyBindingPersistencePort;
 
-export interface P2ConsumerDependencyRealizationInput {
+export interface P2ConsumerMountRealizationInput {
   readonly publication: JsonObject;
   readonly verification: JsonObject;
   readonly receiving_domain_ref: string;
   readonly mount_policy?: JsonObject;
-  readonly receiving_p1_binding: ReceivingP1DependencyBinding;
   readonly additional_retained_mounts?: readonly JsonObject[];
   readonly current_active_mount_set?: JsonObject;
   readonly runtime_context?: JsonObject;
   readonly trace_id: string;
   readonly request_id: string;
+}
+
+export interface P2ConsumerMountRealizationResult {
+  readonly operation_sequence: typeof P2_CONSUMER_MOUNT_SEQUENCE;
+  readonly verified_publication: JsonObject;
+  readonly mount: JsonObject;
+  readonly mount_set: JsonObject;
+  readonly active_mount_set: JsonObject;
+}
+
+export interface P2ConsumerDeclaredDependencyInput {
+  readonly receiving_domain_ref: string;
+  readonly active_mount_set: JsonObject;
+  readonly selected_mount: JsonObject;
+  readonly provider_capability_contract_ref: string;
+  readonly receiving_p1_binding: ReceivingP1DependencyBinding;
+  readonly runtime_context?: JsonObject;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export interface P2ConsumerDeclaredDependencyResult {
+  readonly dependency_realization_binding: JsonObject;
+  readonly operation_use_binding: JsonObject;
+}
+
+export interface P2ConsumerDependencyRealizationInput
+  extends P2ConsumerMountRealizationInput {
+  readonly receiving_p1_binding: ReceivingP1DependencyBinding;
 }
 
 export interface P2ConsumerDependencyRecoveryInput {
@@ -76,6 +117,22 @@ export interface P2ConsumerDependencyRecoveryInput {
   readonly runtime_context?: JsonObject;
   readonly trace_id: string;
   readonly request_id: string;
+}
+
+export interface P2ConsumerMountedExecutionInput {
+  readonly receiving_domain_ref: string;
+  readonly requested_provider_capability_contract_ref: string;
+  readonly exact_interface_binding: JsonObject;
+  readonly operation_input: unknown;
+  readonly runtime_context?: JsonObject;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export interface P2ConsumerMountedExecutionResult {
+  readonly active_mount_set: JsonObject;
+  readonly mounted_execution: JsonObject;
+  readonly execution_receipt: JsonObject;
 }
 
 export interface P2ConsumerDependencyRealizationResult {
@@ -262,20 +319,20 @@ async function bindDurableOperationUse(
 }
 
 /**
- * Non-semantic repository runtime support for the receiving Skeleton P2 Consumer
- * realization closure. It sequences existing P2 V0124 Operations and owner-local
- * durability. It does not define a new Q Interface, Operation, Capability,
- * dependency, Provider surface, database owner, or Runtime.
+ * Mount-only receiving-Skeleton P2 Consumer realization.
+ *
+ * This closes the existing P2 V0125 mount lifecycle at an ACTIVE mount set.
+ * It intentionally requires no receiving-P1 dependency declaration and creates
+ * no P1 dependency, Operation, Interface, wrapper, protocol, or second Runtime.
  */
-export async function realizeP2ConsumerDependency(
-  input: P2ConsumerDependencyRealizationInput,
-  persistence: P2ConsumerRealizationPersistence,
-): Promise<P2ConsumerDependencyRealizationResult> {
+export async function realizeP2ConsumerMount(
+  input: P2ConsumerMountRealizationInput,
+  persistence: P2ConsumerMountPersistence,
+): Promise<P2ConsumerMountRealizationResult> {
   const receivingDomainRef = nonEmptyString(
     input.receiving_domain_ref,
     "receiving_domain_ref",
   );
-  const declaredBinding = receivingBinding(input.receiving_p1_binding);
 
   const consumed = await consumePublication(request(Object.freeze({
     publication: input.publication,
@@ -327,12 +384,92 @@ export async function realizeP2ConsumerDependency(
     mount,
   );
 
+  return Object.freeze({
+    operation_sequence: P2_CONSUMER_MOUNT_SEQUENCE,
+    verified_publication: verifiedPublication,
+    mount,
+    mount_set: mountSet,
+    active_mount_set: activeMountSet,
+  });
+}
+
+/** Resolve/reverify mount state after restart without requiring a P1 dependency. */
+export async function recoverP2ConsumerMount(
+  receiving_domain_ref: string,
+  persistence: P2ConsumerMountPersistence,
+): Promise<JsonObject> {
+  return await recover_active_mount_set_with_owner(
+    nonEmptyString(receiving_domain_ref, "receiving_domain_ref"),
+    persistence,
+  );
+}
+
+/**
+ * Execute one exact Interface from an independently ACTIVE mounted capability.
+ * The existing execute_mounted_capability Operation remains semantic authority;
+ * receiving-local P0 invocation is supplied through its existing dependency port.
+ */
+export async function executeP2MountedCapability(
+  input: P2ConsumerMountedExecutionInput,
+  persistence: P2ConsumerMountPersistence,
+  dependencies: MountedCapabilityExecutionDependencies,
+): Promise<P2ConsumerMountedExecutionResult> {
+  const activeMountSet = await recoverP2ConsumerMount(
+    input.receiving_domain_ref,
+    persistence,
+  );
+  const executed = await executeMountedCapability(request(Object.freeze({
+    active_mount_set: activeMountSet,
+    requested_provider_capability_contract_ref:
+      nonEmptyString(
+        input.requested_provider_capability_contract_ref,
+        "requested_provider_capability_contract_ref",
+      ),
+    exact_interface_binding: input.exact_interface_binding,
+    operation_input: input.operation_input,
+  }), input), dependencies);
+  return Object.freeze({
+    active_mount_set: activeMountSet,
+    mounted_execution: objectValue(
+      executed.runtime_result.mounted_execution,
+      "mounted_execution",
+    ),
+    execution_receipt: objectValue(
+      executed.runtime_result.execution_receipt,
+      "execution_receipt",
+    ),
+  });
+}
+
+/**
+ * Realize only an already-declared receiving-P1 dependency against an exact
+ * member of an already ACTIVE mount set.
+ */
+export async function realizeP2DeclaredDependency(
+  input: P2ConsumerDeclaredDependencyInput,
+  persistence: P2ConsumerRealizationPersistence,
+): Promise<P2ConsumerDeclaredDependencyResult> {
+  const receivingDomainRef = nonEmptyString(
+    input.receiving_domain_ref,
+    "receiving_domain_ref",
+  );
+  const declaredBinding = receivingBinding(input.receiving_p1_binding);
+  const providerCapabilityContractRef = nonEmptyString(
+    input.provider_capability_contract_ref,
+    "provider_capability_contract_ref",
+  );
+  assertSelectedMountIsActiveMember(
+    input.active_mount_set,
+    providerCapabilityContractRef,
+    input.selected_mount,
+  );
+
   const dependency = await realizeDependency(request(Object.freeze({
     verified_provider_binding_or_governed_data_binding: Object.freeze({
       source_binding_kind: "ACTIVE_MOUNT_SET_MEMBER",
-      active_mount_set_hash: activeMountSet.mount_set_hash,
+      active_mount_set_hash: input.active_mount_set.mount_set_hash,
       provider_capability_contract_ref: providerCapabilityContractRef,
-      selected_mount: mount,
+      selected_mount: input.selected_mount,
     }),
     receiving_p1_binding: declaredBinding,
     create_p1_dependency: false,
@@ -355,13 +492,44 @@ export async function realizeP2ConsumerDependency(
   );
 
   return Object.freeze({
-    operation_sequence: P2_CONSUMER_REALIZATION_SEQUENCE,
-    verified_publication: verifiedPublication,
-    mount,
-    mount_set: mountSet,
-    active_mount_set: activeMountSet,
     dependency_realization_binding: dependencyRealizationBinding,
     operation_use_binding: operationUseBinding,
+  });
+}
+
+/**
+ * Compatibility closure for a caller that intentionally requests both mount
+ * realization and one predeclared receiving-P1 dependency in the same call.
+ * Mount completion itself remains independent.
+ */
+export async function realizeP2ConsumerDependency(
+  input: P2ConsumerDependencyRealizationInput,
+  persistence: P2ConsumerRealizationPersistence,
+): Promise<P2ConsumerDependencyRealizationResult> {
+  const mounted = await realizeP2ConsumerMount(input, persistence);
+  const providerCapabilityContractRef = nonEmptyString(
+    mounted.verified_publication.capability_contract_ref,
+    "verified_publication.capability_contract_ref",
+  );
+  const dependency = await realizeP2DeclaredDependency(Object.freeze({
+    receiving_domain_ref: input.receiving_domain_ref,
+    active_mount_set: mounted.active_mount_set,
+    selected_mount: mounted.mount,
+    provider_capability_contract_ref: providerCapabilityContractRef,
+    receiving_p1_binding: input.receiving_p1_binding,
+    runtime_context: input.runtime_context,
+    trace_id: input.trace_id,
+    request_id: input.request_id,
+  }), persistence);
+
+  return Object.freeze({
+    operation_sequence: P2_CONSUMER_REALIZATION_SEQUENCE,
+    verified_publication: mounted.verified_publication,
+    mount: mounted.mount,
+    mount_set: mounted.mount_set,
+    active_mount_set: mounted.active_mount_set,
+    dependency_realization_binding: dependency.dependency_realization_binding,
+    operation_use_binding: dependency.operation_use_binding,
   });
 }
 

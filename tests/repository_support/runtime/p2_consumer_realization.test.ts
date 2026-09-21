@@ -2,9 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  P2_CONSUMER_MOUNT_SEQUENCE,
   P2_CONSUMER_REALIZATION_SEQUENCE,
+  executeP2MountedCapability,
   realizeP2ConsumerDependency,
+  realizeP2ConsumerMount,
+  realizeP2DeclaredDependency,
   recoverP2ConsumerDependency,
+  recoverP2ConsumerMount,
 } from "../../../runtime/p2_consumer_realization.ts";
 import type {
   JsonObject,
@@ -98,7 +103,114 @@ const receivingBinding = Object.freeze({
   exact_local_dependency_ref: localDependencyRef,
 });
 
-test("V0136 repository runtime persists dependency realization before operation-use closure", async () => {
+test("mount-only realization reaches ACTIVE without creating a P1 dependency binding", async () => {
+  const store = inMemoryPersistence();
+  const source = fixture();
+  const mounted = await realizeP2ConsumerMount(Object.freeze({
+    publication: source.publication,
+    verification: source.verification,
+    receiving_domain_ref: receivingDomainRef,
+    trace_id: "trace-mount-only",
+    request_id: "request-mount-only",
+  }), store.persistence);
+
+  assert.deepEqual(mounted.operation_sequence, P2_CONSUMER_MOUNT_SEQUENCE);
+  assert.equal(mounted.active_mount_set.status, "ACTIVE");
+  assert.equal(store.activePointer()?.mount_set_hash, mounted.active_mount_set.mount_set_hash);
+  assert.equal(store.dependencyCount(), 0);
+});
+
+test("mount-only restart recovery succeeds without any dependency binding", async () => {
+  const store = inMemoryPersistence();
+  const source = fixture();
+  const mounted = await realizeP2ConsumerMount(Object.freeze({
+    publication: source.publication,
+    verification: source.verification,
+    receiving_domain_ref: receivingDomainRef,
+    trace_id: "trace-mount-restart-create",
+    request_id: "request-mount-restart-create",
+  }), store.persistence);
+
+  const recovered = await recoverP2ConsumerMount(receivingDomainRef, store.persistence);
+  assert.equal(recovered.mount_set_hash, mounted.active_mount_set.mount_set_hash);
+  assert.equal(recovered.status, "ACTIVE");
+  assert.equal(store.dependencyCount(), 0);
+});
+
+test("declared P1 dependency is realized only after an ACTIVE mount already exists", async () => {
+  const store = inMemoryPersistence();
+  const source = fixture();
+  const mounted = await realizeP2ConsumerMount(Object.freeze({
+    publication: source.publication,
+    verification: source.verification,
+    receiving_domain_ref: receivingDomainRef,
+    trace_id: "trace-declared-mount",
+    request_id: "request-declared-mount",
+  }), store.persistence);
+  assert.equal(store.dependencyCount(), 0);
+
+  const providerCapabilityContractRef = String(source.publication.capability_contract_ref);
+  const bound = await realizeP2DeclaredDependency(Object.freeze({
+    receiving_domain_ref: receivingDomainRef,
+    active_mount_set: mounted.active_mount_set,
+    selected_mount: mounted.mount,
+    provider_capability_contract_ref: providerCapabilityContractRef,
+    receiving_p1_binding: receivingBinding,
+    trace_id: "trace-declared-bind",
+    request_id: "request-declared-bind",
+  }), store.persistence);
+
+  assert.equal(store.dependencyCount(), 1);
+  assert.equal(bound.operation_use_binding.exact_receiving_operation_ref, receivingOperationRef);
+  assert.equal(bound.operation_use_binding.exact_local_dependency_ref, localDependencyRef);
+});
+
+test("ACTIVE mounted capability executes independently and emits a V0125 receipt", async () => {
+  const store = inMemoryPersistence();
+  const source = fixture();
+  await realizeP2ConsumerMount(Object.freeze({
+    publication: source.publication,
+    verification: source.verification,
+    receiving_domain_ref: receivingDomainRef,
+    trace_id: "trace-exec-mount",
+    request_id: "request-exec-mount",
+  }), store.persistence);
+
+  const providerCapabilityContractRef = String(source.publication.capability_contract_ref);
+  const providerInterfaceRefs = source.publication.provider_interface_refs;
+  assert.ok(Array.isArray(providerInterfaceRefs));
+  const exactInterfaceRef = String(providerInterfaceRefs[0]);
+  let localP0Calls = 0;
+  const executed = await executeP2MountedCapability(Object.freeze({
+    receiving_domain_ref: receivingDomainRef,
+    requested_provider_capability_contract_ref: providerCapabilityContractRef,
+    exact_interface_binding: Object.freeze({
+      interface_ref: exactInterfaceRef,
+      operation_ref: `${providerCapabilityContractRef}#/operations/run`,
+    }),
+    operation_input: Object.freeze({ value: 7 }),
+    runtime_context: Object.freeze({}),
+    trace_id: "trace-mounted-exec",
+    request_id: "request-mounted-exec",
+  }), store.persistence, Object.freeze({
+    async invoke_local_p0(input) {
+      localP0Calls += 1;
+      assert.equal(input.exact_interface_binding.interface_ref, exactInterfaceRef);
+      return Object.freeze({ ok: true, value: 7 });
+    },
+  }));
+
+  assert.equal(localP0Calls, 1);
+  assert.deepEqual(executed.mounted_execution.runtime_result, { ok: true, value: 7 });
+  const receiptPayload = asObject(executed.execution_receipt.receipt_payload, "receipt_payload");
+  assert.equal(
+    receiptPayload.stage_contract_ref,
+    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125",
+  );
+  assert.equal(store.dependencyCount(), 0);
+});
+
+test("repository runtime persists dependency realization before operation-use closure", async () => {
   const store = inMemoryPersistence();
   const source = fixture();
   const result = await realizeP2ConsumerDependency(Object.freeze({
@@ -137,7 +249,7 @@ test("V0136 repository runtime persists dependency realization before operation-
   assert.equal(operationUse.exact_local_dependency_ref, localDependencyRef);
 });
 
-test("V0136 restart recovery resolves durable dependency by recovered current active mount set", async () => {
+test("restart recovery resolves durable dependency by recovered current active mount set", async () => {
   const store = inMemoryPersistence();
   const source = fixture();
   const created = await realizeP2ConsumerDependency(Object.freeze({
@@ -161,7 +273,7 @@ test("V0136 restart recovery resolves durable dependency by recovered current ac
   assert.equal(recovered.operation_use_binding.exact_local_dependency_ref, localDependencyRef);
 });
 
-test("V0136 restart dependency recovery fails closed when durable binding is missing", async () => {
+test("restart dependency recovery fails closed when durable binding is missing", async () => {
   const store = inMemoryPersistence();
   const source = fixture();
   const created = await realizeP2ConsumerDependency(Object.freeze({

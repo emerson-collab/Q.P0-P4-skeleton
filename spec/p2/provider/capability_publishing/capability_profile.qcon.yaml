@@ -1,13 +1,13 @@
 projection:
-  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123
-  source_contract_hash: sha256:73d09d3f190151cfc1d4d054ac078d5245911173fa290b1b7ae006aee242b84c
+  source_contract_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125
+  source_contract_hash: sha256:f5ef222443b0f575f679a147d2b1ede984096cd120701758ed085cbf5e54a11f
   role: provider
   role_dimension: N3
   direction: OUTWARD
   capability_id: capability_publishing
   canonical_name: capability_publishing
   stable_code: CAPABILITY_PUBLISHING
-  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123#/role_capability_catalog/provider/capabilities/capability_publishing
+  authority_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125#/role_capability_catalog/provider/capabilities/capability_publishing
   purpose: materialize and publish immutable PUBLICATION_ELIGIBLE P1 capability material without changing provider-owned P1 semantics
   semantic_authority: false
   projection_only: true
@@ -15,13 +15,13 @@ operations:
 - operation_id: create_material_set
   canonical_name: create_material_set
   stable_code: CREATE_MATERIAL_SET
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123#/operation_catalog/provider/capability_publishing
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125#/operation_catalog/provider/capability_publishing
   source_leaf: src/p2/provider/capability_publishing/create_material_set/handler.ts
   test_leaf: tests/p2/provider/capability_publishing/create_material_set/handler.test.ts
 - operation_id: publish_capability
   canonical_name: publish_capability
   stable_code: PUBLISH_CAPABILITY
-  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0123#/operation_catalog/provider/capability_publishing
+  catalog_fragment_ref: Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125#/operation_catalog/provider/capability_publishing
   source_leaf: src/p2/provider/capability_publishing/publish_capability/handler.ts
   test_leaf: tests/p2/provider/capability_publishing/publish_capability/handler.test.ts
 boundaries:
