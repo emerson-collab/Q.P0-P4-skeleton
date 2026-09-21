@@ -3,10 +3,10 @@ import test from "node:test";
 
 import {
   realizeP2ConsumerDependency,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 import type {
   P2ConsumerRealizationPersistence,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 
 const unreachable = async (): Promise<never> => {
   throw new Error("persistence must not be reached for invalid receiving-P1 identity");

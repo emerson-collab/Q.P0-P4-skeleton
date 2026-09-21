@@ -3,18 +3,22 @@ import test from "node:test";
 
 import {
   P2_CONSUMER_MOUNT_SEQUENCE,
-  P2_CONSUMER_REALIZATION_SEQUENCE,
   executeP2MountedCapability,
-  realizeP2ConsumerDependency,
   realizeP2ConsumerMount,
-  realizeP2DeclaredDependency,
-  recoverP2ConsumerDependency,
   recoverP2ConsumerMount,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_mount_realization.ts";
 import type {
   JsonObject,
+} from "../../../runtime/p2_consumer_mount_realization.ts";
+import {
+  P2_CONSUMER_REALIZATION_SEQUENCE,
+  realizeP2ConsumerDependency,
+  realizeP2DeclaredDependency,
+  recoverP2ConsumerDependency,
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
+import type {
   P2ConsumerRealizationPersistence,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 
 function asObject(value: unknown, field: string): JsonObject {
   assert.ok(value !== null && typeof value === "object" && !Array.isArray(value), `${field} must be an object`);
