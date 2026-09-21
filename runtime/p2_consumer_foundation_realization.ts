@@ -26,7 +26,6 @@ export type JsonObject = Readonly<Record<string, unknown>>;
 export const P2_FOUNDATION_REALIZATION_SEQUENCE = Object.freeze([
   "consume_publication",
   "create_mount",
-  "persist_mount",
   "create_mount_set",
   "activate_mount_set",
   "realize_dependency",
