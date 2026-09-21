@@ -16,6 +16,9 @@ import type {
   P2ConsumerMountPersistence,
   P2ConsumerRealizationPersistence,
 } from "../../../runtime/p2_consumer_realization.ts";
+import type {
+  MountedCapabilityExecutionDependencies,
+} from "../../../src/p2/consumer/external_capability_mounting/execute_mounted_capability/handler.ts";
 
 function asObject(value: unknown, field: string): JsonObject {
   assert.ok(value !== null && typeof value === "object" && !Array.isArray(value), `${field} must be an object`);
@@ -29,7 +32,7 @@ function stores() {
   let pointer: JsonObject | undefined;
   let dependencyWrites = 0;
 
-  const mountPersistence: P2ConsumerMountPersistence = Object.freeze({
+  const mountPersistence: P2ConsumerMountPersistence = {
     async persist_mount_record({ receiving_domain_ref, mount_hash, mount }) {
       mounts.set(`${receiving_domain_ref}\u0000${mount_hash}`, structuredClone(mount) as JsonObject);
     },
@@ -51,7 +54,7 @@ function stores() {
     async switch_active_mount_set_pointer({ receiving_domain_ref, mount_set_hash }) {
       pointer = Object.freeze({ receiving_domain_ref, mount_set_hash, status: "ACTIVE" });
     },
-  });
+  };
 
   const dependencyKey = (input: Readonly<{
     receiving_domain_ref: string;
@@ -67,7 +70,7 @@ function stores() {
     input.active_mount_set_hash,
   ].join("\u0000");
 
-  const dependencyPersistence: P2ConsumerDependencyPersistence = Object.freeze({
+  const dependencyPersistence: P2ConsumerDependencyPersistence = {
     async persist_dependency_binding_record(input) {
       dependencyWrites += 1;
       dependencies.set(dependencyKey(input), structuredClone(input.binding) as JsonObject);
@@ -75,7 +78,7 @@ function stores() {
     async read_dependency_binding_record(input) {
       return dependencies.get(dependencyKey(input));
     },
-  });
+  };
 
   const combined: P2ConsumerRealizationPersistence = Object.freeze({
     ...mountPersistence,
@@ -162,6 +165,14 @@ test("mounted capability executes from recovered ACTIVE mount through receiving 
   }), store.mountPersistence);
 
   let localP0Calls = 0;
+  const executionDependencies: MountedCapabilityExecutionDependencies = {
+    async invoke_local_p0(input) {
+      localP0Calls += 1;
+      assert.equal(input.exact_interface_binding.interface_ref, source.exactInterfaceRef);
+      assert.equal(input.implementation_binding.verified, true);
+      return Object.freeze({ ok: true, value: input.operation_input });
+    },
+  };
   const result = await executeP2MountedCapability(Object.freeze({
     receiving_domain_ref: receivingDomainRef,
     requested_provider_capability_contract_ref: source.providerContractRef,
@@ -173,14 +184,7 @@ test("mounted capability executes from recovered ACTIVE mount through receiving 
     runtime_context: Object.freeze({ invocation_id: "invoke-1", binding_set_ref: "binding-set-1" }),
     trace_id: "trace-execute",
     request_id: "request-execute",
-  }), store.mountPersistence, Object.freeze({
-    async invoke_local_p0(input) {
-      localP0Calls += 1;
-      assert.equal(input.exact_interface_binding.interface_ref, source.exactInterfaceRef);
-      assert.equal(input.implementation_binding.verified, true);
-      return Object.freeze({ ok: true, value: input.operation_input });
-    },
-  }));
+  }), store.mountPersistence, executionDependencies);
 
   assert.equal(localP0Calls, 1);
   const mounted = asObject(result.mounted_execution, "mounted_execution");
