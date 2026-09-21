@@ -10,11 +10,11 @@ import type {
 import {
   realizeP2ConsumerDependency,
   recoverP2ConsumerDependency,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 import type {
   JsonObject,
   P2ConsumerRealizationPersistence,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 
 type MutableJsonObject = Record<string, unknown>;
 
