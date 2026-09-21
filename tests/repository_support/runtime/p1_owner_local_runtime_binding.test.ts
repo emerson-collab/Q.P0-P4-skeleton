@@ -39,6 +39,31 @@ test("owner-local P1 runtime binding preserves governed identity and resolves on
   assert.ok(Object.isFrozen(resolved?.attributes));
 });
 
+test("owner-local P1 runtime binding accepts an exact operation_catalog member", async () => {
+  const gateCapabilityRef = "Q.SS.STD.P1.CONTRACT.GATE_CAPABILITY@V0165";
+  const identity: P1OwnerLocalRuntimeBindingIdentity = Object.freeze({
+    capability_contract_ref: gateCapabilityRef,
+    operation_ref: `${gateCapabilityRef}#/operation_catalog/execute_gate`,
+    interface_ref: `${gateCapabilityRef}#/interfaces/gate_execution_invoke`,
+    binding_set_ref: "Q.CAPABILITY_INSTANCE.GATE.DEFAULT@V0100#binding_set",
+    port_refs: Object.freeze([]),
+  });
+  let seen: Readonly<P1OwnerLocalRuntimeBindingIdentity> | undefined;
+  const resolved = await resolve_p1_owner_local_runtime_binding(
+    identity,
+    Object.freeze({
+      resolveExact(exactIdentity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) {
+        seen = exactIdentity;
+        return { attributes: { q_gate_runtime_binding: { ready: true } } };
+      },
+    }),
+  );
+  assert.deepEqual(seen, identity);
+  assert.deepEqual(resolved?.attributes, {
+    q_gate_runtime_binding: { ready: true },
+  });
+});
+
 test("owner-local P1 runtime binding returns undefined when receiving repository has no exact binding", async () => {
   const resolved = await resolve_p1_owner_local_runtime_binding(
     IDENTITY,
