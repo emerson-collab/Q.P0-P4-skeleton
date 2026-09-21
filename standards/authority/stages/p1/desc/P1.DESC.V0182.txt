@@ -1,0 +1,37 @@
+q_header: '1'
+q_id: Q.SS.STD.P1.DESC.BUSINESS_RUNTIME
+q_version: V0182
+q_title: P1 Business Runtime Native EVENT Framework and Listener-Capability Ownership Separation Description
+q_stage: P1
+q_role: description
+q_status: candidate
+q_refs:
+  supersedes:
+  - Q.SS.STD.P1.DESC.BUSINESS_RUNTIME@V0181
+  contract: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182
+  drt: Q.SS.STD.P1.DRT.BUSINESS_RUNTIME@V0182
+artifact_scope:
+  semantic_authority: false
+  projection_only: true
+  source_of_truth: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182
+  readiness: candidate_for_governed_review
+description:
+  unchanged:
+  - P0 remains the sole Runtime.
+  - P1 CALL, HOOK, EVENT and REGISTRY catalogs and PATH/STATIC_MOUNT/DYNAMIC_MOUNT remain unchanged.
+  - P1 fixed Skeleton topology and concrete Capability/Operation paths remain unchanged.
+  event_framework:
+  - business_event_publish remains EVENT_PUBLISH using publish_business_event.
+  - business_event_consume remains EVENT_CONSUME using consume_business_event.
+  - Every concrete EVENT Interface is bound exactly to its declared existing Capability Operation before dispatch.
+  - Transport, caller, channel and payload may not select or override the Operation.
+  ownership_change:
+  - P1 owns no persistent listener connection, reconnect loop, provider/channel lifecycle or listener bootstrap.
+  - Repository Skeleton owns no listener semantics.
+  - Only an exact Capability Contract that explicitly declares listener runtime lifecycle may own it, and execution remains
+    inside the existing P0 Runtime.
+  non_changes:
+  - No new Surface, Interface Kind, Layer, hierarchy level, Module or P0 EVENT Interface is created.
+  - No adapter, bridge, wrapper, listener wrapper Operation or second Runtime is introduced.
+contract_source_hash: sha256:d7f3869e665d0fbf96852c95e3c374acb24fc73fdf6590810e69e837e61309ba
+google_drive_provider_mime_type: text/plain
