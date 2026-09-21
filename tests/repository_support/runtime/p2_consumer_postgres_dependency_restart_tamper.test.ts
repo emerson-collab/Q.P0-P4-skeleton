@@ -94,6 +94,46 @@ function fixture() {
   });
 }
 
+test("Postgres owner-local P2 persistence supports mount-only configuration without a dependency table", async () => {
+  const database: PostgresQueryPort = Object.freeze({
+    async query<Row extends JsonObject = JsonObject>(): Promise<readonly Row[]> {
+      return Object.freeze([]) as readonly Row[];
+    },
+  });
+  const postgres = createOwnerLocalP2PostgresPersistence({
+    database,
+    tables: Object.freeze({
+      provider_publication: "qtest.provider_publication",
+      provider_interface_projection: "qtest.provider_interface_projection",
+      consumer_mount: "qtest.consumer_mount",
+      consumer_mount_set: "qtest.consumer_mount_set",
+      consumer_active_mount_set_pointer: "qtest.consumer_active_mount_set_pointer",
+    }),
+    material_read_port: Object.freeze({
+      async readExact() {
+        throw new Error("not used by mount-only configuration test");
+      },
+    }),
+  });
+
+  const pointer = await postgres.read_active_mount_set_pointer({
+    receiving_domain_ref: "Q.RECEIVER@V0100",
+  });
+  assert.equal(pointer, undefined);
+
+  await assert.rejects(
+    () => postgres.read_dependency_binding_record({
+      receiving_domain_ref: "Q.RECEIVER@V0100",
+      exact_owner_capability_ref: "Q.RECEIVER.CONTRACT.CAPABILITY.EXAMPLE@V0100",
+      exact_receiving_operation_ref:
+        "Q.RECEIVER.CONTRACT.CAPABILITY.EXAMPLE@V0100#/operations/use_provider",
+      exact_local_dependency_ref: "Q.RECEIVER.DEPENDENCY.PROVIDER@V0100",
+      active_mount_set_hash: `sha256:${"e".repeat(64)}`,
+    }),
+    /consumer_dependency_binding is required only when receiving-P1 dependency realization is executed/,
+  );
+});
+
 test(
   "Postgres-backed P2 restart accepts exact durable dependency and rejects canonical tamper with stale binding_hash",
   async () => {
