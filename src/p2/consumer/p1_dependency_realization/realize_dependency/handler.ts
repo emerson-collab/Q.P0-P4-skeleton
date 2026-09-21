@@ -18,7 +18,7 @@ export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "p1_dependency_realization" as const;
 export const OPERATION_ID = "realize_dependency" as const;
-const P1_DEPENDENCY_INTERFACE_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179#/interfaces/dependency_invoke" as const;
+const P1_DEPENDENCY_INTERFACE_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182#/interfaces/dependency_invoke" as const;
 
 function validateActiveMountSetMember(value: JsonObject): boolean {
   if (value.source_binding_kind !== "ACTIVE_MOUNT_SET_MEMBER") return false;
