@@ -12,6 +12,7 @@ import {
   resolve_business_event_interface,
   resolve_business_operation,
 } from "../../../src/p1/business_runtime/business_operation_registry.ts";
+import type { BusinessEventInterfaceBinding } from "../../../src/p1/business_runtime/business_operation_registry.ts";
 
 const CAPABILITY_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 const OPERATION_REF = `${CAPABILITY_REF}#/operations/example`;
@@ -22,7 +23,7 @@ const PUBLISH_INTERFACE_REF = `${CAPABILITY_REF}#/interfaces/example_event_publi
 
 function contextFor(operation_ref: string): RuntimeContext {
   return Object.freeze({
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0181",
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182",
     operation_ref,
     trace_id: "trace:test",
     request_id: "request:test",
@@ -68,12 +69,13 @@ test("P1 business operation registry fails closed on duplicate different handler
   );
 });
 
-test("P1 EVENT_CONSUME dispatches through concrete Interface adapter to the exact existing Operation", async () => {
+test("P1 EVENT_CONSUME dispatches unchanged input to the exact existing bound Operation", async () => {
   register_business_operation(
     CONSUME_OPERATION_REF,
     async (input, runtimeContext) => ({
       consumed: input,
       operation_ref: runtimeContext.operation_ref,
+      stage_contract_ref: runtimeContext.stage_contract_ref,
     }),
   );
   const binding = register_business_event_interface({
@@ -82,39 +84,54 @@ test("P1 EVENT_CONSUME dispatches through concrete Interface adapter to the exac
     operation_ref: CONSUME_OPERATION_REF,
     surface: "EVENT",
     kind: "EVENT_CONSUME",
-    method_ref: "consume_standard_registration",
-    consume_adapter: async (input, runtimeContext, invokeBoundOperation) => {
-      const event = input as { id: number };
-      return await invokeBoundOperation(
-        { subject_source_binding: { source_ref: `event:${event.id}` } },
-        runtimeContext,
-      );
-    },
+    method_ref: "consume_business_event",
   });
 
   assert.equal(resolve_business_event_interface(CONSUME_INTERFACE_REF), binding);
   assert.ok(registered_business_event_interface_refs().includes(CONSUME_INTERFACE_REF));
+  const eventInput = Object.freeze({ id: 7, payload: Object.freeze({ exact: true }) });
   assert.deepEqual(
     await consume_business_event(
       CONSUME_INTERFACE_REF,
-      { id: 7 },
+      eventInput,
       contextFor(`${CAPABILITY_REF}#/operations/transport_selected_should_be_ignored`),
     ),
     {
-      consumed: { subject_source_binding: { source_ref: "event:7" } },
+      consumed: eventInput,
       operation_ref: CONSUME_OPERATION_REF,
+      stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182",
     },
   );
   await assert.rejects(
     () => consume_business_event(
       CONSUME_OPERATION_REF,
-      { id: 7 },
+      eventInput,
       contextFor(CONSUME_OPERATION_REF),
     ),
     (error: unknown) =>
       error instanceof Error
       && "code" in error
       && (error as { code: string }).code === "P1_EVENT_INTERFACE_NOT_REGISTERED",
+  );
+});
+
+test("P1 EVENT binding rejects legacy adapter or undeclared binding fields", () => {
+  const legacy = {
+    capability_contract_ref: CAPABILITY_REF,
+    interface_ref: `${CAPABILITY_REF}#/interfaces/legacy_consume`,
+    operation_ref: CONSUME_OPERATION_REF,
+    surface: "EVENT",
+    kind: "EVENT_CONSUME",
+    method_ref: "consume_business_event",
+    consume_adapter: () => undefined,
+  } as unknown as BusinessEventInterfaceBinding;
+
+  assert.throws(
+    () => register_business_event_interface(legacy),
+    (error: unknown) =>
+      error instanceof Error
+      && "code" in error
+      && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
   );
 });
 
