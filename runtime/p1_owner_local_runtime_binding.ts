@@ -30,14 +30,31 @@ function nonEmptyString(value: unknown, field: string): string {
   return value;
 }
 
-function exactCapabilityMember(
+function exactCapabilityInterfaceMember(
   capabilityContractRef: string,
   memberRef: string,
-  memberKind: "operations" | "interfaces",
   field: string,
 ): string {
   const exact = nonEmptyString(memberRef, field);
-  if (!exact_ref(exact) || !exact.startsWith(`${capabilityContractRef}#/${memberKind}/`)) {
+  if (!exact_ref(exact) || !exact.startsWith(`${capabilityContractRef}#/interfaces/`)) {
+    throw new TypeError(`${field} must be an exact member of capability_contract_ref`);
+  }
+  return exact;
+}
+
+function exactCapabilityOperationMember(
+  capabilityContractRef: string,
+  memberRef: string,
+  field: string,
+): string {
+  const exact = nonEmptyString(memberRef, field);
+  if (
+    !exact_ref(exact)
+    || (
+      !exact.startsWith(`${capabilityContractRef}#/operations/`)
+      && !exact.startsWith(`${capabilityContractRef}#/operation_catalog/`)
+    )
+  ) {
     throw new TypeError(`${field} must be an exact member of capability_contract_ref`);
   }
   return exact;
@@ -72,16 +89,14 @@ export async function resolve_p1_owner_local_runtime_binding(
 
   const exactIdentity = deep_freeze({
     capability_contract_ref: capabilityContractRef,
-    operation_ref: exactCapabilityMember(
+    operation_ref: exactCapabilityOperationMember(
       capabilityContractRef,
       identity.operation_ref,
-      "operations",
       "operation_ref",
     ),
-    interface_ref: exactCapabilityMember(
+    interface_ref: exactCapabilityInterfaceMember(
       capabilityContractRef,
       identity.interface_ref,
-      "interfaces",
       "interface_ref",
     ),
     binding_set_ref: nonEmptyString(identity.binding_set_ref, "binding_set_ref"),
