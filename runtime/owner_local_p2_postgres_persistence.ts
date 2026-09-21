@@ -23,7 +23,7 @@ export interface OwnerLocalP2PostgresTables {
   readonly consumer_mount: string;
   readonly consumer_mount_set: string;
   readonly consumer_active_mount_set_pointer: string;
-  readonly consumer_dependency_binding: string;
+  readonly consumer_dependency_binding?: string;
 }
 
 export interface OwnerLocalP2PostgresOptions {
@@ -406,10 +406,22 @@ export function createOwnerLocalP2PostgresPersistence(
     options.tables.consumer_active_mount_set_pointer,
     "tables.consumer_active_mount_set_pointer",
   );
-  const dependencyTable = tableIdentifier(
-    options.tables.consumer_dependency_binding,
-    "tables.consumer_dependency_binding",
-  );
+  const dependencyTable = options.tables.consumer_dependency_binding === undefined
+    ? undefined
+    : tableIdentifier(
+      options.tables.consumer_dependency_binding,
+      "tables.consumer_dependency_binding",
+    );
+
+  function configuredDependencyTable(): string {
+    if (dependencyTable === undefined) {
+      throw new OwnerLocalP2PostgresError(
+        "P2_DATABASE_DEPENDENCY_PERSISTENCE_NOT_CONFIGURED",
+        "consumer_dependency_binding is required only when receiving-P1 dependency realization is executed",
+      );
+    }
+    return dependencyTable;
+  }
 
   const store: OwnerLocalP2PostgresPersistence = {
     async persist_publication_record({
@@ -706,7 +718,7 @@ export function createOwnerLocalP2PostgresPersistence(
       }
       const recordText = canonical(binding);
       await options.database.query(
-        `insert into ${dependencyTable} (receiving_domain_ref, exact_owner_capability_ref, exact_receiving_operation_ref, exact_local_dependency_ref, active_mount_set_hash, binding_hash, record_text) values ($1,$2,$3,$4,$5,$6,$7) on conflict (receiving_domain_ref, exact_owner_capability_ref, exact_receiving_operation_ref, exact_local_dependency_ref, active_mount_set_hash) do nothing`,
+        `insert into ${configuredDependencyTable()} (receiving_domain_ref, exact_owner_capability_ref, exact_receiving_operation_ref, exact_local_dependency_ref, active_mount_set_hash, binding_hash, record_text) values ($1,$2,$3,$4,$5,$6,$7) on conflict (receiving_domain_ref, exact_owner_capability_ref, exact_receiving_operation_ref, exact_local_dependency_ref, active_mount_set_hash) do nothing`,
         [domain, ownerCapabilityRef, receivingOperationRef, localDependency, mountSetHash, bindingHash, recordText],
       );
       const readback = await store.read_dependency_binding_record({
@@ -747,7 +759,7 @@ export function createOwnerLocalP2PostgresPersistence(
       const localDependency = nonEmptyString(exact_local_dependency_ref, "exact_local_dependency_ref");
       const mountSetHash = sha256Value(active_mount_set_hash, "active_mount_set_hash");
       const rows = await options.database.query<{ readonly record_text: string }>(
-        `select record_text from ${dependencyTable} where receiving_domain_ref=$1 and exact_owner_capability_ref=$2 and exact_receiving_operation_ref=$3 and exact_local_dependency_ref=$4 and active_mount_set_hash=$5`,
+        `select record_text from ${configuredDependencyTable()} where receiving_domain_ref=$1 and exact_owner_capability_ref=$2 and exact_receiving_operation_ref=$3 and exact_local_dependency_ref=$4 and active_mount_set_hash=$5`,
         [domain, ownerCapabilityRef, receivingOperationRef, localDependency, mountSetHash],
       );
       if (rows.length === 0) return undefined;
