@@ -103,6 +103,22 @@ export function registered_business_operation_refs(): readonly string[] {
 export function register_business_event_interface(
   binding: Readonly<BusinessEventInterfaceBinding>,
 ): BusinessEventInterfaceBinding {
+  const allowedBindingKeys = new Set([
+    "capability_contract_ref",
+    "interface_ref",
+    "operation_ref",
+    "surface",
+    "kind",
+    "method_ref",
+  ]);
+  const unknownBindingKeys = Object.keys(binding).filter((key) => !allowedBindingKeys.has(key));
+  if (unknownBindingKeys.length > 0) {
+    throw new StableRuntimeError(
+      "P1_EVENT_BINDING_INVALID",
+      "EVENT binding contains undeclared fields",
+      { unknown_binding_keys: unknownBindingKeys.sort() },
+    );
+  }
   const capabilityContractRef = nonEmptyString(
     binding.capability_contract_ref,
     "capability_contract_ref",
