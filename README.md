@@ -56,3 +56,24 @@ receiving-owner-local runtime facts.
 This support is orchestration only. It does not create Provider selection authority,
 new P1 dependency semantics, a second Runtime, a direct Q.Gate bridge, or tracked
 runtime mount hashes in repository source material.
+
+
+## Dynamic declared-dependency realization
+
+The Skeleton also includes `runtime/p2_consumer_dynamic_dependency_realization.ts`
+for the second realization pattern: an already-declared receiving-P1 dependency
+may dynamically bind to an already ACTIVE Provider mount without creating another
+mount or switching the active mount-set pointer.
+
+Runtime input supplies the receiving Domain identity, the exact Provider Capability
+Contract ref, and the exact predeclared receiving-P1 owner Capability / Operation /
+local dependency identities. The helper recovers and reverifies the current ACTIVE
+mount set, selects exactly one matching Provider member, then reuses the existing
+P2 V0125 `realize_dependency` and `bind_operation_use` path with durable exact
+read-back.
+
+For Q.Gate this allows any concrete Capability that already declares a governed
+Q.Gate dependency to reuse the same ACTIVE Q.Gate mount used by Q.Workflow.
+Dynamic variables instantiate exact identities only; they do not create the P1
+dependency, infer Provider semantics, remount Q.Gate, or copy Q.Gate P1 code into
+the Skeleton.
