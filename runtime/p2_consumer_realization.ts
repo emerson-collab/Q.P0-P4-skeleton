@@ -517,7 +517,7 @@ export async function realizeP2ConsumerDependency(
     selected_mount: mounted.mount,
     provider_capability_contract_ref: providerCapabilityContractRef,
     receiving_p1_binding: input.receiving_p1_binding,
-    runtime_context: input.runtime_context,
+    ...(input.runtime_context === undefined ? {} : { runtime_context: input.runtime_context }),
     trace_id: input.trace_id,
     request_id: input.request_id,
   }), persistence);
