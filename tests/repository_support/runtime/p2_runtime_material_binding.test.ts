@@ -31,7 +31,7 @@ const locator: P2GoogleDriveMaterialLocator = Object.freeze({
   owner_ref: "q.p1.domain.q_gate",
   subject_ref: "Q.SS.STD.P1.CONTRACT.GATE_CAPABILITY@V0165",
   data_category: "RUNTIME",
-  content_hash: \`sha256:\${"a".repeat(64)}\`,
+  content_hash: `sha256:${"a".repeat(64)}`,
 });
 
 const binding: P2RuntimeMaterialBinding = Object.freeze({
