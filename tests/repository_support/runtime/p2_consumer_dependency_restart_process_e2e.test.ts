@@ -15,7 +15,7 @@ import {
 } from "../../../runtime/owner_local_p2_persistence.ts";
 import {
   realizeP2ConsumerDependency,
-} from "../../../runtime/p2_consumer_realization.ts";
+} from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 
 type JsonObject = Readonly<Record<string, unknown>>;
 const execFile = promisify(execFileCallback);
@@ -48,7 +48,7 @@ async function recoverInFreshNodeProcess(input: Readonly<{
     import.meta.url,
   ).href;
   const realizationModuleUrl = new URL(
-    "../../../runtime/p2_consumer_realization.ts",
+    "../../../runtime/p2_consumer_p1_dependency_realization.ts",
     import.meta.url,
   ).href;
   const materialModuleUrl = new URL(
