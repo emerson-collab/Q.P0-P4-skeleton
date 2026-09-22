@@ -452,7 +452,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
   );
   assert.equal(
     receiptPayload.stage_contract_ref,
-    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0122",
+    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125",
   );
   assert.equal(receiptPayload.second_runtime_used, false);
 });
