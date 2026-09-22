@@ -319,6 +319,7 @@ export async function realizeP2ConsumerDependency(
   input: P2ConsumerDependencyRealizationInput,
   persistence: P2ConsumerRealizationPersistence,
 ): Promise<P2ConsumerDependencyRealizationResult> {
+  const declaredBinding = receivingBinding(input.receiving_p1_binding);
   const mounted = await realizeP2ConsumerMount(input, persistence);
   const providerCapabilityContractRef = nonEmptyString(
     mounted.verified_publication.capability_contract_ref,
@@ -329,7 +330,7 @@ export async function realizeP2ConsumerDependency(
     active_mount_set: mounted.active_mount_set,
     selected_mount: mounted.mount,
     provider_capability_contract_ref: providerCapabilityContractRef,
-    receiving_p1_binding: input.receiving_p1_binding,
+    receiving_p1_binding: declaredBinding,
     ...(input.runtime_context === undefined ? {} : { runtime_context: input.runtime_context }),
     trace_id: input.trace_id,
     request_id: input.request_id,
