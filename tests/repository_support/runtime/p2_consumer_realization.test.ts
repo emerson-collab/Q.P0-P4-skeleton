@@ -34,9 +34,15 @@ function inMemoryPersistence(): Readonly<{
   const mountSets = new Map<string, JsonObject>();
   const dependencies = new Map<string, JsonObject>();
   let pointer: JsonObject | undefined;
-  const dependencyKey = (domain: string, ref: string, activeHash: string) => `${domain}\u0000${ref}\u0000${activeHash}`;
+  const dependencyKey = (
+    domain: string,
+    ownerCapabilityRef: string,
+    receivingOperationRef: string,
+    dependencyRef: string,
+    activeHash: string,
+  ) => `${domain}\u0000${ownerCapabilityRef}\u0000${receivingOperationRef}\u0000${dependencyRef}\u0000${activeHash}`;
 
-  const persistence: P2ConsumerRealizationPersistence = Object.freeze({
+  const persistence: P2ConsumerRealizationPersistence = {
     async persist_mount_record({ receiving_domain_ref, mount_hash, mount }) {
       mounts.set(`${receiving_domain_ref}\u0000${mount_hash}`, mount);
     },
@@ -58,16 +64,46 @@ function inMemoryPersistence(): Readonly<{
     async switch_active_mount_set_pointer({ receiving_domain_ref, mount_set_hash }) {
       pointer = Object.freeze({ receiving_domain_ref, mount_set_hash, status: "ACTIVE" });
     },
-    async persist_dependency_binding_record({ receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash, binding }) {
-      dependencies.set(dependencyKey(receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash), structuredClone(binding) as JsonObject);
+    async persist_dependency_binding_record({
+      receiving_domain_ref,
+      exact_owner_capability_ref,
+      exact_receiving_operation_ref,
+      exact_local_dependency_ref,
+      active_mount_set_hash,
+      binding,
+    }) {
+      dependencies.set(
+        dependencyKey(
+          receiving_domain_ref,
+          exact_owner_capability_ref,
+          exact_receiving_operation_ref,
+          exact_local_dependency_ref,
+          active_mount_set_hash,
+        ),
+        structuredClone(binding) as JsonObject,
+      );
     },
-    async read_dependency_binding_record({ receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash }) {
-      return dependencies.get(dependencyKey(receiving_domain_ref, exact_local_dependency_ref, active_mount_set_hash));
+    async read_dependency_binding_record({
+      receiving_domain_ref,
+      exact_owner_capability_ref,
+      exact_receiving_operation_ref,
+      exact_local_dependency_ref,
+      active_mount_set_hash,
+    }) {
+      return dependencies.get(
+        dependencyKey(
+          receiving_domain_ref,
+          exact_owner_capability_ref,
+          exact_receiving_operation_ref,
+          exact_local_dependency_ref,
+          active_mount_set_hash,
+        ),
+      );
     },
-  });
+  };
 
   return Object.freeze({
-    persistence,
+    persistence: Object.freeze(persistence),
     activePointer: () => pointer,
     dependencyCount: () => dependencies.size,
   });
@@ -197,7 +233,7 @@ test("ACTIVE mounted capability executes independently and emits a V0125 receipt
     trace_id: "trace-mounted-exec",
     request_id: "request-mounted-exec",
   }), store.persistence, Object.freeze({
-    async invoke_local_p0(input) {
+    async invoke_local_p0(input: Readonly<{ exact_interface_binding: JsonObject }>) {
       localP0Calls += 1;
       assert.equal(input.exact_interface_binding.interface_ref, exactInterfaceRef);
       return Object.freeze({ ok: true, value: 7 });
@@ -247,6 +283,8 @@ test("repository runtime persists dependency realization before operation-use cl
   );
   const persisted = await store.persistence.read_dependency_binding_record({
     receiving_domain_ref: receivingDomainRef,
+    exact_owner_capability_ref: receivingBinding.exact_owner_capability_ref,
+    exact_receiving_operation_ref: receivingBinding.exact_receiving_operation_ref,
     exact_local_dependency_ref: localDependencyRef,
     active_mount_set_hash: String(result.active_mount_set.mount_set_hash),
   });
