@@ -184,7 +184,7 @@ test(
         trace_id: "trace-postgres-tamper",
         request_id: "request-postgres-tamper",
       }), persistence),
-      /binding_hash does not match exact canonical binding/,
+      /dependency realization binding_hash mismatch/,
     );
   },
 );
