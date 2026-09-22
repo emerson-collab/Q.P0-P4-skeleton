@@ -28,7 +28,7 @@ function fakeTransport() {
     children.set(key(parentId), [...(children.get(key(parentId)) ?? []), child]);
   }
 
-  const transport: GoogleDriveP2MaterialTransport = Object.freeze({
+  const transport: GoogleDriveP2MaterialTransport = {
     async findChildren(input) {
       return Object.freeze(
         (children.get(key(input.parent_id)) ?? []).filter(
@@ -79,9 +79,9 @@ function fakeTransport() {
       assert.ok(bytes);
       return Uint8Array.from(bytes);
     },
-  });
+  };
 
-  return { transport, children };
+  return { transport: Object.freeze(transport), children };
 }
 
 test("P2 Google Drive store materializes exactly static.json, dynamic.json, runtime.json under owner/subject", async () => {
