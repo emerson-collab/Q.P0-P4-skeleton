@@ -27,7 +27,9 @@ function memoryStore() {
   }>> = [];
 
   const store: P2GoogleDriveMaterialStore = Object.freeze({
-    async writeJsonObject(input) {
+    async writeJsonObject(
+      input: Parameters<P2GoogleDriveMaterialStore["writeJsonObject"]>[0],
+    ) {
       writes.push(Object.freeze({
         owner_ref: input.owner_ref,
         subject_ref: input.subject_ref,
