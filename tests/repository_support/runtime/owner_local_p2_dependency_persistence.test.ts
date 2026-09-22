@@ -98,6 +98,8 @@ test("owner-local filesystem persistence stores exact dependency realization by 
   await persist_dependency_realization_with_owner(receivingDomainRef, binding, persistence);
   const readback = await persistence.read_dependency_binding_record(Object.freeze({
     receiving_domain_ref: receivingDomainRef,
+    exact_owner_capability_ref: receivingBinding.exact_owner_capability_ref,
+    exact_receiving_operation_ref: receivingBinding.exact_receiving_operation_ref,
     exact_local_dependency_ref: receivingBinding.exact_local_dependency_ref,
     active_mount_set_hash: activeMountSetHash,
   }));

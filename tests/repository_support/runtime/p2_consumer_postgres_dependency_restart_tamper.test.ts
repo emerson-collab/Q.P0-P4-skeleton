@@ -12,10 +12,10 @@ import {
   recoverP2ConsumerDependency,
 } from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 import type {
-  JsonObject,
   P2ConsumerRealizationPersistence,
 } from "../../../runtime/p2_consumer_p1_dependency_realization.ts";
 
+type JsonObject = Readonly<Record<string, unknown>>;
 type MutableJsonObject = Record<string, unknown>;
 
 function stable(value: unknown): unknown {
@@ -105,7 +105,7 @@ test(
       ): Promise<readonly Row[]> {
         if (statement.startsWith('insert into "qtest"."dependency_binding"')) {
           if (dependencyRecordText === undefined) {
-            dependencyRecordText = String(parameters[4]);
+            dependencyRecordText = String(parameters[6]);
           }
           return Object.freeze([]) as readonly Row[];
         }

@@ -13,6 +13,9 @@ import {
   MountedProviderRuntimeBindingError,
   createMountedProviderLocalP0Invoker,
 } from "../../../runtime/mounted_provider_runtime_binding.ts";
+import type {
+  P1OwnerLocalRuntimeBindingIdentity,
+} from "../../../runtime/p1_owner_local_runtime_binding.ts";
 
 function shaBytes(bytes: Uint8Array): string {
   return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
@@ -120,7 +123,7 @@ test("mounted provider binding resolves exact owner-local P1 attributes before i
       },
     },
     p1_runtime_binding_resolver: Object.freeze({
-      resolveExact(identity) {
+      resolveExact(identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) {
         bindingResolutionCalls += 1;
         assert.deepEqual(identity, {
           capability_contract_ref: f.stage_extension.implementation_ref,

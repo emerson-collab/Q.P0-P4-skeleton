@@ -249,7 +249,7 @@ export function createGoogleDriveP2MaterialStore(
   const rootFolderId = nonEmptyString(options.root_folder_id, "root_folder_id");
   const transport = options.transport;
 
-  return Object.freeze({
+  const store: P2GoogleDriveMaterialStore = {
     async writeExactJson(input) {
       const ownerRef = nonEmptyString(input.owner_ref, "owner_ref");
       const subjectRef = nonEmptyString(input.subject_ref, "subject_ref");
@@ -403,7 +403,8 @@ export function createGoogleDriveP2MaterialStore(
       assertJsonBytes(bytes);
       return Uint8Array.from(bytes);
     },
-  });
+  };
+  return Object.freeze(store);
 }
 
 function driveQueryLiteral(value: string): string {
@@ -485,7 +486,7 @@ export function createGoogleDriveFetchP2MaterialTransport(
     return objectValue(await response.json(), "google_drive_response");
   }
 
-  return Object.freeze({
+  const transport: GoogleDriveP2MaterialTransport = {
     async findChildren(input) {
       const q = `'${driveQueryLiteral(input.parent_id)}' in parents and name = '${driveQueryLiteral(input.name)}' and mimeType = '${driveQueryLiteral(input.mime_type)}' and trashed = false`;
       const url = new URL("https://www.googleapis.com/drive/v3/files");
@@ -593,5 +594,6 @@ export function createGoogleDriveFetchP2MaterialTransport(
       );
       return new Uint8Array(await response.arrayBuffer());
     },
-  });
+  };
+  return Object.freeze(transport);
 }
