@@ -17,12 +17,6 @@ import {
   ImplementationMaterialRuntimeError,
   readAndVerifyInstalledImplementationMaterial,
 } from "./implementation_material_runtime.ts";
-import {
-  resolve_p1_owner_local_runtime_binding,
-} from "./p1_owner_local_runtime_binding.ts";
-import type {
-  P1OwnerLocalRuntimeBindingResolver,
-} from "./p1_owner_local_runtime_binding.ts";
 import type {
   LocalImplementationMaterialReadPort,
   ResolvedImplementationBinding,
@@ -62,7 +56,6 @@ export interface PreparedMountedProviderOperationPort {
 export interface MountedProviderRuntimeBindingDependencies {
   readonly material_read_port: LocalImplementationMaterialReadPort;
   readonly prepared_operation_port: PreparedMountedProviderOperationPort;
-  readonly p1_runtime_binding_resolver?: P1OwnerLocalRuntimeBindingResolver;
   readonly p0_runtime_provider?: RuntimeProvider;
 }
 
@@ -130,14 +123,12 @@ function providerRuntimeContext(
   exactOperationRef: string,
   traceId: string,
   requestId: string,
-  ownerLocalAttributes?: JsonObject,
 ): RuntimeContext {
   const invocation_id = nonEmptyString(source.invocation_id, "runtime_context.invocation_id");
   const binding_set_ref = nonEmptyString(source.binding_set_ref, "runtime_context.binding_set_ref");
-  const sourceAttributes = source.attributes === undefined
+  const attributes = source.attributes === undefined
     ? undefined
     : objectValue(source.attributes, "runtime_context.attributes");
-  const attributes = ownerLocalAttributes ?? sourceAttributes;
   return deep_freeze({
     stage_contract_ref: stageExtension.stage_contract_ref,
     operation_ref: exactOperationRef,
@@ -214,33 +205,12 @@ export function createMountedProviderLocalP0Invoker(
       }));
       verifyPreparedOperation(prepared, verifiedMaterial, exactBinding.interface_ref, exactBinding.operation_ref);
 
-      const sourceRuntimeContext = objectValue(
-        input.runtime_context,
-        "runtime_context",
-      );
-      const ownerLocalRuntimeBinding = dependencies.p1_runtime_binding_resolver === undefined
-        ? undefined
-        : await resolve_p1_owner_local_runtime_binding(
-          Object.freeze({
-            capability_contract_ref: prepared.stage_extension.implementation_ref,
-            operation_ref: exactBinding.operation_ref,
-            interface_ref: exactBinding.interface_ref,
-            binding_set_ref: nonEmptyString(
-              sourceRuntimeContext.binding_set_ref,
-              "runtime_context.binding_set_ref",
-            ),
-            port_refs: prepared.stage_extension.port_refs,
-          }),
-          dependencies.p1_runtime_binding_resolver,
-        );
-
       const context = providerRuntimeContext(
-        sourceRuntimeContext,
+        objectValue(input.runtime_context, "runtime_context"),
         prepared.stage_extension,
         exactBinding.operation_ref,
         nonEmptyString(input.trace_id, "trace_id"),
         nonEmptyString(input.request_id, "request_id"),
-        ownerLocalRuntimeBinding?.attributes,
       );
 
       const result = await p0.invoke({

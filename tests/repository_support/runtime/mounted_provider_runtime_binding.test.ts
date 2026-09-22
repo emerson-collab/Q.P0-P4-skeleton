@@ -13,9 +13,6 @@ import {
   MountedProviderRuntimeBindingError,
   createMountedProviderLocalP0Invoker,
 } from "../../../runtime/mounted_provider_runtime_binding.ts";
-import type {
-  P1OwnerLocalRuntimeBindingIdentity,
-} from "../../../runtime/p1_owner_local_runtime_binding.ts";
 
 function shaBytes(bytes: Uint8Array): string {
   return `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
@@ -28,9 +25,9 @@ function stable(value: unknown): unknown {
 function shaJson(value: unknown): string { return `sha256:${createHash("sha256").update(JSON.stringify(stable(value)), "utf8").digest("hex")}`; }
 function field(name: string, value: string): string { return `${name}:${Buffer.byteLength(value, "utf8")}:${value}\n`; }
 
-function fixture(operationCollection: "operations" | "operation_catalog" = "operations") {
+function fixture() {
   const exact_interface_ref = "Q.PROVIDER.CONTRACT.CAPABILITY.EXAMPLE@V0100#/interfaces/run_invoke";
-  const exact_operation_ref = `Q.PROVIDER.CONTRACT.CAPABILITY.EXAMPLE@V0100#/${operationCollection}/run`;
+  const exact_operation_ref = "Q.PROVIDER.CONTRACT.CAPABILITY.EXAMPLE@V0100#/operations/run";
   const package_ref = "Q.CAPABILITY_PACKAGE.PROVIDER.EXAMPLE@V0100";
   const public_entry_ref = "entry/example.ts#entry";
   const file = Object.freeze({ relative_path: "entry/example.ts", bytes: Buffer.from("export const entry = {};\n", "utf8") });
@@ -109,38 +106,14 @@ test("mounted provider binding verifies local material then executes exact Opera
   assert.deepEqual(result, { ok: true, input: { value: 1 } });
 });
 
-test("mounted provider binding resolves exact owner-local P1 attributes before invoking operation_catalog provider", async () => {
-  const f = fixture("operation_catalog");
-  let bindingResolutionCalls = 0;
+test("mounted provider binding preserves caller-supplied runtime attributes without a P1 resolver layer", async () => {
+  const f = fixture();
   const invoker = createMountedProviderLocalP0Invoker({
     material_read_port: {
       async readExact() {
-        return {
-          representation_id: IMPLEMENTATION_MATERIAL_REPRESENTATION_ID,
-          manifest_bytes: f.manifest,
-          files: [f.file],
-        };
+        return { representation_id: IMPLEMENTATION_MATERIAL_REPRESENTATION_ID, manifest_bytes: f.manifest, files: [f.file] };
       },
     },
-    p1_runtime_binding_resolver: Object.freeze({
-      resolveExact(identity: Readonly<P1OwnerLocalRuntimeBindingIdentity>) {
-        bindingResolutionCalls += 1;
-        assert.deepEqual(identity, {
-          capability_contract_ref: f.stage_extension.implementation_ref,
-          operation_ref: f.exact_operation_ref,
-          interface_ref: f.exact_interface_ref,
-          binding_set_ref: "binding-set-gate",
-          port_refs: [],
-        });
-        return {
-          attributes: {
-            q_gate_runtime_binding: {
-              carrier: "owner-local",
-            },
-          },
-        };
-      },
-    }),
     prepared_operation_port: {
       async resolveExactPreparedOperation() {
         return {
@@ -153,11 +126,6 @@ test("mounted provider binding resolves exact owner-local P1 attributes before i
           stage_extension: f.stage_extension,
           hook_binding_set: [],
           async operation(_input, context) {
-            assert.deepEqual(context.attributes, {
-              q_gate_runtime_binding: {
-                carrier: "owner-local",
-              },
-            });
             return context.attributes;
           },
         };
@@ -166,32 +134,19 @@ test("mounted provider binding resolves exact owner-local P1 attributes before i
   });
 
   const result = await invoker.invoke_local_p0({
-    exact_interface_binding: {
-      interface_ref: f.exact_interface_ref,
-      operation_ref: f.exact_operation_ref,
-    },
+    exact_interface_binding: { interface_ref: f.exact_interface_ref, operation_ref: f.exact_operation_ref },
     implementation_binding: f.implementation_binding,
     operation_input: {},
     runtime_context: {
-      invocation_id: "invoke-gate",
-      binding_set_ref: "binding-set-gate",
-      attributes: {
-        q_gate_runtime_binding: {
-          carrier: "caller-must-not-win",
-        },
-        caller_only: true,
-      },
+      invocation_id: "invoke-attributes",
+      binding_set_ref: "binding-set-1",
+      attributes: { exact_resource_ref: "resource:test" },
     },
-    trace_id: "trace-gate",
-    request_id: "request-gate",
+    trace_id: "trace-attributes",
+    request_id: "request-attributes",
   });
 
-  assert.equal(bindingResolutionCalls, 1);
-  assert.deepEqual(result, {
-    q_gate_runtime_binding: {
-      carrier: "owner-local",
-    },
-  });
+  assert.deepEqual(result, { exact_resource_ref: "resource:test" });
 });
 
 test("mounted provider binding refuses Interface-only execution when exact operation_ref is absent", async () => {
