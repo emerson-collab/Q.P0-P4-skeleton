@@ -1,4 +1,4 @@
-name: Temporary P1 closure baseline
+name: Temporary P1 route P0 runtime closure
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 jobs:
-  baseline:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,3 +15,10 @@ jobs:
           node-version: '22.17.0'
           cache: npm
       - run: npm ci
+      - run: npm run typecheck
+      - name: Run fixed P1 Business Runtime tests
+        run: |
+          node --experimental-transform-types --test \
+            tests/p1/business_runtime/business_operation_registry.test.ts \
+            tests/p1/business_runtime/stage_extension_contract.test.ts
+      - run: npm test
