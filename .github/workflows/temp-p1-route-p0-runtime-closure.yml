@@ -1,0 +1,17 @@
+name: Temporary P1 closure baseline
+on:
+  push:
+    branches:
+      - chatgpt/p1-route-p0-runtime-closure
+permissions:
+  contents: read
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.17.0'
+          cache: npm
+      - run: npm ci
