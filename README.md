@@ -9,23 +9,23 @@ Authoritative Contract bytes are resolved from Q Cloud Storage. Repository-side 
 ## Current baseline
 
 - Repository Skeleton: `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0145`
-- Capability Contract: `Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0117`
+- Capability Contract: `Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0118`
 - Capability Package: `Q.SS.STD.META.CONTRACT.CAPABILITY_PACKAGE@V0115`
 - P0 Runtime Core: `Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134`
-- P1 Business Runtime: `Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182`
+- P1 Business Runtime: `Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0183`
 - P2 Cross-Domain Realization: `Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125`
 - P3 Evolution: `Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145`
 - P4 Coordination: `Q.SS.STD.P4.CONTRACT.COORDINATION@V0141`
 
 ## P1 fixed framework
 
-P1 concrete Capability implementations remain direct overlays over the fixed P1 Business Runtime files. P1 V0182 keeps CALL, HOOK, EVENT and REGISTRY catalogs unchanged and owns the native EVENT framework registry, exact Interface-to-existing-Operation binding, and the fixed `publish_business_event` / `consume_business_event` dispatch.
+P1 concrete Capability implementations remain direct overlays over the fixed P1 Business Runtime files. P1 V0183 keeps CALL, HOOK, EVENT and REGISTRY catalogs unchanged and owns the native EVENT framework registry, exact Interface-to-existing-Operation binding, and the fixed `publish_business_event` / `consume_business_event` dispatch.
 
 Every concrete EVENT Interface must be preverified against its exact Capability Contract and existing Operation before dispatch. Transport, caller, channel, source-code discovery and payload content cannot select or override the business Operation. `EVENT_CONSUME` forwards the event input without semantic transformation to the exact existing Operation selected only by the registered Interface binding. `EVENT_PUBLISH` delivers only after the owning Operation has produced its authoritative fact/finalized outcome and never re-executes that Operation.
 
 ## P1 dynamic-variable overlay
 
-Repository Skeleton V0145 declares the physical dynamic-variable boundary. Skeleton/template variables resolve from exactly one allowed governed source: an exact Capability Contract GENERAL fact, an exact Capability Instance parameter, or an exact Capability Instance binding. Structural `capability_id` and `operation_id` values are Contract GENERAL facts and fill only predeclared Skeleton paths.
+Repository Skeleton V0145 declares the physical dynamic-variable boundary. Skeleton/template variables resolve from exactly one allowed governed source: an exact Capability Contract GENERAL fact, an exact Capability Instance parameter, or an exact Capability Instance binding. Structural `capability_id` and `operation_id` values are Contract GENERAL facts and fill only predeclared Skeleton paths. V0183 makes the P1 overlay machine-exact: Capability GENERAL values bind only to the 13 exact predeclared `CAPABILITY_GENERAL_SLOT` identities, while `route_key` remains a P1 runtime slot derived as the exact `operation_ref` bytes. The canonical Skeleton adds no runtime binder, adapter, bridge, wrapper, or second Runtime.
 
 Dynamic-variable resolution belongs to governed repository/template materialization. After materialization, concrete P1 Capability code connects directly to the fixed P1 framework through the existing StageExtension, Operation registry and Interface registry slots. The canonical Skeleton does not add a runtime dynamic-variable resolver, owner-local P1 binding resolver, adapter, bridge or Capability-specific connection helper between the concrete Capability and the fixed P1 framework.
 
@@ -33,7 +33,7 @@ Capability-specific runtime support is not part of the canonical P1 connection p
 
 ## Listener-neutral runtime root
 
-Repository Skeleton V0145 owns only the generic repository/runtime-root topology and predeclared path boundaries. It owns no listener semantics, persistent listener connection, reconnect loop, provider/channel lifecycle or listener bootstrap. P1 V0182 also owns none of those lifecycle semantics.
+Repository Skeleton V0145 owns only the generic repository/runtime-root topology and predeclared path boundaries. It owns no listener semantics, persistent listener connection, reconnect loop, provider/channel lifecycle or listener bootstrap. P1 V0183 also owns none of those lifecycle semantics.
 
 Persistent listener transport lifecycle may exist only when an exact Capability Contract explicitly declares that ownership. Such Capability-owned lifecycle remains inside the sole existing P0 Runtime. A second Runtime, P0 EVENT Surface expansion, runtime adapter, bridge, wrapper, listener wrapper Operation, business-specific event wrapper, polling substitute, or transport-selected Operation is forbidden.
 

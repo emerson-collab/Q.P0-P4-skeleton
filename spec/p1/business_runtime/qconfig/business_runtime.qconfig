@@ -1,4 +1,4 @@
-policy_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182
+policy_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0183
 one_operation_one_capability: true
 formal_business_operation_type_forbidden: true
 direct_same_domain_handler_import_forbidden: true
@@ -17,3 +17,11 @@ event_listener_transport_lifecycle_owned_by_repository_skeleton: false
 event_listener_transport_lifecycle_requires_exact_capability_contract: true
 event_listener_execution_runtime: EXISTING_P0_RUNTIME_ONLY
 event_input_semantic_transformation_forbidden: true
+overlay_slot_catalog_ref: Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0183#/overlay_slot_catalog
+capability_general_slots_source: Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0118#/p1_general_runtime_overlay_export_contract
+slot_ref_is_exact_predeclared_target_token_ref: true
+field_name_only_slot_binding_forbidden: true
+route_key_owner: P1_BUSINESS_RUNTIME
+route_key_value_rule: EXACT_OPERATION_REF_BYTES
+caller_or_capability_route_key_authority: false
+route_tuple_mismatch_behavior: FAIL_CLOSED_ZERO_OPERATION_ATTEMPT

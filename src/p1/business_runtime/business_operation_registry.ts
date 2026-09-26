@@ -1,8 +1,32 @@
 import { StableRuntimeError, deep_freeze, exact_ref } from "../../p0/runtime_contract.ts";
 import type { RuntimeContext, RuntimeOperation } from "../../p0/runtime_contract.ts";
+import {
+  P1_CAPABILITY_GENERAL_SLOT_REFS,
+  P1_CONTRACT_REF,
+} from "./stage_extension_contract.ts";
+import type {
+  P1CapabilityGeneralSlotId,
+  P1CapabilityGeneralSlotProjection,
+} from "./stage_extension_contract.ts";
 
 export type BusinessOperationHandler = RuntimeOperation<unknown, unknown>;
 export type BusinessEventInterfaceKind = "EVENT_PUBLISH" | "EVENT_CONSUME";
+
+export interface BusinessOperationRouteBinding {
+  readonly route_key: string;
+  readonly capability_contract_ref: string;
+  readonly capability_id: string;
+  readonly operation_id: string;
+  readonly operation_ref: string;
+}
+
+export interface BusinessOperationInvokePath {
+  readonly route_key: string;
+  readonly capability_id: string;
+  readonly operation_id: string;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
 
 export interface BusinessRegistryEntry {
   readonly object_ref: string;
@@ -16,7 +40,6 @@ export interface BusinessEventInterfaceBinding {
   readonly operation_ref: string;
   readonly surface: "EVENT";
   readonly kind: BusinessEventInterfaceKind;
-  /** P1 framework EVENT method identity declared by the exact Capability Interface. */
   readonly method_ref: "publish_business_event" | "consume_business_event";
 }
 
@@ -31,126 +54,213 @@ export interface BusinessEventPublisher {
   publish(request: Readonly<BusinessEventPublishRequest>): unknown | Promise<unknown>;
 }
 
-const operations = new Map<string, BusinessOperationHandler>();
+interface RegisteredBusinessOperation {
+  readonly route: BusinessOperationRouteBinding;
+  readonly handler: BusinessOperationHandler;
+}
+
+const operations = new Map<string, RegisteredBusinessOperation>();
 const business_objects = new Map<string, BusinessRegistryEntry>();
 const event_interfaces = new Map<string, BusinessEventInterfaceBinding>();
 
 function nonEmptyString(value: string, field: string): string {
   if (value.length === 0) {
-    throw new StableRuntimeError("P1_EVENT_BINDING_INVALID", `${field} must be a non-empty string`);
+    throw new StableRuntimeError("P1_BINDING_INVALID", `${field} must be a non-empty string`);
   }
   return value;
 }
 
-function exactCapabilityMember(
-  capabilityContractRef: string,
-  memberRef: string,
-  memberKind: "operations" | "interfaces",
-  field: string,
+function exactSlotValue(
+  projection: P1CapabilityGeneralSlotProjection,
+  slotId: P1CapabilityGeneralSlotId,
 ): string {
+  const binding = projection[slotId];
+  if (binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      `${slotId} must bind the exact predeclared P1 V0183 slot_ref`,
+    );
+  }
+  return nonEmptyString(binding.value, slotId);
+}
+
+function operationRouteFromProjection(
+  projection: P1CapabilityGeneralSlotProjection,
+): BusinessOperationRouteBinding {
+  const capabilityContractRef = exactSlotValue(projection, "capability_contract_ref");
+  const capabilityId = exactSlotValue(projection, "capability_id");
+  const operationId = exactSlotValue(projection, "operation_id");
+  const operationRef = exactSlotValue(projection, "operation_ref");
+
   if (!exact_ref(capabilityContractRef) || capabilityContractRef.includes("#/")) {
     throw new StableRuntimeError(
-      "P1_EVENT_BINDING_INVALID",
+      "P1_OVERLAY_SLOT_INVALID",
       "capability_contract_ref must be an exact versioned Capability Contract ref",
     );
   }
-  const exact = nonEmptyString(memberRef, field);
-  if (!exact_ref(exact) || !exact.startsWith(`${capabilityContractRef}#/${memberKind}/`)) {
+  if (
+    !exact_ref(operationRef)
+    || operationRef !== `${capabilityContractRef}#/operations/${operationId}`
+  ) {
     throw new StableRuntimeError(
-      "P1_EVENT_BINDING_INVALID",
-      `${field} must be an exact member of capability_contract_ref`,
+      "P1_OVERLAY_SLOT_INVALID",
+      "operation_ref must exactly match capability_contract_ref and operation_id",
     );
   }
-  return exact;
+
+  return deep_freeze({
+    route_key: operationRef,
+    capability_contract_ref: capabilityContractRef,
+    capability_id: capabilityId,
+    operation_id: operationId,
+    operation_ref: operationRef,
+  });
 }
 
-
-export function register_business_operation(operation_ref: string, handler: BusinessOperationHandler): void {
-  const existing = operations.get(operation_ref);
-  if (existing !== undefined && existing !== handler) {
-    throw new StableRuntimeError("P1_OPERATION_DUPLICATE", "Operation ref already has a different handler");
+export function register_business_operation(
+  general_slots: P1CapabilityGeneralSlotProjection,
+  handler: BusinessOperationHandler,
+): BusinessOperationRouteBinding {
+  const route = operationRouteFromProjection(general_slots);
+  const existing = operations.get(route.route_key);
+  if (existing !== undefined) {
+    if (
+      existing.handler !== handler
+      || existing.route.capability_contract_ref !== route.capability_contract_ref
+      || existing.route.capability_id !== route.capability_id
+      || existing.route.operation_id !== route.operation_id
+      || existing.route.operation_ref !== route.operation_ref
+    ) {
+      throw new StableRuntimeError(
+        "P1_OPERATION_DUPLICATE",
+        "P1-derived route_key already has a different exact Operation binding",
+      );
+    }
+    return existing.route;
   }
-  operations.set(operation_ref, handler);
+
+  operations.set(route.route_key, deep_freeze({ route, handler }));
+  return route;
 }
 
-export function resolve_business_operation(operation_ref: string): BusinessOperationHandler {
-  const handler = operations.get(operation_ref);
-  if (handler === undefined) {
-    throw new StableRuntimeError("P1_OPERATION_NOT_REGISTERED", "Operation ref is not registered");
+function resolveRegisteredOperationByExactRef(operationRef: string): RegisteredBusinessOperation {
+  const registered = operations.get(operationRef);
+  if (
+    registered === undefined
+    || registered.route.route_key !== operationRef
+    || registered.route.operation_ref !== operationRef
+  ) {
+    throw new StableRuntimeError(
+      "P1_OPERATION_NOT_REGISTERED",
+      "Exact Operation ref is not registered as its P1-derived route_key",
+    );
   }
-  return handler;
+  return registered;
+}
+
+function resolveRegisteredOperationByPath(
+  path: Readonly<BusinessOperationInvokePath>,
+): RegisteredBusinessOperation {
+  const routeKey = nonEmptyString(path.route_key, "route_key");
+  const registered = operations.get(routeKey);
+  if (
+    registered === undefined
+    || registered.route.route_key !== registered.route.operation_ref
+    || routeKey !== registered.route.operation_ref
+    || path.capability_id !== registered.route.capability_id
+    || path.operation_id !== registered.route.operation_id
+  ) {
+    throw new StableRuntimeError(
+      "P1_OPERATION_ROUTE_MISMATCH",
+      "P1 route tuple does not resolve exactly one registered Operation",
+    );
+  }
+  return registered;
+}
+
+export function resolve_business_operation(
+  path: Readonly<BusinessOperationInvokePath>,
+): BusinessOperationHandler {
+  return resolveRegisteredOperationByPath(path).handler;
 }
 
 export async function invoke_business_operation(
-  operation_ref: string,
+  path: Readonly<BusinessOperationInvokePath>,
   input: unknown,
   runtime_context: RuntimeContext,
 ): Promise<unknown> {
-  return await resolve_business_operation(operation_ref)(input, runtime_context);
+  const registered = resolveRegisteredOperationByPath(path);
+  if (
+    path.trace_id !== runtime_context.trace_id
+    || path.request_id !== runtime_context.request_id
+  ) {
+    throw new StableRuntimeError(
+      "P1_OPERATION_ROUTE_MISMATCH",
+      "Invocation correlation does not match the resolved P1 route context",
+    );
+  }
+
+  const boundRuntimeContext = deep_freeze({
+    ...runtime_context,
+    stage_contract_ref: P1_CONTRACT_REF,
+    operation_ref: registered.route.operation_ref,
+  } satisfies RuntimeContext);
+
+  return await registered.handler(input, boundRuntimeContext);
 }
 
 export function registered_business_operation_refs(): readonly string[] {
-  return deep_freeze([...operations.keys()].sort());
+  return deep_freeze([...operations.values()].map((item) => item.route.operation_ref).sort());
 }
 
-/**
- * Registers one exact concrete Capability EVENT Interface-to-Operation binding.
- *
- * The concrete Capability Contract remains semantic authority. Runtime transport,
- * caller input, channel identity, and source-code discovery are never allowed to
- * select or override the bound Operation.
- */
+export function registered_business_operation_routes(): readonly BusinessOperationRouteBinding[] {
+  return deep_freeze(
+    [...operations.values()]
+      .map((item) => item.route)
+      .sort((left, right) => left.route_key.localeCompare(right.route_key)),
+  );
+}
+
 export function register_business_event_interface(
-  binding: Readonly<BusinessEventInterfaceBinding>,
+  general_slots: P1CapabilityGeneralSlotProjection,
 ): BusinessEventInterfaceBinding {
-  const allowedBindingKeys = new Set([
-    "capability_contract_ref",
-    "interface_ref",
-    "operation_ref",
-    "surface",
-    "kind",
-    "method_ref",
-  ]);
-  const unknownBindingKeys = Object.keys(binding).filter((key) => !allowedBindingKeys.has(key));
-  if (unknownBindingKeys.length > 0) {
+  const capabilityContractRef = exactSlotValue(general_slots, "capability_contract_ref");
+  const interfaceRef = exactSlotValue(general_slots, "interface_ref");
+  const operationRef = exactSlotValue(general_slots, "operation_ref");
+  const surface = exactSlotValue(general_slots, "surface");
+  const kind = exactSlotValue(general_slots, "kind");
+  const methodRef = exactSlotValue(general_slots, "method_ref");
+
+  if (!exact_ref(interfaceRef) || !interfaceRef.startsWith(`${capabilityContractRef}#/interfaces/`)) {
     throw new StableRuntimeError(
       "P1_EVENT_BINDING_INVALID",
-      "EVENT binding contains undeclared fields",
-      { unknown_binding_keys: unknownBindingKeys.sort() },
+      "interface_ref must be an exact member of capability_contract_ref",
     );
   }
-  const capabilityContractRef = nonEmptyString(
-    binding.capability_contract_ref,
-    "capability_contract_ref",
-  );
-  const interfaceRef = exactCapabilityMember(
-    capabilityContractRef,
-    binding.interface_ref,
-    "interfaces",
-    "interface_ref",
-  );
-  const operationRef = exactCapabilityMember(
-    capabilityContractRef,
-    binding.operation_ref,
-    "operations",
-    "operation_ref",
-  );
-  if (binding.surface !== "EVENT") {
+
+  const registeredOperation = resolveRegisteredOperationByExactRef(operationRef);
+  if (registeredOperation.route.capability_contract_ref !== capabilityContractRef) {
+    throw new StableRuntimeError(
+      "P1_EVENT_BINDING_INVALID",
+      "EVENT Interface and Operation must resolve inside the same exact Capability Contract",
+    );
+  }
+  if (surface !== "EVENT") {
     throw new StableRuntimeError("P1_EVENT_BINDING_INVALID", "EVENT binding surface must equal EVENT");
   }
-  const methodRef = nonEmptyString(binding.method_ref, "method_ref");
-  if (binding.kind !== "EVENT_PUBLISH" && binding.kind !== "EVENT_CONSUME") {
+  if (kind !== "EVENT_PUBLISH" && kind !== "EVENT_CONSUME") {
     throw new StableRuntimeError(
       "P1_EVENT_BINDING_INVALID",
       "EVENT binding kind must be EVENT_PUBLISH or EVENT_CONSUME",
     );
   }
-  const expectedMethodRef =
-    binding.kind === "EVENT_PUBLISH" ? "publish_business_event" : "consume_business_event";
+  const expectedMethodRef = kind === "EVENT_PUBLISH"
+    ? "publish_business_event"
+    : "consume_business_event";
   if (methodRef !== expectedMethodRef) {
     throw new StableRuntimeError(
       "P1_EVENT_BINDING_INVALID",
-      `EVENT ${binding.kind} method_ref must equal ${expectedMethodRef}`,
+      `EVENT ${kind} method_ref must equal ${expectedMethodRef}`,
     );
   }
 
@@ -158,8 +268,8 @@ export function register_business_event_interface(
     capability_contract_ref: capabilityContractRef,
     interface_ref: interfaceRef,
     operation_ref: operationRef,
-    surface: "EVENT",
-    kind: binding.kind,
+    surface: "EVENT" as const,
+    kind,
     method_ref: expectedMethodRef,
   } satisfies BusinessEventInterfaceBinding);
 
@@ -207,14 +317,6 @@ export function registered_business_event_interface_refs(): readonly string[] {
   return deep_freeze([...event_interfaces.keys()].sort());
 }
 
-/**
- * P1 EVENT_PUBLISH realization.
- *
- * The exact EVENT_PUBLISH Interface is preverified against its owning Operation.
- * Publication occurs only after that Operation has produced its authoritative
- * fact/finalized outcome. This method therefore does not execute the Operation;
- * it delegates delivery to an injected non-semantic transport publisher.
- */
 export async function publish_business_event(
   interface_ref: string,
   input: unknown,
@@ -222,6 +324,7 @@ export async function publish_business_event(
   publisher: BusinessEventPublisher,
 ): Promise<unknown> {
   const binding = resolve_business_event_interface(interface_ref, "EVENT_PUBLISH");
+  resolveRegisteredOperationByExactRef(binding.operation_ref);
   if (runtime_context.operation_ref !== binding.operation_ref) {
     throw new StableRuntimeError(
       "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH",
@@ -236,39 +339,26 @@ export async function publish_business_event(
   } satisfies BusinessEventPublishRequest));
 }
 
-/**
- * P1 EVENT_CONSUME realization.
- *
- * Transport supplies the exact Interface identity plus opaque event input/context.
- * The Operation identity is derived only from the preverified Interface binding;
- * transport/caller Operation selection is ignored rather than treated as authority.
- */
 export async function consume_business_event(
   interface_ref: string,
   input: unknown,
   runtime_context: RuntimeContext,
 ): Promise<unknown> {
   const binding = resolve_business_event_interface(interface_ref, "EVENT_CONSUME");
-  const boundRuntimeContext = deep_freeze({
-    ...runtime_context,
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182",
-    operation_ref: binding.operation_ref,
-  } satisfies RuntimeContext);
-
+  const registered = resolveRegisteredOperationByExactRef(binding.operation_ref);
   return await invoke_business_operation(
-    binding.operation_ref,
+    {
+      route_key: registered.route.operation_ref,
+      capability_id: registered.route.capability_id,
+      operation_id: registered.route.operation_id,
+      trace_id: runtime_context.trace_id,
+      request_id: runtime_context.request_id,
+    },
     input,
-    boundRuntimeContext,
+    runtime_context,
   );
 }
 
-/**
- * P1 REGISTRY_REGISTER realization.
- *
- * The registry stores only the exact static object_contract + registry_rule supplied by
- * the governed Capability projection. It does not infer public interfaces, expand a
- * provider surface, execute a business Operation, or derive any unresolved hash.
- */
 export function register_business_object(
   object_ref: string,
   object_contract: unknown,
@@ -282,26 +372,17 @@ export function register_business_object(
     return existing;
   }
 
-  const entry = deep_freeze({
-    object_ref,
-    object_contract,
-    registry_rule,
-  } satisfies BusinessRegistryEntry);
-
+  const entry = deep_freeze({ object_ref, object_contract, registry_rule } satisfies BusinessRegistryEntry);
   business_objects.set(object_ref, entry);
   return entry;
 }
 
-/** P1 REGISTRY_RESOLVE realization using the exact registered object_ref as resolution key. */
 export function resolve_business_object(resolution_key: string): BusinessRegistryEntry {
   const entry = business_objects.get(resolution_key);
-  if (entry === undefined) {
-    throw new Error("Business registry resolution key is not registered");
-  }
+  if (entry === undefined) throw new Error("Business registry resolution key is not registered");
   return entry;
 }
 
-/** P1 REGISTRY_LOOKUP realization; lookup is read-only and never invokes business Operations. */
 export function lookup_business_object(lookup_query: string): BusinessRegistryEntry | undefined {
   return business_objects.get(lookup_query);
 }
