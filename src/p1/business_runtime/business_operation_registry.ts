@@ -20,6 +20,13 @@ export interface BusinessOperationRouteBinding {
   readonly operation_ref: string;
 }
 
+export interface BusinessInternalOperationBinding {
+  readonly capability_contract_ref: string;
+  readonly capability_id: string;
+  readonly operation_id: string;
+  readonly operation_ref: string;
+}
+
 export interface BusinessOperationInvokePath {
   readonly route_key: string;
   readonly capability_id: string;
@@ -147,11 +154,10 @@ function operationRouteFromProjection(
   });
 }
 
-export function register_business_operation(
-  general_slots: P1CapabilityGeneralSlotProjection,
+function registerOperationRoute(
+  route: Readonly<BusinessOperationRouteBinding>,
   handler: BusinessOperationHandler,
 ): BusinessOperationRouteBinding {
-  const route = operationRouteFromProjection(general_slots);
   const existing = operations.get(route.route_key);
   if (existing !== undefined) {
     if (
@@ -169,8 +175,56 @@ export function register_business_operation(
     return existing.route;
   }
 
-  operations.set(route.route_key, deep_freeze({ route, handler }));
-  return route;
+  const frozenRoute = deep_freeze({ ...route });
+  operations.set(frozenRoute.route_key, deep_freeze({ route: frozenRoute, handler }));
+  return frozenRoute;
+}
+
+export function register_business_operation(
+  general_slots: P1CapabilityGeneralSlotProjection,
+  handler: BusinessOperationHandler,
+): BusinessOperationRouteBinding {
+  return registerOperationRoute(operationRouteFromProjection(general_slots), handler);
+}
+
+/**
+ * Register an internal-only Operation that has no concrete Capability Interface.
+ *
+ * The binding uses exactly the four route-consistency facts owned by P1 V0183:
+ * capability_contract_ref, capability_id, operation_id and operation_ref.
+ * No Interface identity is invented for an Operation whose Capability Contract declares
+ * interface_refs: [].
+ */
+export function register_internal_business_operation(
+  binding: Readonly<BusinessInternalOperationBinding>,
+  handler: BusinessOperationHandler,
+): BusinessOperationRouteBinding {
+  const capabilityContractRef = nonEmptyString(binding.capability_contract_ref, "capability_contract_ref");
+  const capabilityId = nonEmptyString(binding.capability_id, "capability_id");
+  const operationId = nonEmptyString(binding.operation_id, "operation_id");
+  const operationRef = nonEmptyString(binding.operation_ref, "operation_ref");
+  if (!exact_ref(capabilityContractRef) || capabilityContractRef.includes("#/")) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      "internal capability_contract_ref must be one exact versioned Capability Contract ref",
+    );
+  }
+  if (
+    !exact_ref(operationRef)
+    || operationRef !== `${capabilityContractRef}#/operations/${operationId}`
+  ) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      "internal operation_ref must exactly match capability_contract_ref and operation_id",
+    );
+  }
+  return registerOperationRoute(deep_freeze({
+    route_key: operationRef,
+    capability_contract_ref: capabilityContractRef,
+    capability_id: capabilityId,
+    operation_id: operationId,
+    operation_ref: operationRef,
+  }), handler);
 }
 
 function resolveRegisteredOperationByExactRef(operationRef: string): RegisteredBusinessOperation {
