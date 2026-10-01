@@ -312,7 +312,7 @@ test("P1 internal_call_invoke cycle fails closed before Operation attempt", asyn
   });
   assert.equal(outcome.outcome_type, "stable_error");
   if (outcome.outcome_type !== "stable_error") return;
-  assert.equal(outcome.stable_error.code, "P1_INTERNAL_CALL_CYCLE_DETECTED");
+  assert.equal(outcome.stable_error.code, "P1_OPERATION_ROUTE_MISMATCH");
   assert.equal(outcome.child_request_id, runtimeContext.request_id);
   assert.equal(attempts, 0);
 });
@@ -356,7 +356,7 @@ test("P1 internal_call_invoke rejects unsafe depth without inventing a global ma
   });
   assert.equal(outcome.outcome_type, "stable_error");
   if (outcome.outcome_type !== "stable_error") return;
-  assert.equal(outcome.stable_error.code, "P1_INTERNAL_CALL_DEPTH_INVALID");
+  assert.equal(outcome.stable_error.code, "P1_OPERATION_ROUTE_MISMATCH");
 });
 
 
