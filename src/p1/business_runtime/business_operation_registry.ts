@@ -1,5 +1,5 @@
-import { StableRuntimeError, deep_freeze, exact_ref } from "../../p0/runtime_contract.ts";
-import type { RuntimeContext, RuntimeOperation } from "../../p0/runtime_contract.ts";
+import { StableRuntimeError, deep_freeze, exact_ref, normalize_runtime_error } from "../../p0/runtime_contract.ts";
+import type { RuntimeContext, RuntimeOperation, StableRuntimeErrorShape } from "../../p0/runtime_contract.ts";
 import {
   P1_CAPABILITY_GENERAL_SLOT_REFS,
   P1_CONTRACT_REF,
@@ -27,6 +27,36 @@ export interface BusinessOperationInvokePath {
   readonly trace_id: string;
   readonly request_id: string;
 }
+
+export interface BusinessInternalCallRequest {
+  readonly local_route_key: string;
+  readonly input: unknown;
+  readonly runtime_context: RuntimeContext;
+  readonly call_path: readonly string[];
+  readonly call_depth: number;
+  readonly trace_id: string;
+  readonly parent_request_id: string;
+}
+
+export interface BusinessInternalCallSuccess {
+  readonly outcome_type: "response";
+  readonly runtime_result: unknown;
+  readonly child_call_path: readonly string[];
+  readonly child_call_depth: number;
+  readonly trace_id: string;
+  readonly child_request_id: string;
+}
+
+export interface BusinessInternalCallFailure {
+  readonly outcome_type: "stable_error";
+  readonly stable_error: StableRuntimeErrorShape;
+  readonly trace_id: string;
+  readonly child_request_id: string;
+}
+
+export type BusinessInternalCallOutcome =
+  | BusinessInternalCallSuccess
+  | BusinessInternalCallFailure;
 
 export interface BusinessRegistryEntry {
   readonly object_ref: string;
@@ -207,6 +237,113 @@ export async function invoke_business_operation(
   } satisfies RuntimeContext);
 
   return await registered.handler(input, boundRuntimeContext);
+}
+
+function exactInternalCallPath(value: readonly string[]): readonly string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) {
+    throw new StableRuntimeError(
+      "P1_INTERNAL_CALL_PATH_INVALID",
+      "call_path must be an array of non-empty exact path identities",
+    );
+  }
+  return deep_freeze([...value]);
+}
+
+function internalCallStableError(
+  error: unknown,
+  trace_id: string,
+  child_request_id: string,
+): BusinessInternalCallFailure {
+  const stable = normalize_runtime_error(error, "P1_INTERNAL_CALL_FAILED");
+  const stable_error: StableRuntimeErrorShape = stable.details === undefined
+    ? { code: stable.code, message: stable.message }
+    : { code: stable.code, message: stable.message, details: stable.details };
+  return deep_freeze({
+    outcome_type: "stable_error" as const,
+    stable_error,
+    trace_id,
+    child_request_id,
+  });
+}
+
+/**
+ * P1 V0183 internal_call_invoke realization.
+ *
+ * The exact local_route_key is the already-registered Operation ref. The caller does not
+ * gain route authority. RuntimeContext.request_id is projected as child_request_id;
+ * call_path/call_depth advance exactly one hop. No global maximum call-depth constant is
+ * invented here because the governed Source does not define one.
+ */
+export async function invoke_internal_call(
+  request: Readonly<BusinessInternalCallRequest>,
+): Promise<BusinessInternalCallOutcome> {
+  if (request === null || typeof request !== "object" || Array.isArray(request)) {
+    throw new StableRuntimeError("P1_INTERNAL_CALL_REQUEST_INVALID", "internal call request must be an object");
+  }
+  const runtimeContext = request.runtime_context;
+  if (runtimeContext === null || typeof runtimeContext !== "object" || Array.isArray(runtimeContext)) {
+    throw new StableRuntimeError("P1_INTERNAL_CALL_CONTEXT_INVALID", "runtime_context must be an exact P0 RuntimeContext object");
+  }
+  const traceId = nonEmptyString(request.trace_id, "trace_id");
+  const parentRequestId = nonEmptyString(request.parent_request_id, "parent_request_id");
+  void parentRequestId;
+  const childRequestId = nonEmptyString(runtimeContext.request_id, "runtime_context.request_id");
+  if (runtimeContext.trace_id !== traceId) {
+    throw new StableRuntimeError(
+      "P1_INTERNAL_CALL_CONTEXT_INVALID",
+      "internal call trace_id must equal runtime_context.trace_id",
+    );
+  }
+
+  let callPath: readonly string[];
+  try {
+    callPath = exactInternalCallPath(request.call_path);
+    if (!Number.isSafeInteger(request.call_depth) || request.call_depth < 0) {
+      throw new StableRuntimeError(
+        "P1_INTERNAL_CALL_DEPTH_INVALID",
+        "call_depth must be a non-negative safe integer",
+      );
+    }
+    const localRouteKey = nonEmptyString(request.local_route_key, "local_route_key");
+    const registered = resolveRegisteredOperationByExactRef(localRouteKey);
+    if (callPath.includes(registered.route.operation_ref)) {
+      throw new StableRuntimeError(
+        "P1_INTERNAL_CALL_CYCLE_DETECTED",
+        "internal call target already exists in call_path",
+      );
+    }
+    if (request.call_depth === Number.MAX_SAFE_INTEGER) {
+      throw new StableRuntimeError(
+        "P1_INTERNAL_CALL_DEPTH_INVALID",
+        "child_call_depth cannot be represented as a safe integer",
+      );
+    }
+
+    const childCallPath = deep_freeze([...callPath, registered.route.operation_ref]);
+    const childCallDepth = request.call_depth + 1;
+    const runtimeResult = await invoke_business_operation(
+      {
+        route_key: registered.route.operation_ref,
+        capability_id: registered.route.capability_id,
+        operation_id: registered.route.operation_id,
+        trace_id: traceId,
+        request_id: childRequestId,
+      },
+      request.input,
+      runtimeContext,
+    );
+
+    return deep_freeze({
+      outcome_type: "response" as const,
+      runtime_result: runtimeResult,
+      child_call_path: childCallPath,
+      child_call_depth: childCallDepth,
+      trace_id: traceId,
+      child_request_id: childRequestId,
+    });
+  } catch (error) {
+    return internalCallStableError(error, traceId, childRequestId);
+  }
 }
 
 export function registered_business_operation_refs(): readonly string[] {
