@@ -9,6 +9,7 @@ import {
   publish_business_event,
   register_business_event_interface,
   register_business_operation,
+  register_internal_business_operation,
   registered_business_operation_routes,
   resolve_business_operation,
 } from "../../../src/p1/business_runtime/business_operation_registry.ts";
@@ -356,4 +357,39 @@ test("P1 internal_call_invoke rejects unsafe depth without inventing a global ma
   assert.equal(outcome.outcome_type, "stable_error");
   if (outcome.outcome_type !== "stable_error") return;
   assert.equal(outcome.stable_error.code, "P1_INTERNAL_CALL_DEPTH_INVALID");
+});
+
+
+test("P1 registers internal-only Operation without inventing an Interface", async () => {
+  const operationId = "internal_only";
+  const operationRef = CAPABILITY_CONTRACT_REF + "#/operations/" + operationId;
+  let attempts = 0;
+  register_internal_business_operation({
+    capability_contract_ref: CAPABILITY_CONTRACT_REF,
+    capability_id: "example",
+    operation_id: operationId,
+    operation_ref: operationRef,
+  }, async (input, runtimeContext) => {
+    attempts += 1;
+    return { input, operation_ref: runtimeContext.operation_ref };
+  });
+
+  const runtimeContext = context("caller", "internal-only");
+  const outcome = await invoke_internal_call({
+    local_route_key: operationRef,
+    input: { exact: true },
+    runtime_context: runtimeContext,
+    call_path: [],
+    call_depth: 0,
+    trace_id: runtimeContext.trace_id,
+    parent_request_id: "request:parent",
+  });
+
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type !== "response") return;
+  assert.deepEqual(outcome.runtime_result, {
+    input: { exact: true },
+    operation_ref: operationRef,
+  });
+  assert.equal(attempts, 1);
 });
