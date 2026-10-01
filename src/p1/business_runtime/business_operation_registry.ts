@@ -296,7 +296,7 @@ export async function invoke_business_operation(
 function exactInternalCallPath(value: readonly string[]): readonly string[] {
   if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) {
     throw new StableRuntimeError(
-      "P1_INTERNAL_CALL_PATH_INVALID",
+      "P1_BINDING_INVALID",
       "call_path must be an array of non-empty exact path identities",
     );
   }
@@ -308,7 +308,7 @@ function internalCallStableError(
   trace_id: string,
   child_request_id: string,
 ): BusinessInternalCallFailure {
-  const stable = normalize_runtime_error(error, "P1_INTERNAL_CALL_FAILED");
+  const stable = normalize_runtime_error(error, "P1_OPERATION_ROUTE_MISMATCH");
   const stable_error: StableRuntimeErrorShape = stable.details === undefined
     ? { code: stable.code, message: stable.message }
     : { code: stable.code, message: stable.message, details: stable.details };
@@ -332,11 +332,11 @@ export async function invoke_internal_call(
   request: Readonly<BusinessInternalCallRequest>,
 ): Promise<BusinessInternalCallOutcome> {
   if (request === null || typeof request !== "object" || Array.isArray(request)) {
-    throw new StableRuntimeError("P1_INTERNAL_CALL_REQUEST_INVALID", "internal call request must be an object");
+    throw new StableRuntimeError("P1_BINDING_INVALID", "internal call request must be an object");
   }
   const runtimeContext = request.runtime_context;
   if (runtimeContext === null || typeof runtimeContext !== "object" || Array.isArray(runtimeContext)) {
-    throw new StableRuntimeError("P1_INTERNAL_CALL_CONTEXT_INVALID", "runtime_context must be an exact P0 RuntimeContext object");
+    throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "runtime_context must be an exact P0 RuntimeContext object");
   }
   const traceId = nonEmptyString(request.trace_id, "trace_id");
   const parentRequestId = nonEmptyString(request.parent_request_id, "parent_request_id");
@@ -344,7 +344,7 @@ export async function invoke_internal_call(
   const childRequestId = nonEmptyString(runtimeContext.request_id, "runtime_context.request_id");
   if (runtimeContext.trace_id !== traceId) {
     throw new StableRuntimeError(
-      "P1_INTERNAL_CALL_CONTEXT_INVALID",
+      "P1_OPERATION_ROUTE_MISMATCH",
       "internal call trace_id must equal runtime_context.trace_id",
     );
   }
@@ -354,7 +354,7 @@ export async function invoke_internal_call(
     callPath = exactInternalCallPath(request.call_path);
     if (!Number.isSafeInteger(request.call_depth) || request.call_depth < 0) {
       throw new StableRuntimeError(
-        "P1_INTERNAL_CALL_DEPTH_INVALID",
+        "P1_OPERATION_ROUTE_MISMATCH",
         "call_depth must be a non-negative safe integer",
       );
     }
@@ -362,13 +362,13 @@ export async function invoke_internal_call(
     const registered = resolveRegisteredOperationByExactRef(localRouteKey);
     if (callPath.includes(registered.route.operation_ref)) {
       throw new StableRuntimeError(
-        "P1_INTERNAL_CALL_CYCLE_DETECTED",
+        "P1_OPERATION_ROUTE_MISMATCH",
         "internal call target already exists in call_path",
       );
     }
     if (request.call_depth === Number.MAX_SAFE_INTEGER) {
       throw new StableRuntimeError(
-        "P1_INTERNAL_CALL_DEPTH_INVALID",
+        "P1_OPERATION_ROUTE_MISMATCH",
         "child_call_depth cannot be represented as a safe integer",
       );
     }
