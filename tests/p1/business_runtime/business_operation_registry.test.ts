@@ -5,6 +5,7 @@ import type { RuntimeContext } from "../../../src/p0/runtime_contract.ts";
 import {
   consume_business_event,
   invoke_business_operation,
+  invoke_internal_call,
   publish_business_event,
   register_business_event_interface,
   register_business_operation,
@@ -236,4 +237,123 @@ test("EVENT_PUBLISH rejects runtime Operation drift before transport delivery", 
       && (error as { code: string }).code === "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH",
   );
   assert.equal(deliveries, 0);
+});
+
+
+test("P1 internal_call_invoke advances exact child path/depth and uses RuntimeContext request_id", async () => {
+  const slots = projection(
+    "internal_target",
+    "internal_target",
+    "CALL",
+    "CALL_INVOKE",
+    "invoke_business_operation",
+  );
+  const operationRef = slots.operation_ref.value;
+  let attempts = 0;
+  register_business_operation(slots, async (input, runtimeContext) => {
+    attempts += 1;
+    return {
+      input,
+      operation_ref: runtimeContext.operation_ref,
+      request_id: runtimeContext.request_id,
+    };
+  });
+
+  const runtimeContext = context("caller-operation", "internal-child");
+  const parentOperationRef = CAPABILITY_CONTRACT_REF + "#/operations/parent";
+  const outcome = await invoke_internal_call({
+    local_route_key: operationRef,
+    input: { value: 1 },
+    runtime_context: runtimeContext,
+    call_path: [parentOperationRef],
+    call_depth: 1,
+    trace_id: runtimeContext.trace_id,
+    parent_request_id: "request:parent",
+  });
+
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type !== "response") return;
+  assert.deepEqual(outcome.child_call_path, [parentOperationRef, operationRef]);
+  assert.equal(outcome.child_call_depth, 2);
+  assert.equal(outcome.child_request_id, runtimeContext.request_id);
+  assert.equal(outcome.trace_id, runtimeContext.trace_id);
+  assert.deepEqual(outcome.runtime_result, {
+    input: { value: 1 },
+    operation_ref: operationRef,
+    request_id: runtimeContext.request_id,
+  });
+  assert.equal(attempts, 1);
+});
+
+test("P1 internal_call_invoke cycle fails closed before Operation attempt", async () => {
+  const slots = projection(
+    "internal_cycle",
+    "internal_cycle",
+    "CALL",
+    "CALL_INVOKE",
+    "invoke_business_operation",
+  );
+  const operationRef = slots.operation_ref.value;
+  let attempts = 0;
+  register_business_operation(slots, async () => {
+    attempts += 1;
+    return "must-not-run";
+  });
+  const runtimeContext = context("caller-operation", "internal-cycle");
+  const outcome = await invoke_internal_call({
+    local_route_key: operationRef,
+    input: {},
+    runtime_context: runtimeContext,
+    call_path: [operationRef],
+    call_depth: 1,
+    trace_id: runtimeContext.trace_id,
+    parent_request_id: "request:parent",
+  });
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type !== "stable_error") return;
+  assert.equal(outcome.stable_error.code, "P1_INTERNAL_CALL_CYCLE_DETECTED");
+  assert.equal(outcome.child_request_id, runtimeContext.request_id);
+  assert.equal(attempts, 0);
+});
+
+test("P1 internal_call_invoke unresolved local route returns StableError", async () => {
+  const runtimeContext = context("caller-operation", "internal-missing");
+  const outcome = await invoke_internal_call({
+    local_route_key: CAPABILITY_CONTRACT_REF + "#/operations/not_registered",
+    input: {},
+    runtime_context: runtimeContext,
+    call_path: [],
+    call_depth: 0,
+    trace_id: runtimeContext.trace_id,
+    parent_request_id: "request:parent",
+  });
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type !== "stable_error") return;
+  assert.equal(outcome.stable_error.code, "P1_OPERATION_NOT_REGISTERED");
+  assert.equal(outcome.trace_id, runtimeContext.trace_id);
+  assert.equal(outcome.child_request_id, runtimeContext.request_id);
+});
+
+test("P1 internal_call_invoke rejects unsafe depth without inventing a global max-depth constant", async () => {
+  const slots = projection(
+    "internal_depth",
+    "internal_depth",
+    "CALL",
+    "CALL_INVOKE",
+    "invoke_business_operation",
+  );
+  register_business_operation(slots, async () => "must-not-run");
+  const runtimeContext = context("caller-operation", "internal-depth");
+  const outcome = await invoke_internal_call({
+    local_route_key: slots.operation_ref.value,
+    input: {},
+    runtime_context: runtimeContext,
+    call_path: [],
+    call_depth: Number.MAX_SAFE_INTEGER,
+    trace_id: runtimeContext.trace_id,
+    parent_request_id: "request:parent",
+  });
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type !== "stable_error") return;
+  assert.equal(outcome.stable_error.code, "P1_INTERNAL_CALL_DEPTH_INVALID");
 });
