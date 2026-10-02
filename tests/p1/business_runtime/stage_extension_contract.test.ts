@@ -11,7 +11,7 @@ import {
 const CAPABILITY_REF = "Q.TEST.CAPABILITY.EXAMPLE@V0100";
 const CAPABILITY_CONTRACT_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 const OPERATION_ID = "read_example";
-const OPERATION_REF = `${CAPABILITY_CONTRACT_REF}#/operations/${OPERATION_ID}`;
+const OPERATION_REF = `${CAPABILITY_CONTRACT_REF}#/operation_catalog/${OPERATION_ID}`;
 const INTERFACE_REF = `${CAPABILITY_CONTRACT_REF}#/interfaces/read_example`;
 
 function slots() {
