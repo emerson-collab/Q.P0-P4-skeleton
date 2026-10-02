@@ -2,7 +2,7 @@ import { P0_CONTRACT_REF, P0_PROVIDER_SYMBOL_REF, deep_freeze, exact_ref } from 
 import type { StageExtensionContract } from "../../p0/runtime_contract.ts";
 
 export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0183" as const;
-export const P1_CAPABILITY_CONTRACT_STANDARD_REF = "Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0118" as const;
+export const P1_CAPABILITY_CONTRACT_STANDARD_REF = "Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0119" as const;
 
 export const P1_CAPABILITY_GENERAL_SLOT_IDS = [
   "capability_ref",
@@ -84,11 +84,8 @@ export function project_p1_capability_general_slots(
   if (facts.runtime_contract_ref !== P0_CONTRACT_REF) {
     throw new TypeError("runtime_contract_ref must equal the sole P0 Runtime Contract");
   }
-  if (
-    !exact_ref(facts.operation_ref)
-    || facts.operation_ref !== `${facts.capability_contract_ref}#/operations/${facts.operation_id}`
-  ) {
-    throw new TypeError("operation_ref must exactly match the declared operation_id member");
+  if (!exact_ref(facts.operation_ref)) {
+    throw new TypeError("operation_ref must be an exact versioned Operation ref");
   }
   if (
     !exact_ref(facts.interface_ref)
