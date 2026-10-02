@@ -37,7 +37,7 @@ function projection(
     stage_contract_ref: P1_CONTRACT_REF,
     runtime_contract_ref: P0_CONTRACT_REF,
     operation_id: operationId,
-    operation_ref: `${CAPABILITY_CONTRACT_REF}#/operations/${operationId}`,
+    operation_ref: `${CAPABILITY_CONTRACT_REF}#/operation_catalog/${operationId}`,
     interface_ref: `${CAPABILITY_CONTRACT_REF}#/interfaces/${interfaceId}`,
     surface,
     kind,
@@ -231,7 +231,7 @@ test("EVENT_PUBLISH rejects runtime Operation drift before transport delivery", 
     () => publish_business_event(
       binding.interface_ref,
       {},
-      context(`${CAPABILITY_CONTRACT_REF}#/operations/other`, "publish-guard"),
+      context(`${CAPABILITY_CONTRACT_REF}#/operation_catalog/other`, "publish-guard"),
       { publish() { deliveries += 1; return undefined; } },
     ),
     (error: unknown) => error instanceof Error && "code" in error
@@ -261,7 +261,7 @@ test("P1 internal_call_invoke advances exact child path/depth and uses RuntimeCo
   });
 
   const runtimeContext = context("caller-operation", "internal-child");
-  const parentOperationRef = CAPABILITY_CONTRACT_REF + "#/operations/parent";
+  const parentOperationRef = CAPABILITY_CONTRACT_REF + "#/operation_catalog/parent";
   const outcome = await invoke_internal_call({
     local_route_key: operationRef,
     input: { value: 1 },
@@ -320,7 +320,7 @@ test("P1 internal_call_invoke cycle fails closed before Operation attempt", asyn
 test("P1 internal_call_invoke unresolved local route returns StableError", async () => {
   const runtimeContext = context("caller-operation", "internal-missing");
   const outcome = await invoke_internal_call({
-    local_route_key: CAPABILITY_CONTRACT_REF + "#/operations/not_registered",
+    local_route_key: CAPABILITY_CONTRACT_REF + "#/operation_catalog/not_registered",
     input: {},
     runtime_context: runtimeContext,
     call_path: [],
@@ -362,7 +362,7 @@ test("P1 internal_call_invoke rejects unsafe depth without inventing a global ma
 
 test("P1 registers internal-only Operation without inventing an Interface", async () => {
   const operationId = "internal_only";
-  const operationRef = CAPABILITY_CONTRACT_REF + "#/operations/" + operationId;
+  const operationRef = CAPABILITY_CONTRACT_REF + "#/operation_catalog/" + operationId;
   let attempts = 0;
   register_internal_business_operation({
     capability_contract_ref: CAPABILITY_CONTRACT_REF,
