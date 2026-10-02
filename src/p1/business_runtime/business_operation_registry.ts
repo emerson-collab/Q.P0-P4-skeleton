@@ -135,13 +135,10 @@ function operationRouteFromProjection(
       "capability_contract_ref must be an exact versioned Capability Contract ref",
     );
   }
-  if (
-    !exact_ref(operationRef)
-    || operationRef !== `${capabilityContractRef}#/operations/${operationId}`
-  ) {
+  if (!exact_ref(operationRef)) {
     throw new StableRuntimeError(
       "P1_OVERLAY_SLOT_INVALID",
-      "operation_ref must exactly match capability_contract_ref and operation_id",
+      "operation_ref must be the exact Capability-owned Operation ref projected into the P1 slot",
     );
   }
 
@@ -209,13 +206,10 @@ export function register_internal_business_operation(
       "internal capability_contract_ref must be one exact versioned Capability Contract ref",
     );
   }
-  if (
-    !exact_ref(operationRef)
-    || operationRef !== `${capabilityContractRef}#/operations/${operationId}`
-  ) {
+  if (!exact_ref(operationRef)) {
     throw new StableRuntimeError(
       "P1_OVERLAY_SLOT_INVALID",
-      "internal operation_ref must exactly match capability_contract_ref and operation_id",
+      "internal operation_ref must be an exact Capability-owned Operation ref",
     );
   }
   return registerOperationRoute(deep_freeze({
