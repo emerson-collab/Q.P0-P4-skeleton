@@ -279,7 +279,7 @@ test("repository runtime persists dependency realization before operation-use cl
   assert.equal(dependency.exact_local_dependency_ref, localDependencyRef);
   assert.equal(
     dependency.p1_dependency_interface_ref,
-    "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0182#/interfaces/dependency_invoke",
+    "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/dependency_invoke",
   );
   const persisted = await store.persistence.read_dependency_binding_record({
     receiving_domain_ref: receivingDomainRef,
