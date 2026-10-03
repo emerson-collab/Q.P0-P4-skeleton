@@ -201,18 +201,15 @@ test("EVENT exact slots reject wrong kind or wrong framework method", () => {
       && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
   );
 
-  const wrongMethod = projection(
-    "event_wrong_method",
-    "event_wrong_method",
-    "EVENT",
-    "EVENT_CONSUME",
-    "publish_business_event",
-  );
-  register_business_operation(wrongMethod, async () => undefined);
   assert.throws(
-    () => register_business_event_interface(wrongMethod),
-    (error: unknown) => error instanceof Error && "code" in error
-      && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
+    () => projection(
+      "event_wrong_method",
+      "event_wrong_method",
+      "EVENT",
+      "EVENT_CONSUME",
+      "publish_business_event",
+    ),
+    /EVENT concrete method_ref must equal the existing P1 V0184 framework entry method/,
   );
 });
 
