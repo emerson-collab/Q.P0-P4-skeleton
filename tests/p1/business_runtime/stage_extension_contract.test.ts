@@ -4,8 +4,10 @@ import { P0_CONTRACT_REF } from "../../../src/p0/runtime_contract.ts";
 import {
   P1_CAPABILITY_GENERAL_SLOT_REFS,
   P1_CONTRACT_REF,
+  P1_FRAMEWORK_ANCHOR_CROSSWALK,
   create_p1_capability_stage_extension,
   project_p1_capability_general_slots,
+  resolve_p1_framework_anchor,
 } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
 
 const CAPABILITY_REF = "Q.TEST.CAPABILITY.EXAMPLE@V0100";
@@ -32,7 +34,7 @@ function slots() {
   });
 }
 
-test("V0183 GENERAL facts project only into exact predeclared P1 slot identities", () => {
+test("V0184 GENERAL facts project only into exact predeclared P1 slot identities", () => {
   const projection = slots();
   for (const [slotId, slotRef] of Object.entries(P1_CAPABILITY_GENERAL_SLOT_REFS)) {
     const binding = projection[slotId as keyof typeof projection];
@@ -72,6 +74,61 @@ test("StageExtension rejects field-name-only or wrong slot identity drift", () =
       implementation_ref: CAPABILITY_CONTRACT_REF,
       provided_interface_refs: [INTERFACE_REF],
     }),
-    /exact predeclared P1 V0183 slot_ref/,
+    /exact predeclared P1 V0184 slot_ref/,
+  );
+});
+
+
+test("V0184 framework-anchor crosswalk closes all eight supported concrete Interface kinds", () => {
+  const cases = [
+    ["CALL", "CALL_INVOKE", "read_example", "invoke_business_operation"],
+    ["HOOK", "HOOK_BIND", "bind_example", "bind_business_hook"],
+    ["HOOK", "HOOK_EVALUATE", "evaluate_example", "evaluate_business_hook"],
+    ["EVENT", "EVENT_PUBLISH", "publish_business_event", "publish_business_event"],
+    ["EVENT", "EVENT_CONSUME", "consume_business_event", "consume_business_event"],
+    ["REGISTRY", "REGISTRY_REGISTER", "register_example", "register_business_object"],
+    ["REGISTRY", "REGISTRY_RESOLVE", "resolve_example", "resolve_business_object"],
+    ["REGISTRY", "REGISTRY_LOOKUP", "lookup_example", "lookup_business_object"],
+  ] as const;
+
+  assert.equal(Object.keys(P1_FRAMEWORK_ANCHOR_CROSSWALK).length, 8);
+  for (const [surface, kind, method_ref, framework_entry_method_ref] of cases) {
+    const anchor = resolve_p1_framework_anchor({ surface, kind, method_ref });
+    assert.equal(anchor.surface, surface);
+    assert.equal(anchor.kind, kind);
+    assert.equal(anchor.framework_entry_method_ref, framework_entry_method_ref);
+    assert.match(anchor.framework_interface_ref, /Q\.SS\.STD\.P1\.CONTRACT\.BUSINESS_RUNTIME@V0184#\/interfaces\//);
+  }
+});
+
+test("CALL concrete method_ref remains separate from the framework entry method", () => {
+  const anchor = resolve_p1_framework_anchor({
+    surface: "CALL",
+    kind: "CALL_INVOKE",
+    method_ref: "read_example",
+  });
+  assert.equal(anchor.framework_entry_method_ref, "invoke_business_operation");
+  assert.notEqual("read_example", anchor.framework_entry_method_ref);
+});
+
+test("EVENT preserves the existing P1 method equality rule", () => {
+  assert.throws(
+    () => resolve_p1_framework_anchor({
+      surface: "EVENT",
+      kind: "EVENT_CONSUME",
+      method_ref: "custom_consume",
+    }),
+    /EVENT concrete method_ref must equal/,
+  );
+});
+
+test("unknown Surface/Kind cannot create or infer a new framework anchor", () => {
+  assert.throws(
+    () => resolve_p1_framework_anchor({
+      surface: "REGISTRY",
+      kind: "REGISTRY_WATCH",
+      method_ref: "watch_business_object",
+    }),
+    /must resolve exactly one pre-existing P1 V0184 framework anchor/,
   );
 });
