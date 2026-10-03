@@ -170,16 +170,6 @@ function validateHandoff(
   return binding;
 }
 
-function handlerForCategory(category: GovernedDataCategory) {
-  switch (category) {
-    case "STATIC":
-      return { operation_id: "expose_static_data" as const, handler: exposeStaticData };
-    case "DYNAMIC":
-      return { operation_id: "expose_dynamic_data" as const, handler: exposeDynamicData };
-    case "RUNTIME":
-      return { operation_id: "expose_runtime_data" as const, handler: exposeRuntimeData };
-  }
-}
 
 export async function realizeGovernedDataExposure(
   input: Readonly<GovernedDataProviderRealizationInput>,
@@ -220,19 +210,38 @@ export async function realizeGovernedDataExposure(
     );
   }
 
-  const selected = handlerForCategory(category);
-  const response = await selected.handler(
-    {
-      input: input.p2_operation_input,
-      runtime_context: input.runtime_context,
-      trace_id: input.trace_id,
-      request_id: input.request_id,
-    },
-    {
-      materialize_governed_data: (request) =>
-        materialization.materialize_governed_data(request),
-    },
-  );
+  const request = {
+    input: input.p2_operation_input,
+    runtime_context: input.runtime_context,
+    trace_id: input.trace_id,
+    request_id: input.request_id,
+  };
+  const dependencies = {
+    materialize_governed_data: (materializationInput: Parameters<
+      GovernedDataMaterializationProgram["materialize_governed_data"]
+    >[0]) => materialization.materialize_governed_data(materializationInput),
+  };
+
+  let p2OperationId:
+    | "expose_static_data"
+    | "expose_dynamic_data"
+    | "expose_runtime_data";
+  let response: Awaited<ReturnType<typeof exposeStaticData>>;
+
+  switch (category) {
+    case "STATIC":
+      p2OperationId = "expose_static_data";
+      response = await exposeStaticData(request, dependencies);
+      break;
+    case "DYNAMIC":
+      p2OperationId = "expose_dynamic_data";
+      response = await exposeDynamicData(request, dependencies);
+      break;
+    case "RUNTIME":
+      p2OperationId = "expose_runtime_data";
+      response = await exposeRuntimeData(request, dependencies);
+      break;
+  }
 
   const resultCategory = (response.runtime_result as Readonly<Record<string, unknown>>).data_category;
   if (resultCategory !== category) {
@@ -250,7 +259,7 @@ export async function realizeGovernedDataExposure(
     governed_data_material_program_ref: GOVERNED_DATA_MATERIAL_PROGRAM_REF,
     handoff_binding_ref: handoff.binding_ref,
     data_category: category,
-    p2_operation_id: selected.operation_id,
+    p2_operation_id: p2OperationId,
     p2_runtime_result: response.runtime_result,
   });
 }
