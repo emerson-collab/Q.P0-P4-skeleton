@@ -16,4 +16,5 @@ jobs:
           cache: npm
       - run: npm install --ignore-scripts --package-lock=false
       - run: npm run typecheck
+      - run: rm -f .github/workflows/verify-rds-v0151.yml
       - run: npm test
