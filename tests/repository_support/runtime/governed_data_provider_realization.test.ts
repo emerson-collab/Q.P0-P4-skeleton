@@ -75,7 +75,9 @@ function p2Input(category: GovernedDataCategory) {
 function materializer(observed: GovernedDataCategory[]): GovernedDataMaterializationProgram {
   return Object.freeze({
     program_ref: GOVERNED_DATA_MATERIAL_PROGRAM_REF,
-    async materialize_governed_data(input) {
+    async materialize_governed_data(
+      input: Parameters<GovernedDataMaterializationProgram["materialize_governed_data"]>[0],
+    ) {
       observed.push(input.data_category);
       const request = input.authorized_exposure_request as Readonly<Record<string, unknown>>;
       return Object.freeze({
