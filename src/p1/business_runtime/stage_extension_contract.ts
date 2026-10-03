@@ -178,8 +178,8 @@ export function project_p1_capability_general_slots(
 ): P1CapabilityGeneralSlotProjection {
   for (const slotId of P1_CAPABILITY_GENERAL_SLOT_IDS) required(facts[slotId], slotId);
 
-  if (!exact_ref(facts.capability_ref) || facts.capability_ref.includes("#/")) {
-    throw new TypeError("capability_ref must be an exact versioned Capability ref");
+  if (!exact_ref(facts.capability_ref)) {
+    throw new TypeError("capability_ref must be an exact versioned Capability identity");
   }
   if (!exact_ref(facts.capability_contract_ref) || facts.capability_contract_ref.includes("#/")) {
     throw new TypeError("capability_contract_ref must be an exact versioned Capability Contract ref");
