@@ -83,15 +83,14 @@ export class GovernedDataProviderRealizationError extends StableRuntimeError {
   }
 }
 
-const CATEGORY_ACCESS: Readonly<Record<GovernedDataCategory, readonly SourceAccessKind[]>> =
-  Object.freeze({
-    STATIC: Object.freeze(["P1_AUTHORIZED_STATIC_OR_PACKAGE_FACT"]),
-    DYNAMIC: Object.freeze([
-      "DECLARED_Q_INTERFACE_SOURCE_FACT",
-      "AUTHORIZED_GOVERNED_STATE_OR_REGISTRY_FACT",
-    ]),
-    RUNTIME: Object.freeze(["ALREADY_PRODUCED_RUNTIME_FACT"]),
-  });
+const CATEGORY_ACCESS = {
+  STATIC: ["P1_AUTHORIZED_STATIC_OR_PACKAGE_FACT"],
+  DYNAMIC: [
+    "DECLARED_Q_INTERFACE_SOURCE_FACT",
+    "AUTHORIZED_GOVERNED_STATE_OR_REGISTRY_FACT",
+  ],
+  RUNTIME: ["ALREADY_PRODUCED_RUNTIME_FACT"],
+} as const satisfies Readonly<Record<GovernedDataCategory, readonly SourceAccessKind[]>>;
 
 function requiredString(value: unknown, field: string): string {
   if (typeof value !== "string" || value.length === 0) {
