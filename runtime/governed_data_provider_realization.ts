@@ -350,7 +350,14 @@ function validateHandoffBinding(value: unknown): GovernedDataHandoffBinding {
         `${bindingRef}.${memberRef}.source_fact_authority_ref`,
       ),
     });
-  }).sort((left, right) => left.member_ref.localeCompare(right.member_ref));
+  });
+  const canonicalMemberRefs = [...memberRefs].sort((left, right) => left.localeCompare(right));
+  if (members.some((member, index) => member.member_ref !== canonicalMemberRefs[index])) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_BINDING_ORDER_INVALID",
+      `${bindingRef}.members must already be ordered by member_ref_ASCENDING`,
+    );
+  }
 
   return Object.freeze({
     binding_ref: bindingRef,
@@ -437,13 +444,22 @@ function validateP2HandoffObligation(
     refs.add(binding.binding_ref);
   }
 
+  const canonicalBindingRefs = bindings
+    .map((binding) => binding.binding_ref)
+    .slice()
+    .sort((left, right) => left.localeCompare(right));
+  if (bindings.some((binding, index) => binding.binding_ref !== canonicalBindingRefs[index])) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_BINDING_ORDER_INVALID",
+      "governed_data_exposure.bindings must already be ordered by binding_ref_ASCENDING",
+    );
+  }
+
   return Object.freeze({
     capability_contract_ref: capabilityContractRef,
     capability_contract_hash: capabilityContractHash,
     p2_handoff_obligation_snapshot_hash: actualSnapshotHash,
-    bindings: Object.freeze(
-      [...bindings].sort((left, right) => left.binding_ref.localeCompare(right.binding_ref)),
-    ),
+    bindings: Object.freeze(bindings),
   });
 }
 

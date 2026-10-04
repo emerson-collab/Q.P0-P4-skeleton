@@ -251,7 +251,7 @@ function memoryStore(
 test("V0152 realizes exact triad, skips P2 for empty category, and commits only after all readbacks", async () => {
   const staticBinding = binding("STATIC", "a");
   const runtimeBinding = binding("RUNTIME", "r");
-  const bindings = Object.freeze([staticBinding, runtimeBinding]);
+  const bindings = Object.freeze([runtimeBinding, staticBinding]);
   const observed: GovernedDataCategory[] = [];
   const events: string[] = [];
   const store = memoryStore(events);
@@ -350,6 +350,31 @@ test("V0152 fails closed when canonical triad resource identity is changed", asy
     (error: unknown) =>
       error instanceof GovernedDataProviderRealizationError
       && error.code === "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
+  );
+  assert.deepEqual(events, []);
+});
+
+test("V0152 fails closed instead of reordering noncanonical binding order", async () => {
+  const staticBinding = binding("STATIC", "a");
+  const runtimeBinding = binding("RUNTIME", "r");
+  const noncanonical = Object.freeze([staticBinding, runtimeBinding]);
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeGovernedDataTriad(
+      Object.freeze({
+        p2_handoff_obligation: p2Handoff(noncanonical),
+        governed_data_json_triad_obligation: triadObligation(),
+        binding_executions: Object.freeze([
+          execution(staticBinding),
+          execution(runtimeBinding),
+        ]),
+      }),
+      materializer([]),
+      memoryStore(events),
+    ),
+    (error: unknown) =>
+      error instanceof GovernedDataProviderRealizationError
+      && error.code === "RDS_GOVERNED_DATA_BINDING_ORDER_INVALID",
   );
   assert.deepEqual(events, []);
 });
