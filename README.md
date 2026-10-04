@@ -9,29 +9,41 @@ Authoritative Contract bytes are resolved from Q Cloud Storage. Repository-side 
 ## Current baseline
 
 - Repository Skeleton: `Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0152`
-- P1 Capability Materialization: `Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0111`
-- Capability Contract compatibility baseline: `Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0118`
+- P1 Capability Materialization: `Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0111`\n- Capability Contract: `Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0118`
 - Capability Package: `Q.SS.STD.META.CONTRACT.CAPABILITY_PACKAGE@V0115`
 - P0 Runtime Core: `Q.SS.STD.P0.CONTRACT.RUNTIME_CORE@V0134`
-- P1 Business Runtime: `Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184`
-- P2 Cross-Domain Realization: `Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125`
-- Governed Data Material: `Q.SS.STD.META.CONTRACT.GOVERNED_DATA_MATERIAL@V0104`
+- P1 Business Runtime: `Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0183`
+- P2 Cross-Domain Realization: `Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125`\n- Governed Data Material: `Q.SS.STD.META.CONTRACT.GOVERNED_DATA_MATERIAL@V0104`
 - P3 Evolution: `Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145`
 - P4 Coordination: `Q.SS.STD.P4.CONTRACT.COORDINATION@V0141`
 
-## P0-P4 topology
-
-Repository Skeleton V0152 preserves the exact existing five-stage selection and repository root topology. P0 remains the sole Runtime. P1 remains the fixed Business Runtime. P2 remains the cross-domain realization authority. No new Stage root, P2A/P2B stage identity, second Runtime, adapter, bridge, or wrapper authority is introduced by the V0152 governed-data closure.
-
 ## P1 fixed framework
 
-P1 concrete Capability implementations remain direct overlays over the fixed P1 Business Runtime V0184 files. Capability GENERAL values bind only to predeclared P1 framework slots; `route_key` remains a P1-derived runtime identity. Capability-specific code cannot mutate the fixed P1 Skeleton or create a second Runtime.
+P1 concrete Capability implementations remain direct overlays over the fixed P1 Business Runtime files. P1 V0184 keeps CALL, HOOK, EVENT and REGISTRY catalogs unchanged and owns the native EVENT framework registry, exact Interface-to-existing-Operation binding, and the fixed `publish_business_event` / `consume_business_event` dispatch.
+
+Every concrete EVENT Interface must be preverified against its exact Capability Contract and existing Operation before dispatch. Transport, caller, channel, source-code discovery and payload content cannot select or override the business Operation. `EVENT_CONSUME` forwards the event input without semantic transformation to the exact existing Operation selected only by the registered Interface binding. `EVENT_PUBLISH` delivers only after the owning Operation has produced its authoritative fact/finalized outcome and never re-executes that Operation.
+
+## P1 dynamic-variable overlay
+
+Repository Skeleton V0152 declares the physical dynamic-variable boundary. Skeleton/template variables resolve from exactly one allowed governed source: an exact Capability Contract GENERAL fact, an exact Capability Instance parameter, or an exact Capability Instance binding. Structural `capability_id` and `operation_id` values are Contract GENERAL facts and fill only predeclared Skeleton paths. V0183 makes the P1 overlay machine-exact: Capability GENERAL values bind only to the 13 exact predeclared `CAPABILITY_GENERAL_SLOT` identities, while `route_key` remains a P1 runtime slot derived as the exact `operation_ref` bytes. The canonical Skeleton adds no runtime binder, adapter, bridge, wrapper, or second Runtime.
+
+Dynamic-variable resolution belongs to governed repository/template materialization. After materialization, concrete P1 Capability code connects directly to the fixed P1 framework through the existing StageExtension, Operation registry and Interface registry slots. The canonical Skeleton does not add a runtime dynamic-variable resolver, owner-local P1 binding resolver, adapter, bridge or Capability-specific connection helper between the concrete Capability and the fixed P1 framework.
+
+Capability-specific runtime support is not part of the canonical P1 connection path. When an exact Capability Contract and DRT explicitly authorize such runtime support, it may use the optional repository `runtime/` root without becoming Skeleton semantic authority.
+
+## Listener-neutral runtime root
+
+Repository Skeleton V0152 owns only the generic repository/runtime-root topology and predeclared path boundaries. It owns no listener semantics, persistent listener connection, reconnect loop, provider/channel lifecycle or listener bootstrap. P1 V0184 also owns none of those lifecycle semantics.
+
+Persistent listener transport lifecycle may exist only when an exact Capability Contract explicitly declares that ownership. Such Capability-owned lifecycle remains inside the sole existing P0 Runtime. A second Runtime, P0 EVENT Surface expansion, runtime adapter, bridge, wrapper, listener wrapper Operation, business-specific event wrapper, polling substitute, or transport-selected Operation is forbidden.
+
+The canonical Skeleton therefore contains no P1 runtime dynamic-variable resolver, P1 Capability connection helper, Q.Secret-specific resolver or deployment-provider identity implementation. Concrete provider, Secret, listener and deployment bindings remain outside the fixed P1 Skeleton unless explicitly authorized by the owning exact Contract/DRT.
 
 ## Governed-data JSON triad execution
 
-Repository Skeleton V0152 closes the non-Stage repository-support execution boundary for the exact P1 Capability Materialization V0111 `governed_data_json_triad_obligation`.
+Repository Skeleton V0152 closes the existing non-Stage repository-support execution boundary around the exact P1 Capability Materialization V0111 `governed_data_json_triad_obligation`.
 
-For an exact DECLARED obligation:
+For a DECLARED obligation, the canonical physical projection is exactly:
 
 ```text
 STATIC  → static.json  → expose_static_data
@@ -39,22 +51,12 @@ DYNAMIC → dynamic.json → expose_dynamic_data
 RUNTIME → runtime.json → expose_runtime_data
 ```
 
-Every declared binding is partitioned only by its exact declared `data_category`. A non-empty category executes only its existing CURRENT P2 V0125 Provider exposure Operation. An empty category still produces its canonical JSON file with `bindings: []` and `material_envelopes: []`, but invokes no P2 exposure Operation.
+Only non-empty categories invoke the corresponding existing CURRENT P2 V0125 Provider exposure Operation. An empty category still materializes its required canonical JSON projection with `bindings: []` and `material_envelopes: []`, but invokes no P2 exposure Operation.
 
-Each file preserves the exact Capability Contract ref/hash, frozen P2 ref/hash, exact P2 handoff obligation snapshot hash, declared binding/member lineage, and exact GDM material envelopes. Filenames are physical projection identities only and do not become semantic authority.
+All three files must be durable and exact-hash read-back verified before the ordered triad-set hash is accepted and before any triad commit/current-pointer mutation. The exact implementing storage or persistence authority owns the `SHA256_CANONICAL_ORDERED_FILE_HASH_TUPLE` realization and mutable current-pointer semantics; a partial triad current pointer is forbidden and the pointer switch is atomic and last. Filenames remain physical projection identities, not semantic authority.
 
-All three files must become durable and pass exact hash readback before triad commit. The ordered set is always:
+## P2 and verification boundaries
 
-```text
-static.json
-dynamic.json
-runtime.json
-```
+Capability Package V0115 preserves immutable implementation-material semantics. P2 V0125 owns cross-Domain Provider/Consumer realization and receiving-owner-local durable mount/dependency runtime facts; P1 and the repository Skeleton do not acquire P2 business semantics.
 
-The exact implementing storage or persistence authority owns the `SHA256_CANONICAL_ORDERED_FILE_HASH_TUPLE` realization and any mutable current-pointer semantics. Partial triad CURRENT state is forbidden; the current pointer switches atomically and last.
-
-The repository Skeleton does not redefine P2 category/exposure semantics or GDM material protocol semantics, and P1 does not directly write governed material while bypassing P2.
-
-## Verification boundary
-
-`npm test` is the full repository Node test entrypoint. Q.Workflow remains the verification/workflow execution owner and Q.Gate remains the final Gate verdict authority. Workflow success, repository merge, standard registration, or activation state is not a substitute for Gate PASS.
+Q.Workflow remains the verification/workflow execution owner. Q.Gate remains the final Gate verdict authority. Workflow success, repository merge, standard registration, or activation state is not a substitute for Gate PASS.
