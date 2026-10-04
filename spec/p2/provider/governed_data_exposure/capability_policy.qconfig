@@ -21,6 +21,4 @@ rules:
   - STATIC
   - DYNAMIC
   - RUNTIME
-  dynamic_snapshot_fixed_source_revision_required: true
-  bulk_artifact_externalized_by_default: true
   provider_reexecution_only_to_manufacture_runtime_data_forbidden: true

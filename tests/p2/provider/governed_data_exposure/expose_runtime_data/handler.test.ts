@@ -4,12 +4,12 @@ import { handler, P2StableError, STAGE_CONTRACT_REF } from "#q/p2/provider/gover
 
 const baseRequest=(input:Record<string,unknown>)=>({input,runtime_context:{stage_contract_ref:STAGE_CONTRACT_REF},trace_id:"trace-p2",request_id:"request-p2"});
 const p2Fields={source_domain_identity:"Q.SOURCE.CONTRACT.DOMAIN@V0100",subject_identity:"subject-1",source_provenance:{source_ref:"Q.SOURCE.FACT@V0100",revision_ref:"rev-1"},source_fact_authority:"Q.SOURCE.CONTRACT.DOMAIN@V0100",governed_access_binding:{authorization_ref:"auth-1"},integrity_binding:{profile_ref:"Q.INTEGRITY.PROFILE@V0100"}};
-const exposureRequest={subject_ref:"subject-1",requested_representation:"ARTIFACT_SNAPSHOT",selection_spec:{scope:"authorized"}};
-const envelope={material_ref:"urn:q:material:1",subject_ref:"subject-1",owner_ref:"Q.SOURCE.CONTRACT.DOMAIN@V0100",source_ref:"Q.SOURCE.FACT@V0100",representation_mode:"ARTIFACT_SNAPSHOT",content_hash:`sha256:${"a".repeat(64)}`,integrity_profile_ref:"Q.INTEGRITY.PROFILE@V0100",snapshot_ref:"urn:q:snapshot:runtime",manifest_ref:"urn:q:manifest:runtime"};
-const deps={async materialize_governed_data(input:Readonly<Record<string,unknown>>){assert.equal(input.data_category,"RUNTIME");assert.deepEqual(input.authorized_exposure_request,exposureRequest);return envelope;}};
+const exposureRequest={subject_ref:"subject-1",selection_spec:{scope:"authorized"}};
+const envelope={material_ref:"urn:q:material:1",subject_ref:"subject-1",owner_ref:"Q.SOURCE.CONTRACT.DOMAIN@V0100",source_ref:"Q.SOURCE.FACT@V0100",content_hash:`sha256:${"a".repeat(64)}`};
+const deps={async produce_exposure_material(input:Readonly<Record<string,unknown>>){assert.equal(input.data_category,"RUNTIME");assert.deepEqual(input.authorized_exposure_request,exposureRequest);return envelope;}};
 
-test("expose_runtime_data preserves P2 identity and CURRENT material_envelope",async()=>{
- const response=await handler(baseRequest({...p2Fields,authorized_exposure_request:exposureRequest,exact_source_authority:{ref:"Q.SOURCE"},owning_persistence_contract:{ref:"Q.DB"},integrity_profile:{ref:"Q.INTEGRITY"},artifact_store_binding:{ref:"Q.ARTIFACT"},reexecution_requested:false}),deps);
+test("expose_runtime_data preserves P2 identity and P2 material_envelope",async()=>{
+ const response=await handler(baseRequest({...p2Fields,authorized_exposure_request:exposureRequest,exact_source_authority:{ref:"Q.SOURCE"},owning_persistence_contract:{ref:"Q.DB"},artifact_store_binding:{ref:"Q.ARTIFACT"},reexecution_requested:false}),deps);
  assert.equal(response.runtime_result.data_category,"RUNTIME");
  assert.equal(response.runtime_result.source_domain_identity,p2Fields.source_domain_identity);
  assert.equal(response.runtime_result.subject_identity,p2Fields.subject_identity);

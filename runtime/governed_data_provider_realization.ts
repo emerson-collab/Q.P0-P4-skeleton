@@ -22,12 +22,6 @@ export const P2_CONTRACT_REF =
   "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125" as const;
 export const P2_CONTRACT_HASH =
   "sha256:f5ef222443b0f575f679a147d2b1ede984096cd120701758ed085cbf5e54a11f" as const;
-export const GOVERNED_DATA_MATERIAL_REF =
-  "Q.SS.STD.META.CONTRACT.GOVERNED_DATA_MATERIAL@V0104" as const;
-export const GOVERNED_DATA_MATERIAL_HASH =
-  "sha256:655ad66db1965219770f86794bdd9482fb229c19822cf3b8d6320e4d1dd09bb6" as const;
-export const GOVERNED_DATA_MATERIAL_PROGRAM_REF =
-  `${GOVERNED_DATA_MATERIAL_REF}#/provider_materialization_program` as const;
 export const GOVERNED_DATA_TRIAD_SCHEMA_REF =
   `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract/canonical_json_schema` as const;
 export const P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF =
@@ -78,9 +72,8 @@ export interface GovernedDataBindingExecution {
   readonly p1_interface_anchor_binding_ref?: string;
 }
 
-export interface GovernedDataMaterializationProgram {
-  readonly program_ref: typeof GOVERNED_DATA_MATERIAL_PROGRAM_REF;
-  materialize_governed_data(input: Readonly<{
+export interface P2GovernedDataExposureMaterializer {
+  produce_exposure_material(input: Readonly<{
     data_category: GovernedDataCategory;
     authorized_exposure_request: StaticJsonObject;
     exact_source_authority: StaticJsonObject;
@@ -138,8 +131,6 @@ export interface GovernedDataTriadRealizationResult {
   readonly p1_business_runtime_ref: typeof P1_BUSINESS_RUNTIME_REF;
   readonly p2_contract_ref: typeof P2_CONTRACT_REF;
   readonly p2_contract_hash: typeof P2_CONTRACT_HASH;
-  readonly governed_data_material_ref: typeof GOVERNED_DATA_MATERIAL_REF;
-  readonly governed_data_material_program_ref: typeof GOVERNED_DATA_MATERIAL_PROGRAM_REF;
   readonly storage_or_persistence_authority_ref: string;
   readonly files: Readonly<{
     STATIC: GovernedDataTriadFileResult;
@@ -509,8 +500,6 @@ function validateTriadObligation(
   if (
     value.exact_current_p2_ref !== P2_CONTRACT_REF
     || value.exact_current_p2_hash !== P2_CONTRACT_HASH
-    || value.exact_current_gdm_ref !== GOVERNED_DATA_MATERIAL_REF
-    || value.exact_current_gdm_hash !== GOVERNED_DATA_MATERIAL_HASH
   ) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_AUTHORITY_MISMATCH",
@@ -594,7 +583,7 @@ function executionMap(
 async function executeBinding(
   binding: GovernedDataHandoffBinding,
   execution: GovernedDataBindingExecution,
-  materialization: GovernedDataMaterializationProgram,
+  materialization: P2GovernedDataExposureMaterializer,
 ): Promise<StaticJsonObject> {
   if (
     binding.source_access_kind === "DECLARED_Q_INTERFACE_SOURCE_FACT"
@@ -625,11 +614,11 @@ async function executeBinding(
     request_id: execution.request_id,
   });
   const dependencies = Object.freeze({
-    materialize_governed_data: (
+    produce_exposure_material: (
       materializationInput: Parameters<
-        GovernedDataMaterializationProgram["materialize_governed_data"]
+        P2GovernedDataExposureMaterializer["produce_exposure_material"]
       >[0],
-    ) => materialization.materialize_governed_data(materializationInput),
+    ) => materialization.produce_exposure_material(materializationInput),
   });
 
   let response: Awaited<ReturnType<typeof exposeStaticData>>;
@@ -675,15 +664,9 @@ function projectBinding(binding: GovernedDataHandoffBinding): StaticJsonObject {
 
 export async function realizeGovernedDataTriad(
   input: Readonly<GovernedDataTriadRealizationInput>,
-  materialization: GovernedDataMaterializationProgram,
+  materialization: P2GovernedDataExposureMaterializer,
   store: GovernedDataTriadDurableStore,
 ): Promise<GovernedDataTriadRealizationResult> {
-  if (materialization.program_ref !== GOVERNED_DATA_MATERIAL_PROGRAM_REF) {
-    throw new GovernedDataProviderRealizationError(
-      "RDS_GOVERNED_DATA_MATERIALIZER_INVALID",
-      "materialize_governed_data must bind exact CURRENT GDM V0104 provider materialization program",
-    );
-  }
   const storeAuthorityRef = requiredString(
     store.authority_ref,
     "storage_or_persistence_authority_ref",
@@ -803,8 +786,6 @@ export async function realizeGovernedDataTriad(
     p1_business_runtime_ref: P1_BUSINESS_RUNTIME_REF,
     p2_contract_ref: P2_CONTRACT_REF,
     p2_contract_hash: P2_CONTRACT_HASH,
-    governed_data_material_ref: GOVERNED_DATA_MATERIAL_REF,
-    governed_data_material_program_ref: GOVERNED_DATA_MATERIAL_PROGRAM_REF,
     storage_or_persistence_authority_ref: storeAuthorityRef,
     files: Object.freeze({
       STATIC: Object.freeze({

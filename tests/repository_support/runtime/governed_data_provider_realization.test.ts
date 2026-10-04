@@ -3,15 +3,12 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 
 import {
-  GOVERNED_DATA_MATERIAL_PROGRAM_REF,
   GOVERNED_DATA_TRIAD_CATEGORY_PARTITION_REF,
   GOVERNED_DATA_TRIAD_EXECUTION_BOUNDARY_REF,
   GOVERNED_DATA_TRIAD_SCHEMA_REF,
   GOVERNED_DATA_TRIAD_SET_HASH_ALGORITHM,
   GOVERNED_DATA_TRIAD_SET_INTEGRITY_REF,
   GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF,
-  GOVERNED_DATA_MATERIAL_HASH,
-  GOVERNED_DATA_MATERIAL_REF,
   P1_BUSINESS_RUNTIME_REF,
   P1_CAPABILITY_MATERIALIZATION_HASH,
   P1_CAPABILITY_MATERIALIZATION_REF,
@@ -24,7 +21,7 @@ import {
   type GovernedDataBindingExecution,
   type GovernedDataCategory,
   type GovernedDataHandoffBinding,
-  type GovernedDataMaterializationProgram,
+  type P2GovernedDataExposureMaterializer,
   type GovernedDataTriadDurableStore,
   type GovernedDataFilename,
   type SourceAccessKind,
@@ -84,11 +81,6 @@ function binding(
 
 function p2Input(category: GovernedDataCategory, suffix: string) {
   const subjectRef = `subject:${category.toLowerCase()}:${suffix}`;
-  const requestedRepresentation = category === "STATIC"
-    ? "INLINE_FACT_SET"
-    : category === "DYNAMIC"
-    ? "ARTIFACT_CHUNKED_SNAPSHOT"
-    : "ARTIFACT_SNAPSHOT";
   return Object.freeze({
     source_domain_identity: OWNER_REF,
     subject_identity: subjectRef,
@@ -101,12 +93,10 @@ function p2Input(category: GovernedDataCategory, suffix: string) {
     integrity_binding: Object.freeze({ profile_ref: INTEGRITY_REF }),
     authorized_exposure_request: Object.freeze({
       subject_ref: subjectRef,
-      requested_representation: requestedRepresentation,
       selection_spec: Object.freeze({ scope: "authorized" }),
     }),
     exact_source_authority: Object.freeze({ ref: OWNER_REF }),
     owning_persistence_contract: Object.freeze({ ref: `${OWNER_REF}#/persistence` }),
-    integrity_profile: Object.freeze({ ref: INTEGRITY_REF }),
     artifact_store_binding: Object.freeze({ ref: "artifact-store:governed" }),
     ...(category === "RUNTIME" ? { reexecution_requested: false } : {}),
   });
@@ -160,8 +150,6 @@ function triadObligation(overrides: Readonly<Record<string, unknown>> = {}) {
     source_capability_contract_hash: CAPABILITY_CONTRACT_HASH,
     exact_current_p2_ref: P2_CONTRACT_REF,
     exact_current_p2_hash: P2_CONTRACT_HASH,
-    exact_current_gdm_ref: GOVERNED_DATA_MATERIAL_REF,
-    exact_current_gdm_hash: GOVERNED_DATA_MATERIAL_HASH,
     canonical_file_set: Object.freeze({
       STATIC: Object.freeze({
         filename: "static.json",
@@ -184,11 +172,10 @@ function triadObligation(overrides: Readonly<Record<string, unknown>> = {}) {
   });
 }
 
-function materializer(observed: GovernedDataCategory[]): GovernedDataMaterializationProgram {
+function materializer(observed: GovernedDataCategory[]): P2GovernedDataExposureMaterializer {
   return Object.freeze({
-    program_ref: GOVERNED_DATA_MATERIAL_PROGRAM_REF,
-    async materialize_governed_data(
-      input: Parameters<GovernedDataMaterializationProgram["materialize_governed_data"]>[0],
+    async produce_exposure_material(
+      input: Parameters<P2GovernedDataExposureMaterializer["produce_exposure_material"]>[0],
     ) {
       observed.push(input.data_category);
       const request = input.authorized_exposure_request as Readonly<Record<string, unknown>>;
@@ -197,9 +184,7 @@ function materializer(observed: GovernedDataCategory[]): GovernedDataMaterializa
         subject_ref: request.subject_ref,
         owner_ref: OWNER_REF,
         source_ref: `${CAPABILITY_CONTRACT_REF}#/facts/${input.data_category.toLowerCase()}`,
-        representation_mode: request.requested_representation,
         content_hash: `sha256:${"a".repeat(64)}`,
-        integrity_profile_ref: INTEGRITY_REF,
       });
     },
   });

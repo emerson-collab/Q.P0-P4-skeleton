@@ -22,5 +22,4 @@ rules:
   - DYNAMIC
   - RUNTIME
   preserve_source_identity_provenance_authority_integrity: true
-  full_memory_assembly_required: false
   evidence_observation_gate_result_creation_forbidden: true
