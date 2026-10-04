@@ -7,10 +7,10 @@
       "type": "string"
     },
     "provider_contract_hash": {
-      "const": "sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9"
+      "const": "sha256:e26f7adb3f0fd32f6ec9dd9e121c74649b1280c261da9f91e83cbb7351a91da4"
     },
     "provider_contract_ref": {
-      "const": "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143"
+      "const": "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145"
     },
     "provider_receipt_hash": {
       "pattern": "^sha256:[0-9a-f]{64}$",

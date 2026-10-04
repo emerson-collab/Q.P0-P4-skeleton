@@ -110,7 +110,7 @@ process.stdout.write(JSON.stringify(recovered));
 }
 
 test(
-  "P2 V0123 dependency realization survives a real process restart through exact durable recovery",
+  "P2 V0125 dependency realization survives a real process restart through exact durable recovery",
   async (t) => {
     const repositoryRoot = await mkdtemp(join(tmpdir(), "q-p2-dependency-restart-"));
     t.after(async () => {

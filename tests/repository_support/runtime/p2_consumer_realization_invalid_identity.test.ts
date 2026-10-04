@@ -24,7 +24,7 @@ const persistence: P2ConsumerRealizationPersistence = Object.freeze({
   read_dependency_binding_record: unreachable,
 });
 
-test("V0136 fails closed on an empty receiving-P1 dependency identity before mount materialization", async () => {
+test("receiving-P1 dependency realization fails closed on an empty dependency identity before mount materialization", async () => {
   const providerContractRef = "Q.PROVIDER.CONTRACT.CAPABILITY.EXAMPLE@V0100";
   const publication = Object.freeze({
     immutable: true,

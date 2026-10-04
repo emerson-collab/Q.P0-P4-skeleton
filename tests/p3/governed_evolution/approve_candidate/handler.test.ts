@@ -5,7 +5,7 @@ import { response, type P3Call } from "../../../../src/p3/governed_evolution/sta
 import type { P3EvolutionRuntime } from "../../../../src/p3/governed_evolution/evolution_runtime_binding.ts";
 
 test("approve_candidate leaf binds exactly one declared handler", async()=>{
- const call={route_key:"p3.approve_candidate",operation_id:OPERATION_ID,trace_id:"t",request_id:"r",operation_contract:"Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144#/interface_contract/operations/approve_candidate",policy_refs:[],receipt_contract_ref:"Q.SS.STD.P3.CONTRACT.EVOLUTION@V0144#/persistence_and_receipts/receipt",input:{},context:{}} as P3Call;
+ const call={route_key:"p3.approve_candidate",operation_id:OPERATION_ID,trace_id:"t",request_id:"r",operation_contract:"Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145#/interface_contract/operations/approve_candidate",policy_refs:[],receipt_contract_ref:"Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145#/persistence_and_receipts/receipt",input:{},context:{}} as P3Call;
  let invoked=0; const runtime={ approveCandidate: async(c:P3Call)=>{invoked++;return response(c,{bound_operation:"approve_candidate"},null);} } as unknown as P3EvolutionRuntime;
  const result=await handler(call,runtime); assert.equal(result.outcome_type,"Response"); assert.equal(invoked,1); assert.equal(result.outcome_type==="Response"?result.runtime_result.bound_operation:null,"approve_candidate");
 });
