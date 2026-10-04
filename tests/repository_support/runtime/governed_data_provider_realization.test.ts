@@ -215,11 +215,11 @@ function memoryStore(
   return Object.freeze({
     authority_ref: "Q.TEST.GOVERNED.TRIAD.STORE@V0100",
     files,
-    async write_file(input) {
+    async write_file(input: Parameters<GovernedDataTriadDurableStore["write_file"]>[0]) {
       events.push(`write:${input.filename}`);
       files.set(input.filename, Buffer.from(input.bytes));
     },
-    async read_file(input) {
+    async read_file(input: Parameters<GovernedDataTriadDurableStore["read_file"]>[0]) {
       events.push(`read:${input.filename}`);
       const bytes = files.get(input.filename);
       assert.ok(bytes);
@@ -228,20 +228,20 @@ function memoryStore(
       }
       return Buffer.from(bytes);
     },
-    async compute_triad_set_hash(input) {
+    async compute_triad_set_hash(input: Parameters<GovernedDataTriadDurableStore["compute_triad_set_hash"]>[0]) {
       events.push("compute-set-hash");
       assert.equal(input.algorithm, GOVERNED_DATA_TRIAD_SET_HASH_ALGORITHM);
       assert.deepEqual(
-        input.ordered_files.map((file) => file.filename),
+        input.ordered_files.map((file: { readonly filename: GovernedDataFilename }) => file.filename),
         ["static.json", "dynamic.json", "runtime.json"],
       );
       return `sha256:${"c".repeat(64)}`;
     },
-    async commit_verified_triad_and_switch_current(input) {
+    async commit_verified_triad_and_switch_current(input: Parameters<GovernedDataTriadDurableStore["commit_verified_triad_and_switch_current"]>[0]) {
       events.push("commit-and-switch-current");
       assert.equal(input.triad_set_hash, `sha256:${"c".repeat(64)}`);
       assert.deepEqual(
-        input.ordered_files.map((file) => file.filename),
+        input.ordered_files.map((file: { readonly filename: GovernedDataFilename }) => file.filename),
         ["static.json", "dynamic.json", "runtime.json"],
       );
     },
