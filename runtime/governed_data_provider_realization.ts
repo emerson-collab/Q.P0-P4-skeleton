@@ -30,6 +30,8 @@ export const GOVERNED_DATA_MATERIAL_PROGRAM_REF =
   `${GOVERNED_DATA_MATERIAL_REF}#/provider_materialization_program` as const;
 export const GOVERNED_DATA_TRIAD_SCHEMA_REF =
   `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract/canonical_json_schema` as const;
+export const P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF =
+  `${P1_CAPABILITY_MATERIALIZATION_REF}#/p1_to_p2_handoff_declaration_contract` as const;
 export const GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF =
   `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract` as const;
 export const GOVERNED_DATA_TRIAD_CATEGORY_PARTITION_REF =
@@ -376,6 +378,19 @@ function validateP2HandoffObligation(
   p2_handoff_obligation_snapshot_hash: string;
   bindings: readonly GovernedDataHandoffBinding[];
 }> {
+  if (value.source_boundary_ref !== P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID",
+      "p2_handoff_obligation source_boundary_ref is not P1CM V0111 p1_to_p2_handoff_declaration_contract",
+    );
+  }
+  if (value.canonical_binding_order !== "binding_ref_ASCENDING_THEN_member_ref_ASCENDING") {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID",
+      "p2_handoff_obligation canonical_binding_order mismatch",
+    );
+  }
+
   const capabilityContractRef = requiredString(
     value.source_capability_contract_ref,
     "p2_handoff_obligation.source_capability_contract_ref",
