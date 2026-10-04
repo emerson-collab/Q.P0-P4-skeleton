@@ -10,7 +10,7 @@
       "const": "sha256:0c6ef274c80553e7ecb502cbfbd96a9a34ff54b99b561695dd201716225087d9"
     },
     "provider_contract_ref": {
-      "const": "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0143"
+      "const": "Q.SS.STD.P3.CONTRACT.EVOLUTION@V0145"
     },
     "provider_receipt_hash": {
       "pattern": "^sha256:[0-9a-f]{64}$",
