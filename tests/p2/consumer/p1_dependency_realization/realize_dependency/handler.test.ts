@@ -64,7 +64,7 @@ const receiving = {
   exact_local_dependency_ref: "Q.RECEIVER.CONTRACT.CAPABILITY.SEARCH@V0100#/dependencies/provider_search",
 };
 
-test("realize_dependency is bound to P2 V0124", () => {
+test("realize_dependency is bound to P2 V0125", () => {
   assert.equal(STAGE_CONTRACT_REF, "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125");
 });
 
