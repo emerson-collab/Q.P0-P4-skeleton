@@ -360,7 +360,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
   const stageExtension = deep_freeze({
     stage_id: "P1" as const,
     stage_role: "NONE" as const,
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179",
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
     implementation_ref: providerContractRef,
     provided_interface_refs: [exactInterfaceRef],
     consumed_interface_refs: [
@@ -372,7 +372,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
     upstream_runtime_ref: P0_CONTRACT_REF,
     runtime_provider_symbol_ref: P0_PROVIDER_SYMBOL_REF,
     status: "active" as const,
-    rule_version_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0179",
+    rule_version_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
   });
 
   const localP0 = createMountedProviderLocalP0Invoker({
