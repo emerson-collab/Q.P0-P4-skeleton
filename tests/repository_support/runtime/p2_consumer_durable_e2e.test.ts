@@ -360,7 +360,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
   const stageExtension = deep_freeze({
     stage_id: "P1" as const,
     stage_role: "NONE" as const,
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186",
     implementation_ref: providerContractRef,
     provided_interface_refs: [exactInterfaceRef],
     consumed_interface_refs: [
@@ -372,7 +372,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
     upstream_runtime_ref: P0_CONTRACT_REF,
     runtime_provider_symbol_ref: P0_PROVIDER_SYMBOL_REF,
     status: "active" as const,
-    rule_version_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
+    rule_version_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186",
   });
 
   const localP0 = createMountedProviderLocalP0Invoker({
@@ -452,7 +452,7 @@ test("P2 Consumer durable mount -> activate -> real process restart -> pointer-f
   );
   assert.equal(
     receiptPayload.stage_contract_ref,
-    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125",
+    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0128",
   );
   assert.equal(receiptPayload.second_runtime_used, false);
 });

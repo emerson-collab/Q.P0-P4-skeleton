@@ -34,7 +34,7 @@ function slots() {
   });
 }
 
-test("V0184 GENERAL facts project only into exact predeclared P1 slot identities", () => {
+test("V0186 GENERAL facts project only into exact predeclared P1 slot identities", () => {
   const projection = slots();
   for (const [slotId, slotRef] of Object.entries(P1_CAPABILITY_GENERAL_SLOT_REFS)) {
     const binding = projection[slotId as keyof typeof projection];
@@ -74,12 +74,12 @@ test("StageExtension rejects field-name-only or wrong slot identity drift", () =
       implementation_ref: CAPABILITY_CONTRACT_REF,
       provided_interface_refs: [INTERFACE_REF],
     }),
-    /exact predeclared P1 V0184 slot_ref/,
+    /exact predeclared P1 V0186 slot_ref/,
   );
 });
 
 
-test("V0184 framework-anchor crosswalk closes all eight supported concrete Interface kinds", () => {
+test("V0186 framework-anchor crosswalk closes all eight supported concrete Interface kinds", () => {
   const cases = [
     ["CALL", "CALL_INVOKE", "read_example", "invoke_business_operation"],
     ["HOOK", "HOOK_BIND", "bind_example", "bind_business_hook"],
@@ -97,7 +97,7 @@ test("V0184 framework-anchor crosswalk closes all eight supported concrete Inter
     assert.equal(anchor.surface, surface);
     assert.equal(anchor.kind, kind);
     assert.equal(anchor.framework_entry_method_ref, framework_entry_method_ref);
-    assert.match(anchor.framework_interface_ref, /Q\.SS\.STD\.P1\.CONTRACT\.BUSINESS_RUNTIME@V0184#\/interfaces\//);
+    assert.match(anchor.framework_interface_ref, /Q\.SS\.STD\.P1\.CONTRACT\.BUSINESS_RUNTIME@V0186#\/interfaces\//);
   }
 });
 
@@ -129,6 +129,6 @@ test("unknown Surface/Kind cannot create or infer a new framework anchor", () =>
       kind: "REGISTRY_WATCH",
       method_ref: "watch_business_object",
     }),
-    /must resolve exactly one pre-existing P1 V0184 framework anchor/,
+    /must resolve exactly one pre-existing P1 V0186 framework anchor/,
   );
 });

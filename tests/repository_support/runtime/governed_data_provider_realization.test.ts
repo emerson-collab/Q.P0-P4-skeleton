@@ -81,6 +81,11 @@ function binding(
 
 function p2Input(category: GovernedDataCategory, suffix: string) {
   const subjectRef = `subject:${category.toLowerCase()}:${suffix}`;
+  const requestedRepresentation = category === "STATIC"
+    ? "INLINE_FACT_SET"
+    : category === "DYNAMIC"
+    ? "ARTIFACT_CHUNKED_SNAPSHOT"
+    : "ARTIFACT_SNAPSHOT";
   return Object.freeze({
     source_domain_identity: OWNER_REF,
     subject_identity: subjectRef,
@@ -93,10 +98,12 @@ function p2Input(category: GovernedDataCategory, suffix: string) {
     integrity_binding: Object.freeze({ profile_ref: INTEGRITY_REF }),
     authorized_exposure_request: Object.freeze({
       subject_ref: subjectRef,
+      requested_representation: requestedRepresentation,
       selection_spec: Object.freeze({ scope: "authorized" }),
     }),
     exact_source_authority: Object.freeze({ ref: OWNER_REF }),
     owning_persistence_contract: Object.freeze({ ref: `${OWNER_REF}#/persistence` }),
+    integrity_profile: Object.freeze({ ref: INTEGRITY_REF }),
     artifact_store_binding: Object.freeze({ ref: "artifact-store:governed" }),
     ...(category === "RUNTIME" ? { reexecution_requested: false } : {}),
   });
@@ -184,7 +191,9 @@ function materializer(observed: GovernedDataCategory[]): P2GovernedDataExposureM
         subject_ref: request.subject_ref,
         owner_ref: OWNER_REF,
         source_ref: `${CAPABILITY_CONTRACT_REF}#/facts/${input.data_category.toLowerCase()}`,
+        representation_mode: request.requested_representation,
         content_hash: `sha256:${"a".repeat(64)}`,
+        integrity_profile_ref: INTEGRITY_REF,
       });
     },
   });
@@ -436,7 +445,7 @@ test("V0152 NOT_APPLICABLE triad cannot execute P2 or storage", async () => {
   assert.deepEqual(events, []);
 });
 
-test("V0152 DECLARED_Q_INTERFACE_SOURCE_FACT requires pre-resolved P1 V0184 anchor evidence", async () => {
+test("V0152 DECLARED_Q_INTERFACE_SOURCE_FACT requires pre-resolved P1 V0186 anchor evidence", async () => {
   const dynamicBinding = binding(
     "DYNAMIC",
     "d",

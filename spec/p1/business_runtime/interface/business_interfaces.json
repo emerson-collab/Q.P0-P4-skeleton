@@ -1,5 +1,5 @@
 {
-  "authority_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
+  "authority_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186",
   "classification_ref": "Q.SS.STD.META.CONTRACT.DIMENSION_INTERFACE_CLASSIFICATION@V0114",
   "surface_layer_ref": "Q.SS.STD.META.CONTRACT.SURFACE_LAYER_MOUNT@V0114",
   "field_dictionary_ref": "Q.SS.STD.META.CONTRACT.FIELD_DICTIONARY@V0106",
@@ -256,7 +256,7 @@
     }
   },
   "framework_anchor_crosswalk": {
-    "authority_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/concrete_interface_framework_anchor_crosswalk",
+    "authority_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/concrete_interface_framework_anchor_crosswalk",
     "selection_key": [
       "surface",
       "kind"
@@ -265,42 +265,42 @@
     "internal_call_and_dependency_call_are_runtime_framework_paths_not_concrete_capability_interface_anchors": true,
     "anchors": {
       "CALL:CALL_INVOKE": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_operation_invoke",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_operation_invoke",
         "framework_entry_method_ref": "invoke_business_operation",
         "concrete_method_ref_policy": "PRESERVE_CONCRETE_METHOD_REF_SEPARATE_FROM_FRAMEWORK_ENTRY_METHOD"
       },
       "HOOK:HOOK_BIND": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_hook_bind",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_hook_bind",
         "framework_entry_method_ref": "bind_business_hook",
         "concrete_method_ref_policy": "PRESERVE_CONCRETE_METHOD_REF_SEPARATE_FROM_FRAMEWORK_ENTRY_METHOD"
       },
       "HOOK:HOOK_EVALUATE": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_hook_evaluate",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_hook_evaluate",
         "framework_entry_method_ref": "evaluate_business_hook",
         "concrete_method_ref_policy": "PRESERVE_CONCRETE_METHOD_REF_SEPARATE_FROM_FRAMEWORK_ENTRY_METHOD"
       },
       "EVENT:EVENT_PUBLISH": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_event_publish",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_event_publish",
         "framework_entry_method_ref": "publish_business_event",
         "concrete_method_ref_policy": "MUST_EQUAL_FRAMEWORK_ENTRY_METHOD_REF_UNDER_EXISTING_EVENT_CONTRACT"
       },
       "EVENT:EVENT_CONSUME": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_event_consume",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_event_consume",
         "framework_entry_method_ref": "consume_business_event",
         "concrete_method_ref_policy": "MUST_EQUAL_FRAMEWORK_ENTRY_METHOD_REF_UNDER_EXISTING_EVENT_CONTRACT"
       },
       "REGISTRY:REGISTRY_REGISTER": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_registry_register",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_registry_register",
         "framework_entry_method_ref": "register_business_object",
         "concrete_method_ref_policy": "PRESERVE_CONCRETE_METHOD_REF_SEPARATE_FROM_FRAMEWORK_ENTRY_METHOD"
       },
       "REGISTRY:REGISTRY_RESOLVE": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_registry_resolve",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_registry_resolve",
         "framework_entry_method_ref": "resolve_business_object",
         "concrete_method_ref_policy": "PRESERVE_CONCRETE_METHOD_REF_SEPARATE_FROM_FRAMEWORK_ENTRY_METHOD"
       },
       "REGISTRY:REGISTRY_LOOKUP": {
-        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/business_registry_lookup",
+        "framework_interface_ref": "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/business_registry_lookup",
         "framework_entry_method_ref": "lookup_business_object",
         "concrete_method_ref_policy": "PRESERVE_CONCRETE_METHOD_REF_SEPARATE_FROM_FRAMEWORK_ENTRY_METHOD"
       }

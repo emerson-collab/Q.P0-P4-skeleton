@@ -46,7 +46,7 @@ function fixture() {
   const stage_extension = deep_freeze({
     stage_id: "P1" as const,
     stage_role: "NONE" as const,
-    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
+    stage_contract_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186",
     implementation_ref: "Q.PROVIDER.CONTRACT.CAPABILITY.EXAMPLE@V0100",
     provided_interface_refs: [exact_interface_ref],
     consumed_interface_refs: [`${P0_CONTRACT_REF}#/interfaces/runtime_execution_invoke`],
@@ -56,7 +56,7 @@ function fixture() {
     upstream_runtime_ref: P0_CONTRACT_REF,
     runtime_provider_symbol_ref: P0_PROVIDER_SYMBOL_REF,
     status: "active" as const,
-    rule_version_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184",
+    rule_version_ref: "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186",
   });
   return { exact_interface_ref, exact_operation_ref, file, manifest, implementation_binding, stage_extension };
 }
