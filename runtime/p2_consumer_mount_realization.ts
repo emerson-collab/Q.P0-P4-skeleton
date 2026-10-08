@@ -138,7 +138,7 @@ function assertSelectedMountIsActiveMember(
 /**
  * Mount-only receiving-Skeleton P2 Consumer realization.
  *
- * This closes the existing P2 V0125 mount lifecycle at an ACTIVE mount set.
+ * This closes the existing P2 V0128 mount lifecycle at an ACTIVE mount set.
  * It intentionally requires no receiving-P1 dependency declaration and creates
  * no P1 dependency, Operation, Interface, wrapper, protocol, or second Runtime.
  */

@@ -116,7 +116,7 @@ function exactSlotValue(
   if (binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
     throw new StableRuntimeError(
       "P1_OVERLAY_SLOT_INVALID",
-      `${slotId} must bind the exact predeclared P1 V0184 slot_ref`,
+      `${slotId} must bind the exact predeclared P1 V0186 slot_ref`,
     );
   }
   return nonEmptyString(binding.value, slotId);
@@ -196,7 +196,7 @@ export function register_business_operation(
 /**
  * Register an internal-only Operation that has no concrete Capability Interface.
  *
- * The binding uses exactly the four route-consistency facts owned by P1 V0184:
+ * The binding uses exactly the four route-consistency facts owned by P1 V0186:
  * capability_contract_ref, capability_id, operation_id and operation_ref.
  * No Interface identity is invented for an Operation whose Capability Contract declares
  * interface_refs: [].
@@ -327,7 +327,7 @@ function internalCallStableError(
 }
 
 /**
- * P1 V0184 internal_call_invoke realization.
+ * P1 V0186 internal_call_invoke realization.
  *
  * The exact local_route_key is the already-registered Operation ref. The caller does not
  * gain route authority. RuntimeContext.request_id is projected as child_request_id;

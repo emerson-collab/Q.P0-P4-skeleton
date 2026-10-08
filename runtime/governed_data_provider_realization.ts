@@ -13,27 +13,27 @@ export const REPOSITORY_SKELETON_REF =
 export const REPOSITORY_SKELETON_HASH =
   "sha256:0d8b2a5fb33b657db9eff3d379969b8c26e541f9ff5827d443bd8d2aa8fe60c9" as const;
 export const P1_CAPABILITY_MATERIALIZATION_REF =
-  "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0111" as const;
+  "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0116" as const;
 export const P1_CAPABILITY_MATERIALIZATION_HASH =
-  "sha256:ce9c826ced37c73213a2900c2fdc39448ac885ed846ff43ed15ca85c4fef1b5a" as const;
+  "sha256:59dce7f2b10d04fe6053a28d9f2af09d961746befd10795e874b3226aefaf036" as const;
 export const P1_BUSINESS_RUNTIME_REF =
-  "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184" as const;
+  "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186" as const;
 export const P2_CONTRACT_REF =
-  "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125" as const;
+  "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0128" as const;
 export const P2_CONTRACT_HASH =
-  "sha256:f5ef222443b0f575f679a147d2b1ede984096cd120701758ed085cbf5e54a11f" as const;
+  "sha256:15549a6a4a0c005ccbeddb0c7b40b4f4918f336c731b7c2017f05e2926bbb71d" as const;
 export const GOVERNED_DATA_TRIAD_SCHEMA_REF =
-  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract/canonical_json_schema` as const;
+  `${P2_CONTRACT_REF}#/provider_governed_data_json_triad_contract/file_projection_required_fields` as const;
 export const P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF =
   `${P1_CAPABILITY_MATERIALIZATION_REF}#/p1_to_p2_handoff_declaration_contract` as const;
 export const GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF =
-  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract` as const;
+  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_exposure_binding_projection_contract` as const;
 export const GOVERNED_DATA_TRIAD_CATEGORY_PARTITION_REF =
-  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract/category_partition` as const;
+  `${P2_CONTRACT_REF}#/provider_governed_data_json_triad_contract/binding_projection` as const;
 export const GOVERNED_DATA_TRIAD_SET_INTEGRITY_REF =
-  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract/triad_set_integrity` as const;
+  `${P2_CONTRACT_REF}#/provider_governed_data_json_triad_contract/materialization_integrity` as const;
 export const GOVERNED_DATA_TRIAD_EXECUTION_BOUNDARY_REF =
-  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_json_triad_projection_contract/execution_boundary` as const;
+  `${P1_CAPABILITY_MATERIALIZATION_REF}#/governed_data_exposure_binding_projection_contract/execution_boundary` as const;
 export const GOVERNED_DATA_TRIAD_SET_HASH_ALGORITHM =
   "SHA256_CANONICAL_ORDERED_FILE_HASH_TUPLE" as const;
 
@@ -372,7 +372,7 @@ function validateP2HandoffObligation(
   if (value.source_boundary_ref !== P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID",
-      "p2_handoff_obligation source_boundary_ref is not P1CM V0111 p1_to_p2_handoff_declaration_contract",
+      "p2_handoff_obligation source_boundary_ref is not P1CM V0116 p1_to_p2_handoff_declaration_contract",
     );
   }
   if (value.canonical_binding_order !== "binding_ref_ASCENDING_THEN_member_ref_ASCENDING") {
@@ -393,7 +393,7 @@ function validateP2HandoffObligation(
   if (value.exact_current_p2_ref !== P2_CONTRACT_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_AUTHORITY_MISMATCH",
-      "p2_handoff_obligation exact_current_p2_ref is not CURRENT P2 V0125",
+      "p2_handoff_obligation exact_current_p2_ref is not CURRENT P2 V0128",
     );
   }
   if (value.exact_current_p2_hash !== P2_CONTRACT_HASH) {
@@ -479,7 +479,7 @@ function validateTriadObligation(
   if (value.source_boundary_ref !== GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
-      "triad source_boundary_ref is not P1CM V0111 governed_data_json_triad_projection_contract",
+      "triad source_boundary_ref is not P1CM V0116 governed_data_exposure_binding_projection_contract",
     );
   }
   if (value.applicability !== "DECLARED") {
@@ -514,7 +514,7 @@ function validateTriadObligation(
   ) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
-      "triad schema/category/integrity/execution refs must equal exact P1CM V0111 boundaries",
+      "triad schema/category/integrity/execution refs must equal exact P1CM V0116 and P2 V0128 boundaries",
     );
   }
 
@@ -614,7 +614,7 @@ async function executeBinding(
     request_id: execution.request_id,
   });
   const dependencies = Object.freeze({
-    produce_exposure_material: (
+    materialize_governed_data: (
       materializationInput: Parameters<
         P2GovernedDataExposureMaterializer["produce_exposure_material"]
       >[0],

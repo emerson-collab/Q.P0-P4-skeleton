@@ -209,7 +209,7 @@ test("EVENT exact slots reject wrong kind or wrong framework method", () => {
       "EVENT_CONSUME",
       "publish_business_event",
     ),
-    /EVENT concrete method_ref must equal the existing P1 V0184 framework entry method/,
+    /EVENT concrete method_ref must equal the existing P1 V0186 framework entry method/,
   );
 });
 

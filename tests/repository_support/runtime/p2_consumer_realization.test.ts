@@ -205,7 +205,7 @@ test("declared P1 dependency is realized only after an ACTIVE mount already exis
   assert.equal(bound.operation_use_binding.exact_local_dependency_ref, localDependencyRef);
 });
 
-test("ACTIVE mounted capability executes independently and emits a V0125 receipt", async () => {
+test("ACTIVE mounted capability executes independently and emits a V0128 receipt", async () => {
   const store = inMemoryPersistence();
   const source = fixture();
   await realizeP2ConsumerMount(Object.freeze({
@@ -245,7 +245,7 @@ test("ACTIVE mounted capability executes independently and emits a V0125 receipt
   const receiptPayload = asObject(executed.execution_receipt.receipt_payload, "receipt_payload");
   assert.equal(
     receiptPayload.stage_contract_ref,
-    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125",
+    "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0128",
   );
   assert.equal(store.dependencyCount(), 0);
 });
@@ -279,7 +279,7 @@ test("repository runtime persists dependency realization before operation-use cl
   assert.equal(dependency.exact_local_dependency_ref, localDependencyRef);
   assert.equal(
     dependency.p1_dependency_interface_ref,
-    "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/dependency_invoke",
+    "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/dependency_invoke",
   );
   const persisted = await store.persistence.read_dependency_binding_record({
     receiving_domain_ref: receivingDomainRef,

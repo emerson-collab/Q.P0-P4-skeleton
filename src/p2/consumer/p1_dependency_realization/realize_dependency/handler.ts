@@ -14,11 +14,11 @@ function canonical(value: unknown): string { return JSON.stringify(stableClone(v
 function sha256Json(value: unknown): string { return `sha256:${createHash("sha256").update(canonical(value), "utf8").digest("hex")}`; }
 function success(request: P2OperationRequest, runtime_result: JsonObject): P2OperationResponse { return Object.freeze({ outcome_type: "response" as const, runtime_result: Object.freeze({ ...runtime_result }), trace_id: request.trace_id, request_id: request.request_id }); }
 
-export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125" as const;
+export const STAGE_CONTRACT_REF = "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0128" as const;
 export const ROLE = "consumer" as const;
 export const CAPABILITY_ID = "p1_dependency_realization" as const;
 export const OPERATION_ID = "realize_dependency" as const;
-const P1_DEPENDENCY_INTERFACE_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184#/interfaces/dependency_invoke" as const;
+const P1_DEPENDENCY_INTERFACE_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186#/interfaces/dependency_invoke" as const;
 
 function validateActiveMountSetMember(value: JsonObject): boolean {
   if (value.source_binding_kind !== "ACTIVE_MOUNT_SET_MEMBER") return false;

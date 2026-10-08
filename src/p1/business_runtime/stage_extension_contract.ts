@@ -1,8 +1,10 @@
 import { P0_CONTRACT_REF, P0_PROVIDER_SYMBOL_REF, deep_freeze, exact_ref } from "../../p0/runtime_contract.ts";
 import type { StageExtensionContract } from "../../p0/runtime_contract.ts";
 
-export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0184" as const;
-export const P1_CAPABILITY_CONTRACT_STANDARD_REF = "Q.SS.STD.META.CONTRACT.CAPABILITY_CONTRACT@V0118" as const;
+export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186" as const;
+export const P1_CONTRACT_HASH =
+  "sha256:4637e7370406d558514f8ff3e076336b0e557e5b002e8a7123fa51db4d68dbc3" as const;
+export const P1_CAPABILITY_MATERIALIZATION_REF = "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0116" as const;
 
 export const P1_CAPABILITY_GENERAL_SLOT_IDS = [
   "capability_ref",
@@ -151,7 +153,7 @@ export function resolve_p1_framework_anchor(
     || anchor.kind !== kind
   ) {
     throw new TypeError(
-      "surface/kind must resolve exactly one pre-existing P1 V0184 framework anchor",
+      "surface/kind must resolve exactly one pre-existing P1 V0186 framework anchor",
     );
   }
 
@@ -161,7 +163,7 @@ export function resolve_p1_framework_anchor(
     && methodRef !== anchor.framework_entry_method_ref
   ) {
     throw new TypeError(
-      "EVENT concrete method_ref must equal the existing P1 V0184 framework entry method",
+      "EVENT concrete method_ref must equal the existing P1 V0186 framework entry method",
     );
   }
 
@@ -243,7 +245,7 @@ function assertExactSlot(
 ): string {
   const binding = projection[slotId];
   if (binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
-    throw new TypeError(`${slotId} must bind its exact predeclared P1 V0184 slot_ref`);
+    throw new TypeError(`${slotId} must bind its exact predeclared P1 V0186 slot_ref`);
   }
   return required(binding.value, slotId);
 }

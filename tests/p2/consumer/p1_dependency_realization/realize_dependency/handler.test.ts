@@ -64,8 +64,8 @@ const receiving = {
   exact_local_dependency_ref: "Q.RECEIVER.CONTRACT.CAPABILITY.SEARCH@V0100#/dependencies/provider_search",
 };
 
-test("realize_dependency is bound to P2 V0125", () => {
-  assert.equal(STAGE_CONTRACT_REF, "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0125");
+test("realize_dependency is bound to P2 V0128", () => {
+  assert.equal(STAGE_CONTRACT_REF, "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0128");
 });
 
 test("realize_dependency accepts exact active mount-set member", async () => {
@@ -112,7 +112,7 @@ test("realize_dependency never creates P1 dependency semantics", async () => {
   );
 });
 
-test("mounted dependency persistence uses the exact V0125 five-field durable key", async () => {
+test("mounted dependency persistence uses the exact V0128 five-field durable key", async () => {
   const response = await handler(baseRequest({
     verified_provider_binding_or_governed_data_binding: activeMember,
     receiving_p1_binding: receiving,
