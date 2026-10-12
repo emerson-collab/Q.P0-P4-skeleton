@@ -4,15 +4,15 @@ import {
   StableRuntimeError,
   deep_freeze,
   exact_ref,
-} from "../src/p0/runtime_contract.ts";
+} from "#q/p0/runtime_contract";
 import type {
   HookBinding,
   RuntimeContext,
   RuntimeOperation,
   RuntimeProvider,
   StageExtensionContract,
-} from "../src/p0/runtime_contract.ts";
-import { runtime_provider } from "../src/p0/stage_handler.ts";
+} from "#q/p0/runtime_contract";
+import { runtime_provider } from "#q/p0/stage_handler";
 import {
   ImplementationMaterialRuntimeError,
   readAndVerifyInstalledImplementationMaterial,
