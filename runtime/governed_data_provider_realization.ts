@@ -89,6 +89,7 @@ export interface P1SourceInterfaceResolution {
   readonly operation_ref: string;
   readonly interface_ref: string;
   readonly authorized_source_access_ref: string;
+  readonly verified_members: readonly GovernedDataHandoffMember[];
   readonly surface: string;
   readonly kind_code: string;
   readonly kind: string;
@@ -866,10 +867,11 @@ async function verifyFrozenPreInstanceClosure(
       || source.operation_ref !== binding.source_operation_ref
       || source.interface_ref !== binding.source_interface_ref
       || source.authorized_source_access_ref !== binding.source_access_ref
+      || sha256Json(source.verified_members) !== sha256Json(binding.members)
     ) {
       throw new GovernedDataProviderRealizationError(
         "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
-        "exact owner source Operation, Interface and source-access authorization must match the frozen V0117 binding",
+        "exact owner Operation, Interface, source-access authorization and member lineage must match frozen V0117 binding",
       );
     }
     let anchor: ReturnType<typeof resolve_p1_framework_anchor>;
