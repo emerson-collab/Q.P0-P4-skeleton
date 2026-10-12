@@ -750,7 +750,7 @@ function stableP1Outcome(
   error: unknown,
   trace_id: string,
   request_id: string,
-): FinalizedBusinessOperationOutcome {
+): Extract<FinalizedBusinessOperationOutcome, { outcome_type: "stable_error" }> {
   const stable = normalize_runtime_error(error, "P1_OPERATION_ROUTE_MISMATCH");
   const normalized: StableRuntimeErrorShape = stable.details === undefined
     ? { code: stable.code, message: stable.message }
