@@ -957,3 +957,17 @@ test("V0186 EVENT_CONSUME dispatches by exact registered Interface under ambiguo
   assert.equal(firstCalls, 0);
   assert.equal(secondCalls, 1);
 });
+
+
+test("V0186 malformed EVENT RuntimeContext returns StableError without an Operation attempt", async () => {
+  const slots = projection("event_bad_context", "event_bad_context", "EVENT", "EVENT_CONSUME", "consume_business_event");
+  let attempts = 0;
+  register_business_operation(slots, async () => { attempts++; return "should-not-run"; });
+  const binding = register_business_event_interface(slots);
+  const response = await consume_business_event(
+    binding.interface_ref, "subject:bad-context", {},
+    null as unknown as RuntimeContext,
+  );
+  assert.equal(response.outcome_type, "stable_error");
+  assert.equal(attempts, 0);
+});
