@@ -247,10 +247,22 @@ function createRegisteredStageExtension(
   }
   staticRefList(exactStaticRuntimeSlot(staticSlots, "policy_refs"), "policy_refs");
   const hookBindingRefs = staticRefList(exactStaticRuntimeSlot(staticSlots, "hook_binding_refs"), "hook_binding_refs");
+  const registry = exactStaticRuntimeSlot(staticSlots, "qreg");
+  if (registry === null || typeof registry !== "object" || Array.isArray(registry)) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "qreg must be an exact static Operation/Interface registry projection");
+  }
+  const qreg = registry as Readonly<Record<string, unknown>>;
+  const operationRefs = staticRefList(qreg.operation_refs, "qreg.operation_refs");
+  const interfaceRefs = staticRefList(qreg.interface_refs, "qreg.interface_refs");
+  if (!operationRefs.includes(exactSlotValue(projection, "operation_ref"))
+    || !interfaceRefs.includes(exactSlotValue(projection, "interface_ref"))) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID",
+      "P1 qreg must contain the exact bound Operation and Interface refs");
+  }
   return create_p1_capability_stage_extension({
     general_slots: projection,
     implementation_ref: exactSlotValue(projection, "capability_contract_ref"),
-    provided_interface_refs: [exactSlotValue(projection, "interface_ref")],
+    provided_interface_refs: interfaceRefs,
     hook_binding_refs: hookBindingRefs,
   });
 }
