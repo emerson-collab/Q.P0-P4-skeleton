@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { StableRuntimeError, deep_freeze } from "../src/p0/runtime_contract.ts";
+import { StableRuntimeError, deep_freeze } from "#q/p0/runtime_contract";
 import {
   handler as exposeStaticData,
   type JsonObject as StaticJsonObject,
