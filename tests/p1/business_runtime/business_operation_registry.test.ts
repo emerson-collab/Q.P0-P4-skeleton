@@ -567,3 +567,21 @@ test("V0186 fail closed: field name without exact RUNTIME_SLOT_REF cannot bind",
       && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
   );
 });
+
+
+test("V0186 EVENT Interface fails closed unless it is in the bound Operation's static interface registry", () => {
+  const declared = projection(
+    "event_precise_registry", "event_precise_registered",
+    "EVENT", "EVENT_CONSUME", "consume_business_event",
+  );
+  register_business_operation(declared, async () => ({ accepted: true }));
+  const unbound = projection(
+    "event_precise_registry", "event_precise_not_declared",
+    "EVENT", "EVENT_CONSUME", "consume_business_event",
+  );
+  assert.throws(
+    () => register_business_event_interface(unbound),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
+  );
+});
