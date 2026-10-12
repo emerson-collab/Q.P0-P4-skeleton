@@ -634,3 +634,22 @@ test("V0117 refuses source Interface identity drift before P2 execution or stora
   );
   assert.deepEqual(events, []);
 });
+
+test("V0117 independent frozen Q.Prompt hash must match exactly", async () => {
+  const b = binding("STATIC", "prompt-hash");
+  const events: string[] = [];
+  const observed: GovernedDataCategory[] = [];
+  await assert.rejects(
+    () => realizeWithExactAuthorities({
+      p2_handoff_obligation: p2Handoff([b]),
+      ...frozenV0117Projection([b]),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(b)],
+    }, materializer(observed), memoryStore(events),
+       frozenAuthorities([b], { wrong_prompt_hash: true })),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_PROMPT_PROJECTION_MISMATCH",
+  );
+  assert.deepEqual(events, []);
+  assert.deepEqual(observed, []);
+});
