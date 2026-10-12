@@ -780,3 +780,50 @@ test("V0186 one Interface cannot change its preverified Surface/Kind/Method whil
       && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
   );
 });
+
+
+test("V0186 keeps an explicit runtime_result field when the exact Operation returns undefined", async () => {
+  const slots = projection("void_operation", "void_operation", "CALL", "CALL_INVOKE", "owner_method");
+  const operationRef = slots.operation_ref.value;
+  register_business_operation(slots, async () => undefined);
+  const result = await invoke_business_operation(
+    invokePath(operationRef, "void_operation", "void-result"), {}, context(operationRef, "void-result"),
+  );
+  assert.equal(result.outcome_type, "response");
+  if (result.outcome_type !== "response") return;
+  assert.equal(Object.prototype.hasOwnProperty.call(result, "runtime_result"), true);
+  assert.equal(result.runtime_result, undefined);
+  assert.equal(result.execution_receipt.outcome_type, "response");
+  assert.match(result.execution_receipt.outcome_hash, /^sha256:[a-f0-9]{64}$/);
+});
+
+test("V0186 missing authorization receipt prevents both Hook dispatch and Operation attempt", async () => {
+  const slots = projection("auth_before_hook", "auth_before_hook", "CALL", "CALL_INVOKE", "owner_method");
+  const operationRef = slots.operation_ref.value;
+  const binding = governedHookBinding(
+    "Q.TEST.HOOK.AUTH_BLOCK@V0100",
+    "Q.TEST.HOOK.AUTH_CONSUMER@V0100",
+    "continue",
+  );
+  let attempts = 0;
+  let hooks = 0;
+  const guardedBinding: HookBinding = {
+    ...binding,
+    consumer: {
+      consumer_ref: binding.consumer_ref,
+      evaluate: async () => { hooks += 1; return { decision: "continue" }; },
+    },
+  };
+  register_concrete_business_operation(
+    slots, async () => { attempts += 1; return "not-run"; },
+    exactStaticSlots(slots, [guardedBinding.binding_ref]),
+    async () => ({ authorization_receipt: undefined }),
+  );
+  const result = await invoke_business_operation(
+    invokePath(operationRef, "auth_before_hook", "auth-block"),
+    {}, context(operationRef, "auth-block"), [guardedBinding],
+  );
+  assert.equal(result.outcome_type, "stable_error");
+  assert.equal(attempts, 0);
+  assert.equal(hooks, 0);
+});
