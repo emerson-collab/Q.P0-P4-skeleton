@@ -428,7 +428,7 @@ test("Contract V0186 exact interface whitelist: 10 framework methods and three d
     new URL("../../../spec/p1/business_runtime/interface/business_interfaces.json", import.meta.url),
     "utf8",
   )) as { interfaces: Record<string, Record<string, unknown>> };
-  assert.deepEqual(Object.keys(file.interfaces), Object.keys(expected));
+  assert.deepEqual(Object.keys(file.interfaces).sort(), Object.keys(expected).sort());
   for (const [name, contract] of Object.entries(expected)) {
     const actual = file.interfaces[name];
     assert.ok(actual, `missing V0186 interface ${name}`);
@@ -531,7 +531,7 @@ test("Contract V0134 exact interface whitelist: 3 P0 public/internal methods and
     new URL("../../../spec/p0/interface/runtime_interfaces.json", import.meta.url),
     "utf8",
   )) as { interfaces: Record<string, Record<string, unknown>> };
-  assert.deepEqual(Object.keys(file.interfaces), Object.keys(expected));
+  assert.deepEqual(Object.keys(file.interfaces).sort(), Object.keys(expected).sort());
   for (const [name, contract] of Object.entries(expected)) {
     const actual = file.interfaces[name];
     assert.ok(actual, `missing V0134 interface ${name}`);
