@@ -211,6 +211,7 @@ function frozenAuthorities(
         authorized_source_access_ref: options.wrong_source_access
           ? `${CAPABILITY_CONTRACT_REF}#/sources/not_authorized`
           : ownerBinding.source_access_ref,
+        verified_members: ownerBinding.members,
         surface: options.wrong_surface_kind ? "REGISTRY" : "CALL",
         kind_code: "M1",
         kind: "CALL_INVOKE", method_ref: "read_owner_fact",
