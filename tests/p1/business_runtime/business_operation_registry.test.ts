@@ -390,3 +390,38 @@ test("P1 registers internal-only Operation without inventing an Interface", asyn
   });
   assert.equal(attempts, 1);
 });
+
+test("P1 rejects a non-route GENERAL slot with a wrong exact slot ref before registration", () => {
+  const slots = projection("slot_guard", "slot_guard", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const altered = {
+    ...slots,
+    capability_contract_content_hash: {
+      ...slots.capability_contract_content_hash,
+      slot_ref: slots.capability_contract_ref.slot_ref,
+    },
+  };
+  const before = registered_business_operation_routes().length;
+  assert.throws(
+    () => register_business_operation(altered, async () => undefined),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+  assert.equal(registered_business_operation_routes().length, before);
+});
+
+test("P1 rejects inconsistent non-route GENERAL authority facts before registration", () => {
+  const slots = projection("authority_guard", "authority_guard", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const altered = {
+    ...slots,
+    runtime_contract_ref: {
+      ...slots.runtime_contract_ref,
+      value: P1_CONTRACT_REF,
+    },
+  };
+  const before = registered_business_operation_routes().length;
+  assert.throws(
+    () => register_business_operation(altered, async () => undefined),
+    /runtime_contract_ref must equal the sole P0 Runtime Contract/,
+  );
+  assert.equal(registered_business_operation_routes().length, before);
+});
