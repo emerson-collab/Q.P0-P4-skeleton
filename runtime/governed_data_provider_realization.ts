@@ -113,9 +113,12 @@ export interface GovernedTriadFrozenAuthorities {
     capability_contract_ref: string;
     capability_contract_content_hash: string;
     binding_ref: string;
+    data_category: GovernedDataCategory;
     source_operation_ref: string;
     source_interface_ref: string;
+    source_access_kind: SourceAccessKind;
     source_access_ref: string;
+    members: readonly GovernedDataHandoffMember[];
   }>) => Promise<Readonly<P1SourceInterfaceResolution>>;
 }
 
@@ -845,9 +848,12 @@ async function verifyFrozenPreInstanceClosure(
         capability_contract_ref: handoff.capability_contract_ref,
         capability_contract_content_hash: handoff.capability_contract_hash,
         binding_ref: binding.binding_ref,
+        data_category: binding.data_category,
         source_operation_ref: binding.source_operation_ref,
         source_interface_ref: binding.source_interface_ref,
+        source_access_kind: binding.source_access_kind,
         source_access_ref: binding.source_access_ref,
+        members: binding.members,
       }));
     if (
       source === null || typeof source !== "object"
