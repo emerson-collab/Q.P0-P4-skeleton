@@ -20,7 +20,7 @@ import {
   registered_business_operation_routes,
   resolve_business_operation,
 } from "../../../src/p1/business_runtime/business_operation_registry.ts";
-import type { BusinessOperationHandler, P1StaticRuntimeSlotProjection } from "../../../src/p1/business_runtime/business_operation_registry.ts";
+import type { BusinessOperationAuthorization, BusinessOperationHandler, P1StaticRuntimeSlotProjection } from "../../../src/p1/business_runtime/business_operation_registry.ts";
 import type { P1CapabilityGeneralSlotProjection, P1InterfaceSurface, P1InterfaceKind } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
 import {
   P1_CONTRACT_REF,
@@ -70,12 +70,22 @@ function exactStaticSlots(
   });
 }
 
+const testAuthorization: BusinessOperationAuthorization = async (_input, runtimeContext) => ({
+  // Only a test fixture: no business authorization policy is invented by P1.
+  authorization_receipt: Object.freeze({
+    operation_ref: runtimeContext.operation_ref,
+    trace_id: runtimeContext.trace_id,
+    request_id: runtimeContext.request_id,
+    completed_before_operation: true,
+  }),
+});
+
 function register_business_operation(
   slots: P1CapabilityGeneralSlotProjection,
   handler: BusinessOperationHandler,
   hookBindingRefs: readonly string[] = [],
 ) {
-  return register_concrete_business_operation(slots, handler, exactStaticSlots(slots, hookBindingRefs));
+  return register_concrete_business_operation(slots, handler, exactStaticSlots(slots, hookBindingRefs), testAuthorization);
 }
 
 function invokePath(operationRef: string, operationId: string, suffix: string) {
@@ -384,7 +394,7 @@ test("P1 registers internal-only Operation without inventing an Interface", asyn
   }, async (input, runtimeContext) => {
     attempts += 1;
     return { input, operation_ref: runtimeContext.operation_ref };
-  });
+  }, testAuthorization);
 
   const runtimeContext = context("caller", "internal-only");
   const outcome = await invoke_internal_call({
@@ -414,7 +424,7 @@ test("P1 refuses field-name-only static Runtime Slot bindings", () => {
     operation_contract: { slot_ref: "operation_contract", value: slots.operation_ref.value },
   } as typeof proper;
   assert.throws(
-    () => register_concrete_business_operation(slots, async () => undefined, invalid),
+    () => register_concrete_business_operation(slots, async () => undefined, invalid, testAuthorization),
     (error: unknown) => error instanceof Error && "code" in error &&
       (error as {code:string}).code === "P1_OVERLAY_SLOT_INVALID",
   );
@@ -535,7 +545,7 @@ test("V0186 fail closed: undeclared STATIC_OVERLAY_BIND runtime slot cannot be i
     route_key: { slot_ref: P1_RUNTIME_SLOT_REFS.route_key, value: "caller-selected-route" },
   } as unknown as P1StaticRuntimeSlotProjection;
   assert.throws(
-    () => register_concrete_business_operation(slots, async () => undefined, invalid),
+    () => register_concrete_business_operation(slots, async () => undefined, invalid, testAuthorization),
     (error: unknown) => error instanceof Error && "code" in error
       && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
   );
@@ -548,7 +558,7 @@ test("V0186 fail closed: undeclared GENERAL field cannot become an overlay slot"
     invented_business_field: { slot_ref: `${P1_CONTRACT_REF}#/overlay_slot_catalog/capability_general_slots/invented_business_field`, value: "UNDECLARED" },
   } as unknown as P1CapabilityGeneralSlotProjection;
   assert.throws(
-    () => register_concrete_business_operation(invalid, async () => undefined, exactStaticSlots(slots)),
+    () => register_concrete_business_operation(invalid, async () => undefined, exactStaticSlots(slots), testAuthorization),
     (error: unknown) => error instanceof Error && "code" in error
       && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
   );
@@ -562,7 +572,7 @@ test("V0186 fail closed: field name without exact RUNTIME_SLOT_REF cannot bind",
     manifest: { slot_ref: "manifest", value: { capability_ref: slots.capability_ref.value } },
   } as P1StaticRuntimeSlotProjection;
   assert.throws(
-    () => register_concrete_business_operation(slots, async () => undefined, invalid),
+    () => register_concrete_business_operation(slots, async () => undefined, invalid, testAuthorization),
     (error: unknown) => error instanceof Error && "code" in error
       && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
   );
