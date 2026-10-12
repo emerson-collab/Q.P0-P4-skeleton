@@ -187,7 +187,13 @@ function frozenAuthorities(
 ): GovernedTriadFrozenAuthorities {
   const frozen = frozenV0117Projection(originalBindings);
   return Object.freeze({
-    async frozen_prompt_projection_hash() {
+    async frozen_prompt_projection_hash(
+      request: Parameters<GovernedTriadFrozenAuthorities["frozen_prompt_projection_hash"]>[0],
+    ) {
+      assert.equal(request.p1_capability_materialization_ref, P1_CAPABILITY_MATERIALIZATION_REF);
+      assert.equal(request.p1_capability_materialization_hash, P1_CAPABILITY_MATERIALIZATION_HASH);
+      assert.equal(request.p2_contract_ref, P2_CONTRACT_REF);
+      assert.equal(request.p2_contract_content_hash, P2_CONTRACT_HASH);
       return options.wrong_prompt_hash
         ? `sha256:${"f".repeat(64)}`
         : frozen.governed_data_exposure_binding_projection_hash;
