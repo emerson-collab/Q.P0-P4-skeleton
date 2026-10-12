@@ -62,7 +62,9 @@ function exactStaticSlots(
 ): P1StaticRuntimeSlotProjection {
   return Object.freeze({
     manifest: { slot_ref: P1_RUNTIME_SLOT_REFS.manifest, value: { capability_ref: slots.capability_ref.value } },
-    qreg: { slot_ref: P1_RUNTIME_SLOT_REFS.qreg, value: { operation_refs: [slots.operation_ref.value], interface_refs: [slots.interface_ref.value] } },
+    // Test-only opaque qreg value. V0186 defines its Slot authority/phase but
+    // does not authorize the Skeleton to invent a nested qreg object schema.
+    qreg: { slot_ref: P1_RUNTIME_SLOT_REFS.qreg, value: { capability_contract_ref: slots.capability_contract_ref.value } },
     qconfig: { slot_ref: P1_RUNTIME_SLOT_REFS.qconfig, value: {} },
     operation_contract: { slot_ref: P1_RUNTIME_SLOT_REFS.operation_contract, value: slots.operation_ref.value },
     policy_refs: { slot_ref: P1_RUNTIME_SLOT_REFS.policy_refs, value: [] },
