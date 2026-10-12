@@ -648,12 +648,27 @@ function verifyFrozenV0117Projection(
       "V0117 frozen binding projection SHA256 does not match exact canonical bytes",
     );
   }
-  const capability = objectValue(projection.exact_capability_contract_ref_and_hash, "exact_capability_contract_ref_and_hash");
-  const p2 = objectValue(projection.exact_frozen_current_p2_ref_and_hash, "exact_frozen_current_p2_ref_and_hash");
+  // V0117 names the two exact ref+hash root facts but does not prescribe
+  // inner keys such as {ref,hash}. Check their exact scalar facts without
+  // promoting a test-fixture object shape into a new Contract schema.
+  const exactPair = (value: unknown, field: string, expectedRef: string, expectedHash: string): boolean => {
+    const pair = objectValue(value, field);
+    const values = Object.values(pair);
+    return values.length === 2 && values.includes(expectedRef) && values.includes(expectedHash);
+  };
   if (
-    capability.ref !== handoff.capability_contract_ref
-    || capability.hash !== handoff.capability_contract_hash
-    || p2.ref !== P2_CONTRACT_REF || p2.hash !== P2_CONTRACT_HASH
+    !exactPair(
+      projection.exact_capability_contract_ref_and_hash,
+      "exact_capability_contract_ref_and_hash",
+      handoff.capability_contract_ref,
+      handoff.capability_contract_hash,
+    )
+    || !exactPair(
+      projection.exact_frozen_current_p2_ref_and_hash,
+      "exact_frozen_current_p2_ref_and_hash",
+      P2_CONTRACT_REF,
+      P2_CONTRACT_HASH,
+    )
     || projection.p2_handoff_obligation_snapshot_hash !== handoff.p2_handoff_obligation_snapshot_hash
   ) {
     throw new GovernedDataProviderRealizationError(
@@ -705,10 +720,13 @@ function verifyFrozenV0117Projection(
       );
     }
     const instanceRefs = arrayValue(b.declared_instance_variable_refs, `${id}.declared_instance_variable_refs`);
-    if (instanceRefs.some(ref => typeof ref !== "string" || !ref)) {
+    if (
+      instanceRefs.some(ref => typeof ref !== "string" || !exact_ref(ref))
+      || new Set(instanceRefs).size !== instanceRefs.length
+    ) {
       throw new GovernedDataProviderRealizationError(
         "RDS_GOVERNED_DATA_PROJECTION_BINDING_MISMATCH",
-        "instance variable refs must be exact declared identities, not runtime values",
+        "instance variable refs must be unique exact declared identities, not instance values",
       );
     }
     const members = arrayValue(b.members, `${id}.members`);
@@ -817,7 +835,7 @@ async function verifyFrozenPreInstanceClosure(
     ) {
       throw new GovernedDataProviderRealizationError(
         "RDS_GOVERNED_DATA_SOURCE_ANCHOR_INVALID",
-        "source Interface must preserve its exact pre-instance V0186 Framework anchor binding",
+        "source Interface execution requires exact p1_interface_anchor_binding_ref from its pre-instance V0186 Framework anchor",
       );
     }
     const layerFields: string[] = [];
