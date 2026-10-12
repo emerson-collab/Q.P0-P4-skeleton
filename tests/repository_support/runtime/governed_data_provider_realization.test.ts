@@ -528,3 +528,46 @@ test("V0152 rejects tampered p2_handoff obligation snapshot before execution", a
   );
   assert.deepEqual(events, []);
 });
+
+test("V0117 refuses a tampered immutable projection hash before P2 execution or storage", async () => {
+  const source = binding("STATIC", "projection-hash");
+  const events: string[] = [];
+  const frozen = frozenV0117Projection([source]);
+  await assert.rejects(
+    () => realizeGovernedDataTriad({
+      p2_handoff_obligation: p2Handoff([source]),
+      ...frozen,
+      governed_data_exposure_binding_projection_hash: `sha256:${"0".repeat(64)}`,
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(source)],
+    }, materializer([]), memoryStore(events)),
+    (error: unknown) => error instanceof GovernedDataProviderRealizationError
+      && error.code === "RDS_GOVERNED_DATA_PROJECTION_HASH_MISMATCH",
+  );
+  assert.deepEqual(events, []);
+});
+
+test("V0117 refuses source Interface identity drift before P2 execution or storage", async () => {
+  const source = binding("STATIC", "source-interface");
+  const events: string[] = [];
+  const frozen = frozenV0117Projection([source]);
+  const projected = frozen.governed_data_exposure_binding_projection;
+  const tampered = {
+    ...projected,
+    bindings: (projected.bindings as readonly Record<string, unknown>[]).map(b => ({
+      ...b, source_interface_ref: `${CAPABILITY_CONTRACT_REF}#/interfaces/wrong`,
+    })),
+  };
+  await assert.rejects(
+    () => realizeGovernedDataTriad({
+      p2_handoff_obligation: p2Handoff([source]),
+      governed_data_exposure_binding_projection: tampered,
+      governed_data_exposure_binding_projection_hash: hash(tampered),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(source)],
+    }, materializer([]), memoryStore(events)),
+    (error: unknown) => error instanceof GovernedDataProviderRealizationError
+      && error.code === "RDS_GOVERNED_DATA_PROJECTION_BINDING_MISMATCH",
+  );
+  assert.deepEqual(events, []);
+});
