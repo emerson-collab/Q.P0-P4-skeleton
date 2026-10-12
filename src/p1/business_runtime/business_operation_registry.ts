@@ -200,7 +200,7 @@ function exactSlotValue(
   slotId: P1CapabilityGeneralSlotId,
 ): string {
   const binding = projection[slotId];
-  if (binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
+  if (!binding || binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
     throw new StableRuntimeError(
       "P1_OVERLAY_SLOT_INVALID",
       `${slotId} must bind the exact predeclared P1 V0186 slot_ref`,
@@ -231,6 +231,16 @@ function staticRefList(value: unknown, field: string): readonly string[] {
 }
 
 function exactGeneralSlotProjection(projection: P1CapabilityGeneralSlotProjection): void {
+  const keys = Object.keys(projection);
+  if (
+    keys.length !== P1_CAPABILITY_GENERAL_SLOT_IDS.length
+    || keys.some((key) => !P1_CAPABILITY_GENERAL_SLOT_IDS.includes(key as P1CapabilityGeneralSlotId))
+  ) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      "GENERAL overlay must contain exactly thirteen declared V0186 slot identities",
+    );
+  }
   for (const id of P1_CAPABILITY_GENERAL_SLOT_IDS) exactSlotValue(projection, id);
 }
 
@@ -239,6 +249,19 @@ function createRegisteredStageExtension(
   staticSlots: P1StaticRuntimeSlotProjection,
 ): StageExtensionContract {
   exactGeneralSlotProjection(projection);
+  const allowedStaticSlots = [
+    "manifest", "qreg", "qconfig", "operation_contract", "policy_refs", "hook_binding_refs",
+  ] as const;
+  const actualSlotIds = Object.keys(staticSlots);
+  if (
+    actualSlotIds.length !== allowedStaticSlots.length
+    || actualSlotIds.some((id) => !allowedStaticSlots.includes(id as P1StaticRuntimeSlotId))
+  ) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      "STATIC_OVERLAY_BIND accepts exactly the six declared P1_STATIC_RUNTIME_PROJECTION slots",
+    );
+  }
   for (const id of [
     "manifest", "qreg", "qconfig", "operation_contract", "policy_refs", "hook_binding_refs",
   ] as const) exactStaticRuntimeSlot(staticSlots, id);
