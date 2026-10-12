@@ -181,6 +181,7 @@ function frozenAuthorities(
     wrong_prompt_hash?: boolean;
     wrong_owner_operation?: boolean;
     wrong_source_access?: boolean;
+    wrong_member_lineage?: boolean;
     wrong_surface_kind?: boolean;
     overlapping_layers?: boolean;
   }> = {},
@@ -211,7 +212,9 @@ function frozenAuthorities(
         authorized_source_access_ref: options.wrong_source_access
           ? `${CAPABILITY_CONTRACT_REF}#/sources/not_authorized`
           : ownerBinding.source_access_ref,
-        verified_members: ownerBinding.members,
+        verified_members: options.wrong_member_lineage
+          ? [{ ...ownerBinding.members[0], source_fact_authority_ref: "Q.TEST.WRONG@V0100" }]
+          : ownerBinding.members,
         surface: options.wrong_surface_kind ? "REGISTRY" : "CALL",
         kind_code: "M1",
         kind: "CALL_INVOKE", method_ref: "read_owner_fact",
@@ -773,6 +776,23 @@ test("V0117 refuses any triad execution without governed upstream authorities", 
        undefined as unknown as GovernedTriadFrozenAuthorities),
     (err: unknown) => err instanceof GovernedDataProviderRealizationError
       && err.code === "RDS_GOVERNED_DATA_AUTHORITY_UNAVAILABLE",
+  );
+  assert.deepEqual(events, []);
+});
+
+test("V0117 source member fact lineage must resolve exactly under owner authority", async () => {
+  const b = binding("STATIC", "member-lineage");
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeWithExactAuthorities({
+      p2_handoff_obligation: p2Handoff([b]),
+      ...frozenV0117Projection([b]),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(b)],
+    }, materializer([]), memoryStore(events),
+       frozenAuthorities([b], { wrong_member_lineage: true })),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
   );
   assert.deepEqual(events, []);
 });
