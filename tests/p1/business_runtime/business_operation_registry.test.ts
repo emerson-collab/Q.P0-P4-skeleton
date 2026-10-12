@@ -525,3 +525,45 @@ test("P1 dependency_invoke preserves the existing declared client's StableError 
   const missing = await invoke_dependency("unbound_dependency", {}, {}, "trace:dependency", "request:dependency");
   assert.equal(missing.outcome_type, "stable_error");
 });
+
+
+test("V0186 fail closed: undeclared STATIC_OVERLAY_BIND runtime slot cannot be injected", () => {
+  const slots = projection("extra_runtime_slot", "extra_runtime_slot", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const normal = exactStaticSlots(slots);
+  const invalid = {
+    ...normal,
+    route_key: { slot_ref: P1_RUNTIME_SLOT_REFS.route_key, value: "caller-selected-route" },
+  } as unknown as P1StaticRuntimeSlotProjection;
+  assert.throws(
+    () => register_concrete_business_operation(slots, async () => undefined, invalid),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+});
+
+test("V0186 fail closed: undeclared GENERAL field cannot become an overlay slot", () => {
+  const slots = projection("extra_general_slot", "extra_general_slot", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const invalid = {
+    ...slots,
+    invented_business_field: { slot_ref: `${P1_CONTRACT_REF}#/overlay_slot_catalog/capability_general_slots/invented_business_field`, value: "UNDECLARED" },
+  } as unknown as P1CapabilityGeneralSlotProjection;
+  assert.throws(
+    () => register_concrete_business_operation(invalid, async () => undefined, exactStaticSlots(slots)),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+});
+
+test("V0186 fail closed: field name without exact RUNTIME_SLOT_REF cannot bind", () => {
+  const slots = projection("wrong_slot_ref", "wrong_slot_ref", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const normal = exactStaticSlots(slots);
+  const invalid = {
+    ...normal,
+    manifest: { slot_ref: "manifest", value: { capability_ref: slots.capability_ref.value } },
+  } as P1StaticRuntimeSlotProjection;
+  assert.throws(
+    () => register_concrete_business_operation(slots, async () => undefined, invalid),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+});
