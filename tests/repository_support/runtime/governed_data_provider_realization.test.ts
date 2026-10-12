@@ -17,13 +17,15 @@ import {
   REPOSITORY_SKELETON_HASH,
   REPOSITORY_SKELETON_REF,
   GovernedDataProviderRealizationError,
-  realizeGovernedDataTriad,
+  realizeGovernedDataTriad as realizeWithExactAuthorities,
+  type GovernedDataTriadRealizationInput,
   type GovernedDataBindingExecution,
   type GovernedDataCategory,
   type GovernedDataHandoffBinding,
   type P2GovernedDataExposureMaterializer,
   type GovernedDataTriadDurableStore,
   type GovernedDataFilename,
+  type GovernedTriadFrozenAuthorities,
   type SourceAccessKind,
 } from "../../../runtime/governed_data_provider_realization.ts";
 
@@ -119,12 +121,8 @@ function execution(bindingValue: GovernedDataHandoffBinding): GovernedDataBindin
     runtime_context: Object.freeze({ stage_contract_ref: P2_CONTRACT_REF }),
     trace_id: `trace:${bindingValue.binding_ref}`,
     request_id: `request:${bindingValue.binding_ref}`,
-    ...(bindingValue.source_access_kind === "DECLARED_Q_INTERFACE_SOURCE_FACT"
-      ? {
-          p1_interface_anchor_binding_ref:
-            `${P1_BUSINESS_RUNTIME_REF}#/concrete_interface_framework_anchor_crosswalk/anchors/CALL_INVOKE`,
-        }
-      : {}),
+    p1_interface_anchor_binding_ref:
+      `${P1_BUSINESS_RUNTIME_REF}#/concrete_interface_framework_anchor_crosswalk/anchors/CALL_INVOKE`,
   });
 }
 
@@ -174,6 +172,54 @@ function frozenV0117Projection(bindings: readonly GovernedDataHandoffBinding[]) 
     governed_data_exposure_binding_projection: value,
     governed_data_exposure_binding_projection_hash: hash(value),
   });
+}
+
+/** Test-only providers for independently frozen Q.Prompt/Capability Source facts. */
+function frozenAuthorities(
+  originalBindings: readonly GovernedDataHandoffBinding[],
+  options: Readonly<{ wrong_prompt_hash?: boolean; wrong_owner_operation?: boolean }> = {},
+): GovernedTriadFrozenAuthorities {
+  const frozen = frozenV0117Projection(originalBindings);
+  return Object.freeze({
+    async frozen_prompt_projection_hash() {
+      return options.wrong_prompt_hash
+        ? `sha256:${"f".repeat(64)}`
+        : frozen.governed_data_exposure_binding_projection_hash;
+    },
+    async resolve_source_interface(request: Parameters<GovernedTriadFrozenAuthorities["resolve_source_interface"]>[0]) {
+      const ownerBinding = originalBindings.find(b => b.binding_ref === request.binding_ref);
+      if (!ownerBinding) throw new Error("owner Capability fixture lacks the requested source binding");
+      return Object.freeze({
+        capability_contract_ref: CAPABILITY_CONTRACT_REF,
+        capability_contract_content_hash: CAPABILITY_CONTRACT_HASH,
+        operation_ref: options.wrong_owner_operation
+          ? `${CAPABILITY_CONTRACT_REF}#/operations/different`
+          : ownerBinding.source_operation_ref,
+        interface_ref: ownerBinding.source_interface_ref,
+        authorized_source_access_ref: ownerBinding.source_access_ref,
+        surface: "CALL", kind: "CALL_INVOKE", method_ref: "read_owner_fact",
+        path: Object.freeze(["operation_id", "trace_id", "request_id"]),
+        static_mount: Object.freeze(["operation_contract"]),
+        dynamic_mount: Object.freeze(["input", "runtime_result"]),
+        framework_anchor_binding_ref:
+          `${P1_BUSINESS_RUNTIME_REF}#/concrete_interface_framework_anchor_crosswalk/anchors/CALL_INVOKE`,
+      });
+    },
+  });
+}
+
+/** Existing test cases use one test-owned source snapshot, never production authority. */
+function realizeGovernedDataTriad(
+  input: Readonly<GovernedDataTriadRealizationInput>,
+  materialization: P2GovernedDataExposureMaterializer,
+  store: GovernedDataTriadDurableStore,
+) {
+  const handoff = input.p2_handoff_obligation.governed_data_exposure as {
+    bindings: readonly GovernedDataHandoffBinding[];
+  };
+  return realizeWithExactAuthorities(
+    input, materialization, store, frozenAuthorities(handoff.bindings),
+  );
 }
 
 function triadObligation(overrides: Readonly<Record<string, unknown>> = {}) {
