@@ -503,6 +503,23 @@ function validateP2HandoffObligation(
       "V0117 requires an exact versioned owner Capability Contract identity",
     );
   }
+  // V0117 p2_handoff has two independent required declarations.
+  // This Provider path does not execute capability publication, but it must
+  // not silently accept an incomplete or retargeted Handoff declaration.
+  const publication = objectValue(
+    value.capability_publication,
+    "p2_handoff_obligation.capability_publication",
+  );
+  if (
+    (publication.mode !== "NONE" && publication.mode !== "PUBLICATION_ELIGIBLE")
+    || publication.external_provider_surface_ref !==
+      `${capabilityContractRef}#/external_provider_surface`
+  ) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID",
+      "V0117 requires an exact capability_publication mode and owning external_provider_surface_ref",
+    );
+  }
   if (value.exact_current_p2_ref !== P2_CONTRACT_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_AUTHORITY_MISMATCH",
