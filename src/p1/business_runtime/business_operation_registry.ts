@@ -650,18 +650,35 @@ function resolveRegisteredOperationByExactRef(operationRef: string): RegisteredB
 function resolveRegisteredOperationByPath(
   path: Readonly<BusinessOperationInvokePath>,
 ): RegisteredBusinessOperation {
-  const routeKey = nonEmptyString(path.route_key, "route_key");
-  const registered = operations.get(routeKey);
+  if (path === null || typeof path !== "object" || Array.isArray(path)) {
+    throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "P1 CALL requires one exact route Path object");
+  }
+  const capabilityId = nonEmptyString(path.capability_id, "capability_id");
+  const operationId = nonEmptyString(path.operation_id, "operation_id");
+  const carriedRouteKey = nonEmptyString(path.route_key, "route_key");
+
+  // Caller/transport route_key is never lookup authority. Resolve from the
+  // P1-owned registered Capability + Operation identities, then derive the
+  // authoritative route_key as exact operation_ref bytes.
+  const matches = [...operations.values()].filter(
+    ({ route }) => route.capability_id === capabilityId && route.operation_id === operationId,
+  );
+  if (matches.length !== 1 || matches[0] === undefined) {
+    throw new StableRuntimeError(
+      "P1_OPERATION_ROUTE_MISMATCH",
+      "P1 Capability/Operation identities must resolve exactly one registered Operation",
+    );
+  }
+  const registered = matches[0];
+  const derivedRouteKey = registered.route.operation_ref;
   if (
-    registered === undefined
-    || registered.route.route_key !== registered.route.operation_ref
-    || routeKey !== registered.route.operation_ref
-    || path.capability_id !== registered.route.capability_id
-    || path.operation_id !== registered.route.operation_id
+    carriedRouteKey !== derivedRouteKey
+    || registered.route.route_key !== derivedRouteKey
+    || registered.route.capability_contract_ref.length === 0
   ) {
     throw new StableRuntimeError(
       "P1_OPERATION_ROUTE_MISMATCH",
-      "P1 route tuple does not resolve exactly one registered Operation",
+      "Carried route_key must byte-equal the P1-derived Operation ref before dispatch",
     );
   }
   return registered;
