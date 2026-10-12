@@ -3,6 +3,7 @@ import test from "node:test";
 import { P0_CONTRACT_REF } from "#q/p0/runtime_contract";
 import {
   P1_CAPABILITY_GENERAL_SLOT_REFS,
+  P1_CAPABILITY_GENERAL_SLOT_CATALOG,
   P1_RUNTIME_SLOT_IDS,
   P1_RUNTIME_SLOT_REFS,
   P1_RUNTIME_SLOT_CATALOG,
@@ -540,4 +541,92 @@ test("Contract V0134 exact interface whitelist: 3 P0 public/internal methods and
     const layers = [...contract.path, ...contract.static_mount, ...contract.dynamic_mount];
     assert.equal(new Set(layers).size, layers.length, `${name} has duplicate layer members`);
   }
+});
+
+
+test("V0186 GENERAL whitelist: all 13 facts use STATIC_OVERLAY_BIND and cannot be Runtime overrides", () => {
+  const expected = [
+    "capability_ref", "capability_id", "capability_version", "capability_contract_ref",
+    "capability_contract_content_hash", "stage_contract_ref", "runtime_contract_ref",
+    "operation_id", "operation_ref", "interface_ref", "surface", "kind", "method_ref",
+  ] as const;
+  assert.deepEqual(Object.keys(P1_CAPABILITY_GENERAL_SLOT_CATALOG), expected);
+  for (const key of expected) {
+    const entry = P1_CAPABILITY_GENERAL_SLOT_CATALOG[key];
+    assert.equal(entry.slot_class, "CAPABILITY_GENERAL_SLOT");
+    assert.equal(entry.source_class, "CAPABILITY_GENERAL");
+    assert.equal(entry.accepted_source_fact, key);
+    assert.equal(entry.binding_phase, "STATIC_OVERLAY_BIND");
+    assert.equal(entry.capability_instance_value_forbidden, true);
+    assert.equal(entry.runtime_override_forbidden, true);
+    assert.equal(
+      P1_CAPABILITY_GENERAL_SLOT_REFS[key],
+      `${P1_CONTRACT_REF}#/overlay_slot_catalog/capability_general_slots/${key}`,
+    );
+  }
+  for (const key of ["capability_ref", "capability_id", "capability_version",
+    "capability_contract_ref", "capability_contract_content_hash", "stage_contract_ref",
+    "runtime_contract_ref"] as const) {
+    assert.equal(P1_CAPABILITY_GENERAL_SLOT_CATALOG[key].source_export_group, "capability_identity");
+    assert.equal(P1_CAPABILITY_GENERAL_SLOT_CATALOG[key].cardinality, "ONE_PER_CAPABILITY");
+  }
+  for (const key of ["operation_id", "operation_ref"] as const) {
+    assert.equal(P1_CAPABILITY_GENERAL_SLOT_CATALOG[key].source_export_group, "operation_identity");
+    assert.equal(P1_CAPABILITY_GENERAL_SLOT_CATALOG[key].cardinality, "ONE_PER_OPERATION");
+  }
+  for (const key of ["interface_ref", "surface", "kind", "method_ref"] as const) {
+    assert.equal(P1_CAPABILITY_GENERAL_SLOT_CATALOG[key].source_export_group, "interface_identity");
+    assert.equal(P1_CAPABILITY_GENERAL_SLOT_CATALOG[key].cardinality, "ONE_PER_INTERFACE");
+  }
+  const contexts = P1_CAPABILITY_GENERAL_SLOT_CATALOG.operation_ref.source_binding_contexts;
+  assert.equal(contexts.length, 2);
+  assert.equal(contexts[0].source_export_group, "operation_identity");
+  assert.equal(contexts[1].source_export_group, "interface_identity");
+  assert.equal(contexts[1].value_must_equal_bound_operation_context_operation_ref, true);
+});
+
+test("V0186 exact surface + kind whitelist: only eight matching anchors are possible", () => {
+  const surfaces = ["CALL", "HOOK", "EVENT", "REGISTRY"] as const;
+  const kinds = [
+    "CALL_INVOKE", "HOOK_BIND", "HOOK_EVALUATE", "EVENT_PUBLISH",
+    "EVENT_CONSUME", "REGISTRY_REGISTER", "REGISTRY_RESOLVE", "REGISTRY_LOOKUP",
+  ] as const;
+  const allowed = new Set([
+    "CALL:CALL_INVOKE", "HOOK:HOOK_BIND", "HOOK:HOOK_EVALUATE",
+    "EVENT:EVENT_PUBLISH", "EVENT:EVENT_CONSUME",
+    "REGISTRY:REGISTRY_REGISTER", "REGISTRY:REGISTRY_RESOLVE", "REGISTRY:REGISTRY_LOOKUP",
+  ]);
+  assert.equal(allowed.size, 8);
+  for (const surface of surfaces) {
+    for (const kind of kinds) {
+      const key = `${surface}:${kind}`;
+      if (allowed.has(key)) {
+        assert.equal(resolve_p1_framework_anchor({
+          surface, kind,
+          method_ref: kind === "EVENT_PUBLISH" ? "publish_business_event"
+            : kind === "EVENT_CONSUME" ? "consume_business_event"
+            : "owner_declared_method",
+        }).surface, surface);
+      } else {
+        assert.throws(
+          () => resolve_p1_framework_anchor({ surface, kind, method_ref: "owner_declared_method" }),
+          /must resolve exactly one pre-existing/,
+          `unexpected anchor: ${key}`,
+        );
+      }
+    }
+  }
+});
+
+test("V0186 rejects inferred extra GENERAL facts before binding", () => {
+  const original = slots();
+  const facts = Object.fromEntries(Object.entries(original).map(([key, binding]) => [key, binding.value])) as
+    Parameters<typeof project_p1_capability_general_slots>[0];
+  assert.throws(
+    () => project_p1_capability_general_slots({
+      ...facts,
+      invented_business_fact: "not_in_contract",
+    } as Parameters<typeof project_p1_capability_general_slots>[0]),
+    /exactly the 13 predeclared V0186 facts/,
+  );
 });
