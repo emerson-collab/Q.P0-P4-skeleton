@@ -630,3 +630,121 @@ test("V0186 rejects inferred extra GENERAL facts before binding", () => {
     /exactly the 13 predeclared V0186 facts/,
   );
 });
+
+
+test("V0186 all 18 Runtime Slot source facts and binding phases equal the exact whitelist", () => {
+  const expected: Readonly<Record<string, Readonly<{
+    source_class: string;
+    binding_phase: string;
+    accepted_source_fact: string;
+  }>>> = {
+  "route_key": {
+    "source_class": "P1_DERIVED_RUNTIME",
+    "accepted_source_fact": "operation_ref",
+    "binding_phase": "PRE_DISPATCH_ROUTE_BIND"
+  },
+  "trace_id": {
+    "source_class": "INVOCATION_CORRELATION",
+    "accepted_source_fact": "trace_id",
+    "binding_phase": "INVOCATION_ENTRY"
+  },
+  "request_id": {
+    "source_class": "INVOCATION_CORRELATION",
+    "accepted_source_fact": "request_id",
+    "binding_phase": "INVOCATION_ENTRY"
+  },
+  "manifest": {
+    "source_class": "P1_STATIC_RUNTIME_PROJECTION",
+    "accepted_source_fact": "bound_capability_general_overlay",
+    "binding_phase": "STATIC_OVERLAY_BIND"
+  },
+  "qreg": {
+    "source_class": "P1_STATIC_RUNTIME_PROJECTION",
+    "accepted_source_fact": "bound_operation_interface_registry_projection",
+    "binding_phase": "STATIC_OVERLAY_BIND"
+  },
+  "qconfig": {
+    "source_class": "P1_STATIC_RUNTIME_PROJECTION",
+    "accepted_source_fact": "governed_policy_projection",
+    "binding_phase": "STATIC_OVERLAY_BIND"
+  },
+  "operation_contract": {
+    "source_class": "P1_STATIC_RUNTIME_PROJECTION",
+    "accepted_source_fact": "operation_ref",
+    "binding_phase": "STATIC_OVERLAY_BIND"
+  },
+  "policy_refs": {
+    "source_class": "P1_STATIC_RUNTIME_PROJECTION",
+    "accepted_source_fact": "governed_policy_refs",
+    "binding_phase": "STATIC_OVERLAY_BIND"
+  },
+  "hook_binding_refs": {
+    "source_class": "P1_STATIC_RUNTIME_PROJECTION",
+    "accepted_source_fact": "validated_hook_binding_refs",
+    "binding_phase": "STATIC_OVERLAY_BIND"
+  },
+  "input": {
+    "source_class": "INVOCATION_INPUT",
+    "accepted_source_fact": "input",
+    "binding_phase": "INVOCATION_ENTRY"
+  },
+  "runtime_context": {
+    "source_class": "P0_RUNTIME_INPUT",
+    "accepted_source_fact": "runtime_context",
+    "binding_phase": "P0_RUNTIME_ENTRY"
+  },
+  "validated_context": {
+    "source_class": "P1_RUNTIME",
+    "accepted_source_fact": "validated_context",
+    "binding_phase": "PRE_OPERATION"
+  },
+  "operation_attempt": {
+    "source_class": "P1_RUNTIME",
+    "accepted_source_fact": "operation_attempt",
+    "binding_phase": "OPERATION_ATTEMPT"
+  },
+  "outcome_type": {
+    "source_class": "P1_RUNTIME",
+    "accepted_source_fact": "outcome_type",
+    "binding_phase": "OUTCOME_FINALIZATION"
+  },
+  "runtime_result": {
+    "source_class": "P0_RUNTIME_OUTPUT",
+    "accepted_source_fact": "runtime_result",
+    "binding_phase": "P0_RUNTIME_RETURN"
+  },
+  "stable_error": {
+    "source_class": "P1_RUNTIME",
+    "accepted_source_fact": "stable_error",
+    "binding_phase": "OUTCOME_FINALIZATION"
+  },
+  "execution_receipt": {
+    "source_class": "P1_RUNTIME",
+    "accepted_source_fact": "execution_receipt",
+    "binding_phase": "POST_OUTCOME_PRE_RETURN"
+  },
+  "rule_evidence": {
+    "source_class": "P1_RUNTIME",
+    "accepted_source_fact": "rule_evidence",
+    "binding_phase": "POST_OUTCOME_PRE_RETURN"
+  }
+};
+  assert.deepEqual(Object.keys(P1_RUNTIME_SLOT_CATALOG).sort(), Object.keys(expected).sort());
+  for (const id of P1_RUNTIME_SLOT_IDS) {
+    const slot = P1_RUNTIME_SLOT_CATALOG[id];
+    const declared = expected[id];
+    assert.ok(declared, `unexpected Runtime Slot: ${id}`);
+    assert.equal(slot.source_class, declared.source_class, `${id}.source_class`);
+    assert.equal(slot.binding_phase, declared.binding_phase, `${id}.binding_phase`);
+    assert.equal(slot.accepted_source_fact, declared.accepted_source_fact, `${id}.accepted_source_fact`);
+    assert.equal(slot.capability_general_value_is_authority, false);
+    assert.equal(slot.capability_instance_value_is_authority, false);
+    assert.equal(slot.capability_code_may_supply_authoritative_value, false);
+    assert.equal(P1_RUNTIME_SLOT_REFS[id],
+      `${P1_CONTRACT_REF}#/overlay_slot_catalog/runtime_slots/${id}`);
+  }
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.runtime_context.semantic_owner_ref,
+    `${P0_CONTRACT_REF}#/runtime_context`);
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.runtime_result.semantic_owner_ref,
+    `${P0_CONTRACT_REF}#/runtime_result`);
+});
