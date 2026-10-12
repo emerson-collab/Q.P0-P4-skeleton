@@ -870,30 +870,140 @@ export async function consume_business_event(
   }
 }
 
+export interface BusinessRegistryRegistrationOutcome {
+  readonly outcome_type: "registration_receipt" | "stable_error";
+  readonly registration_receipt?: Readonly<{ object_ref: string }>;
+  readonly stable_error?: StableRuntimeErrorShape;
+}
+export interface BusinessRegistryResolutionOutcome {
+  readonly outcome_type: "exact_resolution" | "stable_error";
+  readonly exact_resolution?: BusinessRegistryEntry;
+  readonly stable_error?: StableRuntimeErrorShape;
+}
+export interface BusinessRegistryLookupOutcome {
+  readonly outcome_type: "lookup_result" | "stable_error";
+  readonly lookup_result?: BusinessRegistryEntry | null;
+  readonly stable_error?: StableRuntimeErrorShape;
+}
+
 export function register_business_object(
   object_ref: string,
   object_contract: unknown,
   registry_rule: unknown,
-): BusinessRegistryEntry {
-  const existing = business_objects.get(object_ref);
-  if (existing !== undefined) {
-    if (existing.object_contract !== object_contract || existing.registry_rule !== registry_rule) {
-      throw new Error("Business registry object ref already has different static registry material");
+): BusinessRegistryRegistrationOutcome {
+  try {
+    const objectRef = nonEmptyString(object_ref, "object_ref");
+    if (object_contract === undefined || registry_rule === undefined) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "Registry requires both governed static contract and rule");
     }
-    return existing;
+    const existing = business_objects.get(objectRef);
+    if (existing !== undefined) {
+      if (existing.object_contract !== object_contract || existing.registry_rule !== registry_rule) {
+        throw new StableRuntimeError("P1_BINDING_INVALID", "Business registry object_ref is already bound to different material");
+      }
+    } else {
+      const entry = deep_freeze({ object_ref: objectRef, object_contract, registry_rule } satisfies BusinessRegistryEntry);
+      business_objects.set(objectRef, entry);
+    }
+    return deep_freeze({
+      outcome_type: "registration_receipt" as const,
+      registration_receipt: deep_freeze({ object_ref: objectRef }),
+    });
+  } catch (error) {
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
   }
-
-  const entry = deep_freeze({ object_ref, object_contract, registry_rule } satisfies BusinessRegistryEntry);
-  business_objects.set(object_ref, entry);
-  return entry;
 }
 
-export function resolve_business_object(resolution_key: string): BusinessRegistryEntry {
-  const entry = business_objects.get(resolution_key);
-  if (entry === undefined) throw new Error("Business registry resolution key is not registered");
-  return entry;
+export function resolve_business_object(resolution_key: string): BusinessRegistryResolutionOutcome {
+  try {
+    const key = nonEmptyString(resolution_key, "resolution_key");
+    const entry = business_objects.get(key);
+    if (entry === undefined) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "Exact business registry resolution_key was not registered");
+    }
+    return deep_freeze({ outcome_type: "exact_resolution" as const, exact_resolution: entry });
+  } catch (error) {
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+  }
 }
 
-export function lookup_business_object(lookup_query: string): BusinessRegistryEntry | undefined {
-  return business_objects.get(lookup_query);
+export function lookup_business_object(lookup_query: string): BusinessRegistryLookupOutcome {
+  try {
+    const query = nonEmptyString(lookup_query, "lookup_query");
+    const entry = business_objects.get(query);
+    return deep_freeze({ outcome_type: "lookup_result" as const, lookup_result: entry ?? null });
+  } catch (error) {
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+  }
+}
+
+export interface BusinessHookBindOutcome {
+  readonly outcome_type: "binding_receipt" | "stable_error";
+  readonly binding_validation?: "validated";
+  readonly binding_receipt?: Readonly<{ binding_ref: string; outcome: "validated"; content_hash: string }>;
+  readonly stable_error?: StableRuntimeErrorShape;
+}
+
+/** P1 exposes only the existing P0 public bind method; no second HookAnchor is created. */
+export function bind_business_hook(
+  hook_point_value: string,
+  consumer_id: string,
+  binding: HookBinding,
+): BusinessHookBindOutcome {
+  try {
+    if (hook_point_value !== binding.hook_point_ref || consumer_id !== binding.consumer_ref) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "P1 Hook identity must exactly match its declared P0 HookBinding");
+    }
+    const result = runtime_provider.bind({ binding });
+    return deep_freeze({
+      outcome_type: "binding_receipt" as const,
+      binding_validation: result.outcome,
+      binding_receipt: result,
+    });
+  } catch (error) {
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+  }
+}
+
+export interface BusinessHookEvaluateOutcome {
+  readonly outcome_type: "hook_decision" | "stable_error";
+  readonly hook_decision?: "continue" | "deny" | "recompute";
+  readonly hook_evidence?: readonly HookEvidence[];
+  readonly evidence_ref?: string;
+  readonly stable_error?: StableRuntimeErrorShape;
+}
+
+/**
+ * P1 exposes the decision already evaluated by P0's internal HookAnchor.
+ * It never invokes P0's runtime-internal evaluate entrypoint directly.
+ */
+export function evaluate_business_hook(
+  hook_point_value: "before_process" | "after_process" | "on_error",
+  consumer_id: string,
+  trace_id: string,
+  request_id: string,
+  execution_receipt: P1ExecutionReceipt,
+): BusinessHookEvaluateOutcome {
+  try {
+    if (!completed_p1_receipts.has(execution_receipt)
+      || execution_receipt.trace_id !== trace_id
+      || execution_receipt.request_id !== request_id) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "P1 Hook evaluation requires exact P0-produced execution evidence");
+    }
+    const evidence = execution_receipt.hook_evidence.filter(
+      (item) => item.hook_point_ref === hook_point_value && item.consumer_ref === consumer_id,
+    );
+    if (evidence.length !== 1 || evidence[0]?.decision === undefined || evidence[0].error !== undefined) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "P1 Hook evaluation must resolve one exact P0 decision");
+    }
+    const hook_evidence = deep_freeze(evidence);
+    return deep_freeze({
+      outcome_type: "hook_decision" as const,
+      hook_decision: evidence[0].decision,
+      hook_evidence,
+      evidence_ref: `sha256:${createHash("sha256").update(canonicalEvidenceJson(hook_evidence), "utf8").digest("hex")}`,
+    });
+  } catch (error) {
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+  }
 }
