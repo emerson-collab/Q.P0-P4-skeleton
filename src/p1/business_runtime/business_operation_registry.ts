@@ -517,39 +517,111 @@ function ruleEvidence(
   });
 }
 
+/** A P1 outcome is finalized before the separate execution Receipt is created. */
+type FinalizedBusinessOperationOutcome =
+  | Readonly<{
+      outcome_type: "response";
+      runtime_result: unknown;
+      trace_id: string;
+      request_id: string;
+    }>
+  | Readonly<{
+      outcome_type: "stable_error";
+      stable_error: StableRuntimeErrorShape;
+      trace_id: string;
+      request_id: string;
+    }>;
+
+interface AuthorizationEvidence {
+  readonly authorization_receipt: unknown;
+  readonly authorization_receipt_hash: string;
+  readonly policy_refs: readonly string[];
+}
+
+/**
+ * The static P1 policy_refs are bound before dispatch. Business policy
+ * semantics come only from the exact registered Operation authorization
+ * callback; no generic rule or caller-supplied authorization flag is inferred.
+ */
+async function verifyBoundAuthorization(
+  registered: RegisteredBusinessOperation,
+  input: unknown,
+  context: RuntimeContext,
+): Promise<Readonly<AuthorizationEvidence>> {
+  const policy_refs = registered.static_runtime_slots === undefined
+    ? deep_freeze([] as string[])
+    : staticRefList(
+        exactStaticRuntimeSlot(registered.static_runtime_slots, "policy_refs"),
+        "policy_refs",
+      );
+  const proof = await registered.authorization(input, context, policy_refs);
+  if (
+    proof === null || typeof proof !== "object"
+    || !Object.prototype.hasOwnProperty.call(proof, "authorization_receipt")
+    || proof.authorization_receipt === null
+    || proof.authorization_receipt === undefined
+  ) {
+    throw new StableRuntimeError(
+      "P1_AUTHORIZATION_NOT_COMPLETED",
+      "V0186 requires an exact Operation-owned authorization receipt before Operation attempt",
+    );
+  }
+  const authorization_receipt_hash = `sha256:${createHash("sha256")
+    .update(canonicalEvidenceJson(proof.authorization_receipt), "utf8").digest("hex")}`;
+  return deep_freeze({
+    authorization_receipt: proof.authorization_receipt,
+    authorization_receipt_hash,
+    policy_refs,
+  });
+}
+
+/**
+ * P1 receipt evidence is purely a producer observation, never an authoritative
+ * Gate verdict. P0 hook evidence stays unchanged and P0 owns its RuntimeResult.
+ */
 function finalizedReceipt(
   route: BusinessOperationRouteBinding,
-  p0: RuntimeInvokeResult<unknown>,
-  outcomeType: "response" | "stable_error",
+  finalized: FinalizedBusinessOperationOutcome,
+  operation_attempts: 0 | 1,
+  hook_evidence: readonly HookEvidence[],
+  authorization: Readonly<AuthorizationEvidence> | undefined,
 ): P1ExecutionReceipt {
-  // P0 controls actual invocation attempts and hook evidence. P1 only projects its outcome/receipt.
-  const base = { operation_ref: route.operation_ref, trace_id: p0.trace_id, request_id: p0.request_id };
+  const outcome_hash = `sha256:${createHash("sha256")
+    .update(canonicalEvidenceJson(finalized), "utf8").digest("hex")}`;
+  const { trace_id, request_id, outcome_type } = finalized;
+  const observedRoute = route.route_key === route.operation_ref;
+  const authorized = authorization !== undefined;
   const rule_evidence = deep_freeze([
-    ruleEvidence("P1-OP-103", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
-      { exact_route_key: route.route_key, route_matches_operation: route.route_key === route.operation_ref }),
-    ruleEvidence("P1-OP-104", p0.operation_attempts <= 1 ? "PASS" : "FAIL",
-      route.operation_ref, p0.trace_id, p0.request_id, { operation_attempts: p0.operation_attempts }),
-    // Authorization is Capability-owned; a generic P0 hook snapshot cannot certify business authorization.
-    ruleEvidence("P1-OP-105", "FAIL", route.operation_ref, p0.trace_id, p0.request_id,
-      { authorization_evidence_not_supplied_by_generic_skeleton: true }),
-    ruleEvidence("P1-OP-106", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
-      { outcome_finalized_before_receipt: true }),
-    ruleEvidence("P1-OP-107", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
-      { finalized_outcome_type: outcomeType }),
+    ruleEvidence("P1-OP-103", observedRoute ? "PASS" : "FAIL",
+      route.operation_ref, trace_id, request_id,
+      { route_key: route.route_key, operation_ref: route.operation_ref, exact_route: observedRoute }),
+    ruleEvidence("P1-OP-104", operation_attempts <= 1 ? "PASS" : "FAIL",
+      route.operation_ref, trace_id, request_id, { operation_attempts }),
+    ruleEvidence("P1-OP-105", authorized ? "PASS" : "FAIL",
+      route.operation_ref, trace_id, request_id, {
+        authorization_completed_before_operation_attempt: authorized,
+        policy_refs: authorization?.policy_refs ?? [],
+        authorization_receipt_hash: authorization?.authorization_receipt_hash ?? null,
+        // This is opaque owner-provided evidence, not a synthesized authorization rule.
+        authorization_receipt: authorization?.authorization_receipt ?? null,
+      }),
+    ruleEvidence("P1-OP-106", "PASS",
+      route.operation_ref, trace_id, request_id,
+      { outcome_finalized_before_receipt: true, finalized_outcome_hash: outcome_hash }),
+    ruleEvidence("P1-OP-107", "PASS",
+      route.operation_ref, trace_id, request_id,
+      { receipt_outcome_type: outcome_type, authoritative_outcome_hash: outcome_hash }),
   ]);
   const receipt: P1ExecutionReceipt = deep_freeze({
-    ...base, outcome_type: outcomeType, operation_attempt: p0.operation_attempts,
-    operation_attempts: p0.operation_attempts, hook_evidence: p0.hook_evidence, rule_evidence,
+    operation_ref: route.operation_ref, trace_id, request_id, outcome_type,
+    outcome_hash, operation_attempt: operation_attempts,
+    operation_attempts, hook_evidence, rule_evidence,
   });
   completed_p1_receipts.add(receipt);
   return receipt;
 }
 
-/**
- * P1 PRE_OPERATION validated_context is a route/correlation validation result.
- * The P0 RuntimeContext itself remains P0-owned and is revalidated by P0 M1.
- * No new field, caller-derived route authority or second Runtime is introduced.
- */
+/** P1 owns route/correlation pre-validation; P0 still revalidates the RuntimeContext. */
 function validatedP1Context(
   path: Readonly<BusinessOperationInvokePath>,
   route: Readonly<BusinessOperationRouteBinding>,
@@ -578,12 +650,31 @@ function validatedP1Context(
       "P1 validated_context requires exact derived route, Stage, Operation and invocation correlation",
     );
   }
+  // Snapshot an immutable invocation view, without changing the caller object.
+  const contextSnapshot: RuntimeContext = runtime_context.attributes === undefined
+    ? deep_freeze({ ...runtime_context })
+    : deep_freeze({ ...runtime_context, attributes: { ...runtime_context.attributes } });
   return Object.freeze({
     route_key: route.operation_ref,
     operation_ref: route.operation_ref,
     trace_id: path.trace_id,
     request_id: path.request_id,
-    runtime_context,
+    runtime_context: contextSnapshot,
+  });
+}
+
+function stableP1Outcome(
+  error: unknown,
+  trace_id: string,
+  request_id: string,
+): FinalizedBusinessOperationOutcome {
+  const stable = normalize_runtime_error(error, "P1_OPERATION_ROUTE_MISMATCH");
+  return deep_freeze({
+    outcome_type: "stable_error" as const,
+    stable_error: stable.details === undefined
+      ? { code: stable.code, message: stable.message }
+      : { code: stable.code, message: stable.message, details: stable.details },
+    trace_id, request_id,
   });
 }
 
@@ -593,41 +684,56 @@ export async function invoke_business_operation(
   runtime_context: RuntimeContext,
   hook_binding_set: readonly HookBinding[] = [],
 ): Promise<BusinessOperationOutcome> {
+  let registered: RegisteredBusinessOperation;
+  let validated: ReturnType<typeof validatedP1Context>;
   try {
-    const registered = resolveRegisteredOperationByPath(path);
-    const validated_context = validatedP1Context(path, registered.route, runtime_context);
-    // P1 validated only P1-owned route/identity/correlation; P0 validates and
-    // freezes the existing RuntimeContext at P0_RUNTIME_ENTRY.
-    const p0 = await runtime_provider.invoke({
+    // Route identity and P1 correlation are both resolved BEFORE authorization and P0.
+    registered = resolveRegisteredOperationByPath(path);
+    validated = validatedP1Context(path, registered.route, runtime_context);
+  } catch (error) {
+    // No Operation was resolved: no P0 invocation or invented receipt is possible.
+    return stableP1Outcome(error, path?.trace_id ?? "", path?.request_id ?? "");
+  }
+
+  let authorization: Readonly<AuthorizationEvidence>;
+  try {
+    authorization = await verifyBoundAuthorization(registered, input, validated.runtime_context);
+  } catch (error) {
+    // Before-Operation authorization failure has zero attempts and no fake P0 result.
+    const finalized = stableP1Outcome(error, validated.trace_id, validated.request_id);
+    const execution_receipt = finalizedReceipt(
+      registered.route, finalized, 0, [], undefined,
+    );
+    return deep_freeze({ ...finalized, execution_receipt });
+  }
+
+  try {
+    // The sole P0 Runtime owns Hook ordering, context validation and the attempt.
+    const p0: RuntimeInvokeResult<unknown> = await runtime_provider.invoke({
       stage_extension: registered.stage_extension,
-      runtime_context: validated_context.runtime_context, input,
+      runtime_context: validated.runtime_context,
+      input,
       operation: registered.handler,
       hook_binding_set,
     });
-    const outcomeType: "response" | "stable_error" = p0.outcome === "success" ? "response" : "stable_error";
-    const execution_receipt = finalizedReceipt(registered.route, p0, outcomeType);
-    if (p0.outcome === "success") {
-      return deep_freeze({
-        outcome_type: "response" as const, runtime_result: p0.value,
-        trace_id: p0.trace_id, request_id: p0.request_id, execution_receipt,
-      });
-    }
-    const stable_error: StableRuntimeErrorShape = p0.outcome === "error"
-      ? p0.error
-      : { code: p0.reason, message: "P0 before_process denied the Operation" };
-    return deep_freeze({
-      outcome_type: "stable_error" as const, stable_error,
-      trace_id: p0.trace_id, request_id: p0.request_id, execution_receipt,
-    });
+    // Finalize first, create the P1 execution receipt second, return last.
+    const finalized: FinalizedBusinessOperationOutcome = p0.outcome === "success"
+      ? deep_freeze({
+          outcome_type: "response" as const, runtime_result: p0.value,
+          trace_id: p0.trace_id, request_id: p0.request_id,
+        })
+      : stableP1Outcome(p0.outcome === "error"
+          ? p0.error
+          : new StableRuntimeError("before_process_deny", "P0 before_process denied the Operation"),
+          p0.trace_id, p0.request_id);
+    const execution_receipt = finalizedReceipt(
+      registered.route, finalized, p0.operation_attempts, p0.hook_evidence, authorization,
+    );
+    return deep_freeze({ ...finalized, execution_receipt });
   } catch (error) {
-    const stable = normalize_runtime_error(error, "P1_OPERATION_ROUTE_MISMATCH");
-    return deep_freeze({
-      outcome_type: "stable_error" as const,
-      stable_error: stable.details === undefined
-        ? { code: stable.code, message: stable.message }
-        : { code: stable.code, message: stable.message, details: stable.details },
-      trace_id: path.trace_id, request_id: path.request_id,
-    });
+    // Unexpected provider failure remains a fail-closed P1 error, never an
+    // assertion that a P0 outcome or Operation attempt was observed.
+    return stableP1Outcome(error, validated.trace_id, validated.request_id);
   }
 }
 
