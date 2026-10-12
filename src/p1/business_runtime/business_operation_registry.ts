@@ -870,21 +870,15 @@ export async function consume_business_event(
   }
 }
 
-export interface BusinessRegistryRegistrationOutcome {
-  readonly outcome_type: "registration_receipt" | "stable_error";
-  readonly registration_receipt?: Readonly<{ object_ref: string }>;
-  readonly stable_error?: StableRuntimeErrorShape;
-}
-export interface BusinessRegistryResolutionOutcome {
-  readonly outcome_type: "exact_resolution" | "stable_error";
-  readonly exact_resolution?: BusinessRegistryEntry;
-  readonly stable_error?: StableRuntimeErrorShape;
-}
-export interface BusinessRegistryLookupOutcome {
-  readonly outcome_type: "lookup_result" | "stable_error";
-  readonly lookup_result?: BusinessRegistryEntry | null;
-  readonly stable_error?: StableRuntimeErrorShape;
-}
+export type BusinessRegistryRegistrationOutcome =
+  | Readonly<{ outcome_type: "registration_receipt"; registration_receipt: Readonly<{ object_ref: string }> }>
+  | Readonly<{ outcome_type: "stable_error"; stable_error: StableRuntimeErrorShape }>;
+export type BusinessRegistryResolutionOutcome =
+  | Readonly<{ outcome_type: "exact_resolution"; exact_resolution: BusinessRegistryEntry }>
+  | Readonly<{ outcome_type: "stable_error"; stable_error: StableRuntimeErrorShape }>;
+export type BusinessRegistryLookupOutcome =
+  | Readonly<{ outcome_type: "lookup_result"; lookup_result: BusinessRegistryEntry | null }>
+  | Readonly<{ outcome_type: "stable_error"; stable_error: StableRuntimeErrorShape }>;
 
 export function register_business_object(
   object_ref: string,
@@ -937,12 +931,13 @@ export function lookup_business_object(lookup_query: string): BusinessRegistryLo
   }
 }
 
-export interface BusinessHookBindOutcome {
-  readonly outcome_type: "binding_receipt" | "stable_error";
-  readonly binding_validation?: "validated";
-  readonly binding_receipt?: Readonly<{ binding_ref: string; outcome: "validated"; content_hash: string }>;
-  readonly stable_error?: StableRuntimeErrorShape;
-}
+export type BusinessHookBindOutcome =
+  | Readonly<{
+      outcome_type: "binding_receipt";
+      binding_validation: "validated";
+      binding_receipt: Readonly<{ binding_ref: string; outcome: "validated"; content_hash: string }>;
+    }>
+  | Readonly<{ outcome_type: "stable_error"; stable_error: StableRuntimeErrorShape }>;
 
 /** P1 exposes only the existing P0 public bind method; no second HookAnchor is created. */
 export function bind_business_hook(
@@ -965,13 +960,14 @@ export function bind_business_hook(
   }
 }
 
-export interface BusinessHookEvaluateOutcome {
-  readonly outcome_type: "hook_decision" | "stable_error";
-  readonly hook_decision?: "continue" | "deny" | "recompute";
-  readonly hook_evidence?: readonly HookEvidence[];
-  readonly evidence_ref?: string;
-  readonly stable_error?: StableRuntimeErrorShape;
-}
+export type BusinessHookEvaluateOutcome =
+  | Readonly<{
+      outcome_type: "hook_decision";
+      hook_decision: "continue" | "deny" | "recompute";
+      hook_evidence: readonly HookEvidence[];
+      evidence_ref: string;
+    }>
+  | Readonly<{ outcome_type: "stable_error"; stable_error: StableRuntimeErrorShape }>;
 
 /**
  * P1 exposes the decision already evaluated by P0's internal HookAnchor.
