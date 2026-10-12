@@ -878,3 +878,74 @@ test("V0186 ambiguous static Capability/Operation tuple rejects before P0 even w
   }
   assert.equal(attempts, 0);
 });
+
+
+test("V0186 internal_call resolves exact local_route_key even when public CALL tuple is ambiguous", async () => {
+  const first = projection("internal_exact_version", "internal_exact_version_v1", "CALL", "CALL_INVOKE", "owner_method");
+  const alternate = "Q.TEST.CONTRACT.CAPABILITY.INTERNAL_ALT@V0101";
+  const second = project_p1_capability_general_slots({
+    capability_ref: "Q.TEST.CAPABILITY.INTERNAL_ALT@V0101",
+    capability_id: "example",
+    capability_version: "V0101",
+    capability_contract_ref: alternate,
+    capability_contract_content_hash: `sha256:${"c".repeat(64)}`,
+    stage_contract_ref: P1_CONTRACT_REF,
+    runtime_contract_ref: P0_CONTRACT_REF,
+    operation_id: "internal_exact_version",
+    operation_ref: `${alternate}#/operations/internal_exact_version`,
+    interface_ref: `${alternate}#/interfaces/internal_exact_version_v2`,
+    surface: "CALL",
+    kind: "CALL_INVOKE",
+    method_ref: "owner_method",
+  });
+  let firstCalls = 0;
+  let secondCalls = 0;
+  register_business_operation(first, async () => { firstCalls++; return "one"; });
+  register_business_operation(second, async () => { secondCalls++; return "two"; });
+  const parentContext = context("Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100#/operations/parent", "internal-selected");
+  const outcome = await invoke_internal_call({
+    local_route_key: second.operation_ref.value,
+    input: {},
+    runtime_context: parentContext,
+    call_path: [],
+    call_depth: 0,
+    trace_id: parentContext.trace_id,
+    parent_request_id: "request:parent",
+  });
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type === "response") assert.equal(outcome.runtime_result, "two");
+  assert.equal(firstCalls, 0);
+  assert.equal(secondCalls, 1);
+});
+
+test("V0186 EVENT_CONSUME dispatches by exact registered Interface under ambiguous public CALL tuple", async () => {
+  const first = projection("event_exact_version", "event_exact_version_v1", "EVENT", "EVENT_CONSUME", "consume_business_event");
+  const alternate = "Q.TEST.CONTRACT.CAPABILITY.EVENT_ALT@V0101";
+  const second = project_p1_capability_general_slots({
+    capability_ref: "Q.TEST.CAPABILITY.EVENT_ALT@V0101",
+    capability_id: "example",
+    capability_version: "V0101",
+    capability_contract_ref: alternate,
+    capability_contract_content_hash: `sha256:${"e".repeat(64)}`,
+    stage_contract_ref: P1_CONTRACT_REF,
+    runtime_contract_ref: P0_CONTRACT_REF,
+    operation_id: "event_exact_version",
+    operation_ref: `${alternate}#/operations/event_exact_version`,
+    interface_ref: `${alternate}#/interfaces/event_exact_version_v2`,
+    surface: "EVENT",
+    kind: "EVENT_CONSUME",
+    method_ref: "consume_business_event",
+  });
+  let firstCalls = 0;
+  let secondCalls = 0;
+  register_business_operation(first, async () => { firstCalls++; return "event-one"; });
+  register_business_operation(second, async () => { secondCalls++; return "event-two"; });
+  register_business_event_interface(first);
+  const binding = register_business_event_interface(second);
+  const outcome = await consume_business_event(binding.interface_ref, "subject:bound-version",
+    { unchanged: true }, context(second.operation_ref.value, "event-selected"));
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type === "response") assert.equal(outcome.runtime_result, "event-two");
+  assert.equal(firstCalls, 0);
+  assert.equal(secondCalls, 1);
+});
