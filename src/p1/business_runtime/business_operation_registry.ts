@@ -288,22 +288,17 @@ function createRegisteredStageExtension(
   }
   staticRefList(exactStaticRuntimeSlot(staticSlots, "policy_refs"), "policy_refs");
   const hookBindingRefs = staticRefList(exactStaticRuntimeSlot(staticSlots, "hook_binding_refs"), "hook_binding_refs");
-  const registry = exactStaticRuntimeSlot(staticSlots, "qreg");
-  if (registry === null || typeof registry !== "object" || Array.isArray(registry)) {
-    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "qreg must be an exact static Operation/Interface registry projection");
-  }
-  const qreg = registry as Readonly<Record<string, unknown>>;
-  const operationRefs = staticRefList(qreg.operation_refs, "qreg.operation_refs");
-  const interfaceRefs = staticRefList(qreg.interface_refs, "qreg.interface_refs");
-  if (!operationRefs.includes(exactSlotValue(projection, "operation_ref"))
-    || !interfaceRefs.includes(exactSlotValue(projection, "interface_ref"))) {
-    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID",
-      "P1 qreg must contain the exact bound Operation and Interface refs");
+  // V0186 specifies qreg's source/phase, not an invented qreg JSON member
+  // schema. Keep the exact static projection opaque; derive interface identity
+  // only from the already-validated GENERAL interface_ref Slot.
+  const qreg = exactStaticRuntimeSlot(staticSlots, "qreg");
+  if (qreg === null) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "bound P1 qreg static projection is missing");
   }
   return create_p1_capability_stage_extension({
     general_slots: projection,
     implementation_ref: exactSlotValue(projection, "capability_contract_ref"),
-    provided_interface_refs: interfaceRefs,
+    provided_interface_refs: [exactSlotValue(projection, "interface_ref")],
     hook_binding_refs: hookBindingRefs,
   });
 }
@@ -350,6 +345,8 @@ function registerOperationRoute(
 ): BusinessOperationRouteBinding {
   const existing = operations.get(route.route_key);
   if (existing !== undefined) {
+    // One Operation may own multiple exact Interface identities. The Operation,
+    // Handler, authorization and hook/policy binding must remain unchanged.
     if (
       existing.handler !== handler
       || existing.authorization !== authorization
@@ -357,9 +354,30 @@ function registerOperationRoute(
       || existing.route.capability_id !== route.capability_id
       || existing.route.operation_id !== route.operation_id
       || existing.route.operation_ref !== route.operation_ref
-      || JSON.stringify(existing.stage_extension) !== JSON.stringify(extension)
+      || existing.stage_extension.stage_contract_ref !== extension.stage_contract_ref
+      || existing.stage_extension.implementation_ref !== extension.implementation_ref
+      || JSON.stringify(existing.stage_extension.hook_binding_refs)
+        !== JSON.stringify(extension.hook_binding_refs)
+      || (
+        existing.static_runtime_slots !== undefined && staticSlots !== undefined
+        && JSON.stringify((existing.static_runtime_slots.policy_refs as { value: unknown }).value)
+          !== JSON.stringify((staticSlots.policy_refs as { value: unknown }).value)
+      )
     ) {
       throw new StableRuntimeError("P1_OPERATION_DUPLICATE", "P1-derived route_key already has a different exact Operation binding");
+    }
+    const ifaceRefs = extension.provided_interface_refs.filter(
+      (interfaceRef) => !existing.stage_extension.provided_interface_refs.includes(interfaceRef),
+    );
+    if (ifaceRefs.length > 0) {
+      const stageExtension = deep_freeze({
+        ...existing.stage_extension,
+        provided_interface_refs: [
+          ...existing.stage_extension.provided_interface_refs,
+          ...ifaceRefs,
+        ],
+      });
+      operations.set(route.route_key, deep_freeze({ ...existing, stage_extension: stageExtension }));
     }
     return existing.route;
   }
@@ -879,6 +897,8 @@ export function registered_business_operation_routes(): readonly BusinessOperati
 export function register_business_event_interface(
   general_slots: P1CapabilityGeneralSlotProjection,
 ): BusinessEventInterfaceBinding {
+  // Check the full 13-Slot whitelist, not just event-related field names.
+  exactGeneralSlotProjection(general_slots);
   const capabilityContractRef = exactSlotValue(general_slots, "capability_contract_ref");
   const interfaceRef = exactSlotValue(general_slots, "interface_ref");
   const operationRef = exactSlotValue(general_slots, "operation_ref");
