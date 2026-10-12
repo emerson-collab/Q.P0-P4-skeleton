@@ -60,6 +60,22 @@ export interface BusinessOperationFailure {
 export type BusinessOperationOutcome = BusinessOperationSuccess | BusinessOperationFailure;
 
 export type BusinessOperationHandler = RuntimeOperation<unknown, unknown>;
+
+/**
+ * Implementation-private authorization binding. V0186 requires verified
+ * authorization completion before Operation attempt; the exact business
+ * authorization semantics belong to the bound concrete Operation, not P1.
+ *
+ * The returned authorization_receipt is an opaque governed evidence value
+ * carried in P1 rule_evidence.observation; no new Framework Interface or
+ * DYNAMIC_MOUNT field is created here.
+ */
+export type BusinessOperationAuthorization = (
+  input: unknown,
+  runtime_context: RuntimeContext,
+  policy_refs: readonly string[],
+) => Readonly<{ authorization_receipt: unknown }> | Promise<Readonly<{ authorization_receipt: unknown }>>;
+
 export type BusinessEventInterfaceKind = "EVENT_PUBLISH" | "EVENT_CONSUME";
 
 export interface BusinessOperationRouteBinding {
@@ -179,6 +195,7 @@ export type BusinessEventOutcome = BusinessEventSuccess | BusinessEventFailure;
 interface RegisteredBusinessOperation {
   readonly route: BusinessOperationRouteBinding;
   readonly handler: BusinessOperationHandler;
+  readonly authorization: BusinessOperationAuthorization;
   readonly stage_extension: StageExtensionContract;
   readonly static_runtime_slots?: P1StaticRuntimeSlotProjection;
 }
@@ -326,6 +343,7 @@ function operationRouteFromProjection(
 function registerOperationRoute(
   route: Readonly<BusinessOperationRouteBinding>,
   handler: BusinessOperationHandler,
+  authorization: BusinessOperationAuthorization,
   extension: StageExtensionContract,
   staticSlots?: P1StaticRuntimeSlotProjection,
 ): BusinessOperationRouteBinding {
@@ -333,6 +351,7 @@ function registerOperationRoute(
   if (existing !== undefined) {
     if (
       existing.handler !== handler
+      || existing.authorization !== authorization
       || existing.route.capability_contract_ref !== route.capability_contract_ref
       || existing.route.capability_id !== route.capability_id
       || existing.route.operation_id !== route.operation_id
@@ -345,7 +364,7 @@ function registerOperationRoute(
   }
   const frozenRoute = deep_freeze({ ...route });
   operations.set(frozenRoute.route_key, deep_freeze({
-    route: frozenRoute, handler, stage_extension: extension, ...(staticSlots === undefined ? {} : { static_runtime_slots: staticSlots }),
+    route: frozenRoute, handler, authorization, stage_extension: extension, ...(staticSlots === undefined ? {} : { static_runtime_slots: staticSlots }),
   }));
   return frozenRoute;
 }
@@ -354,7 +373,14 @@ export function register_business_operation(
   general_slots: P1CapabilityGeneralSlotProjection,
   handler: BusinessOperationHandler,
   static_runtime_slots: P1StaticRuntimeSlotProjection,
+  authorization: BusinessOperationAuthorization,
 ): BusinessOperationRouteBinding {
+  if (typeof handler !== "function" || typeof authorization !== "function") {
+    throw new StableRuntimeError(
+      "P1_BINDING_INVALID",
+      "P1 must bind its concrete Operation handler and authorization evaluator before registration",
+    );
+  }
   if (!static_runtime_slots) {
     throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "every concrete Operation requires exact P1 static runtime slots");
   }
@@ -364,7 +390,7 @@ export function register_business_operation(
     kind: exactSlotValue(general_slots, "kind"),
     method_ref: exactSlotValue(general_slots, "method_ref"),
   });
-  return registerOperationRoute(operationRouteFromProjection(general_slots), handler, extension, static_runtime_slots);
+  return registerOperationRoute(operationRouteFromProjection(general_slots), handler, authorization, extension, static_runtime_slots);
 }
 
 /**
@@ -374,7 +400,14 @@ export function register_business_operation(
 export function register_internal_business_operation(
   binding: Readonly<BusinessInternalOperationBinding>,
   handler: BusinessOperationHandler,
+  authorization: BusinessOperationAuthorization,
 ): BusinessOperationRouteBinding {
+  if (typeof handler !== "function" || typeof authorization !== "function") {
+    throw new StableRuntimeError(
+      "P1_BINDING_INVALID",
+      "internal Operation must bind exact handler and authorization evaluator before registration",
+    );
+  }
   const capabilityContractRef = nonEmptyString(binding.capability_contract_ref, "capability_contract_ref");
   const capabilityId = nonEmptyString(binding.capability_id, "capability_id");
   const operationId = nonEmptyString(binding.operation_id, "operation_id");
@@ -406,7 +439,7 @@ export function register_internal_business_operation(
     capability_id: capabilityId,
     operation_id: operationId,
     operation_ref: operationRef,
-  }), handler, extension);
+  }), handler, authorization, extension);
 }
 
 function resolveRegisteredOperationByExactRef(operationRef: string): RegisteredBusinessOperation {
