@@ -90,6 +90,7 @@ export interface P1SourceInterfaceResolution {
   readonly interface_ref: string;
   readonly authorized_source_access_ref: string;
   readonly surface: string;
+  readonly kind_code: string;
   readonly kind: string;
   readonly method_ref: string;
   readonly path: readonly string[];
@@ -207,6 +208,18 @@ const CATEGORY_ACCESS = {
   ],
   RUNTIME: ["ALREADY_PRODUCED_RUNTIME_FACT"],
 } as const satisfies Readonly<Record<GovernedDataCategory, readonly SourceAccessKind[]>>;
+
+/** Exact V0186 Concrete Interface Kind codes, for verifying already-owned facts. */
+const P1_V0186_KIND_CODES = Object.freeze({
+  CALL_INVOKE: "M1",
+  HOOK_BIND: "M2",
+  HOOK_EVALUATE: "M3",
+  EVENT_PUBLISH: "M4",
+  EVENT_CONSUME: "M5",
+  REGISTRY_REGISTER: "M6",
+  REGISTRY_RESOLVE: "M7",
+  REGISTRY_LOOKUP: "M8",
+} as const);
 
 const TRIAD_FILES = Object.freeze({
   STATIC: Object.freeze({
@@ -829,8 +842,10 @@ async function verifyFrozenPreInstanceClosure(
     }
     const expectedAnchorRef =
       `${P1_BUSINESS_RUNTIME_REF}#/concrete_interface_framework_anchor_crosswalk/anchors/${anchor.kind}`;
+    const code = P1_V0186_KIND_CODES[anchor.kind as keyof typeof P1_V0186_KIND_CODES];
     if (
-      source.framework_anchor_binding_ref !== expectedAnchorRef
+      !code || source.kind_code !== code
+      || source.framework_anchor_binding_ref !== expectedAnchorRef
       || execution.p1_interface_anchor_binding_ref !== expectedAnchorRef
     ) {
       throw new GovernedDataProviderRealizationError(
