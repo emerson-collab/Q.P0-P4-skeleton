@@ -293,28 +293,63 @@ function exactCategory(value: unknown): GovernedDataCategory {
   return value;
 }
 
-function canonicalClone(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(canonicalClone);
-  if (value !== null && typeof value === "object") {
-    const source = value as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const key of Object.keys(source).sort()) {
-      const nested = source[key];
-      if (nested === undefined) {
-        throw new GovernedDataProviderRealizationError(
-          "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
-          `undefined JSON member is forbidden: ${key}`,
-        );
-      }
-      out[key] = canonicalClone(nested);
+function canonicalClone(value: unknown, active = new WeakSet<object>()): unknown {
+  if (typeof value === "number" && !Number.isFinite(value)) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
+      "non-finite numbers are not JSON facts and cannot enter a canonical projection",
+    );
+  }
+  if (Array.isArray(value)) {
+    if (active.has(value)) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
+        "cyclic JSON arrays are forbidden in an immutable projection",
+      );
     }
-    return out;
+    active.add(value);
+    try {
+      return value.map(member => canonicalClone(member, active));
+    } finally {
+      active.delete(value);
+    }
+  }
+  if (value !== null && typeof value === "object") {
+    const prototype = Object.getPrototypeOf(value);
+    if (prototype !== Object.prototype && prototype !== null) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
+        "a frozen projection must contain JSON objects, not class or host instances",
+      );
+    }
+    if (active.has(value)) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
+        "cyclic JSON objects are forbidden in an immutable projection",
+      );
+    }
+    active.add(value);
+    try {
+      const source = value as Record<string, unknown>;
+      const out: Record<string, unknown> = Object.create(null) as Record<string, unknown>;
+      for (const key of Object.keys(source).sort()) {
+        const nested = source[key];
+        if (nested === undefined) {
+          throw new GovernedDataProviderRealizationError(
+            "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
+            `undefined JSON member is forbidden: ${key}`,
+          );
+        }
+        out[key] = canonicalClone(nested, active);
+      }
+      return out;
+    } finally {
+      active.delete(value);
+    }
   }
   if (
-    value === undefined
-    || typeof value === "bigint"
-    || typeof value === "function"
-    || typeof value === "symbol"
+    value === undefined || typeof value === "bigint"
+    || typeof value === "function" || typeof value === "symbol"
   ) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_CANONICALIZATION_FAILED",
