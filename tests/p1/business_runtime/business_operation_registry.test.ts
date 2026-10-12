@@ -727,3 +727,49 @@ test("V0186 EVENT must match the registered Operation's exact Capability Contrac
       && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
   );
 });
+
+
+test("V0186 ONE_PER_CAPABILITY fails closed on contradictory identity across Operations", () => {
+  const a = projection("same_capability_a", "same_capability_interface_a", "CALL", "CALL_INVOKE", "owner_method");
+  const b = projection("same_capability_b", "same_capability_interface_b", "CALL", "CALL_INVOKE", "owner_method");
+  register_business_operation(a, async () => ({ ok: true }));
+  const inconsistent = {
+    ...b,
+    capability_version: {
+      slot_ref: b.capability_version.slot_ref,
+      value: "V0101",
+    },
+  } as P1CapabilityGeneralSlotProjection;
+  assert.throws(
+    () => register_concrete_business_operation(
+      inconsistent, async () => ({ ok: true }), exactStaticSlots(b), testAuthorization,
+    ),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+});
+
+test("V0186 one Interface cannot change its preverified Surface/Kind/Method while keeping the same ref", () => {
+  const first = projection(
+    "interface_identity_lock", "interface_identity_lock",
+    "EVENT", "EVENT_CONSUME", "consume_business_event",
+  );
+  const changed = projection(
+    "interface_identity_lock", "interface_identity_lock",
+    "EVENT", "EVENT_PUBLISH", "publish_business_event",
+  );
+  const handler: BusinessOperationHandler = async () => ({ ok: true });
+  register_concrete_business_operation(first, handler, exactStaticSlots(first), testAuthorization);
+  assert.throws(
+    () => register_concrete_business_operation(
+      changed, handler, exactStaticSlots(changed), testAuthorization,
+    ),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+  assert.throws(
+    () => register_business_event_interface(changed),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
+  );
+});
