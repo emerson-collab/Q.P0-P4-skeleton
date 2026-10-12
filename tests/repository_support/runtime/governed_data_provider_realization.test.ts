@@ -687,3 +687,43 @@ test("V0117 source-access authorization must come from the exact owner binding",
   );
   assert.deepEqual(events, []);
 });
+
+test("V0117 rejects source Surface/Kind drift and duplicate interface-layer fields", async () => {
+  const b = binding("STATIC", "surface-layer");
+  for (const [options, code] of [
+    [{ wrong_surface_kind: true }, "RDS_GOVERNED_DATA_SOURCE_ANCHOR_INVALID"],
+    [{ overlapping_layers: true }, "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH"],
+  ] as const) {
+    const events: string[] = [];
+    await assert.rejects(
+      () => realizeWithExactAuthorities({
+        p2_handoff_obligation: p2Handoff([b]),
+        ...frozenV0117Projection([b]),
+        governed_data_json_triad_obligation: triadObligation(),
+        binding_executions: [execution(b)],
+      }, materializer([]), memoryStore(events), frozenAuthorities([b], options)),
+      (err: unknown) => err instanceof GovernedDataProviderRealizationError
+        && err.code === code,
+    );
+    assert.deepEqual(events, []);
+  }
+});
+
+test("V0117 one source Interface cannot be reclassified across P2 categories", async () => {
+  const dynamic = binding("DYNAMIC", "category-d");
+  const source = binding("STATIC", "category-s");
+  const duplicate = Object.freeze({ ...source, source_interface_ref: dynamic.source_interface_ref });
+  const bindings = [dynamic, duplicate];
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeGovernedDataTriad({
+      p2_handoff_obligation: p2Handoff(bindings),
+      ...frozenV0117Projection(bindings),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(dynamic), execution(duplicate)],
+    }, materializer([]), memoryStore(events)),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_SOURCE_INTERFACE_CATEGORY_CONFLICT",
+  );
+  assert.deepEqual(events, []);
+});
