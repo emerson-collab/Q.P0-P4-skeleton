@@ -213,7 +213,8 @@ function frozenAuthorities(
           ? `${CAPABILITY_CONTRACT_REF}#/sources/not_authorized`
           : ownerBinding.source_access_ref,
         verified_members: options.wrong_member_lineage
-          ? [{ ...ownerBinding.members[0], source_fact_authority_ref: "Q.TEST.WRONG@V0100" }]
+          ? ownerBinding.members.map((m, i) =>
+              i === 0 ? { ...m, source_fact_authority_ref: "Q.TEST.WRONG@V0100" } : m)
           : ownerBinding.members,
         surface: options.wrong_surface_kind ? "REGISTRY" : "CALL",
         kind_code: "M1",
