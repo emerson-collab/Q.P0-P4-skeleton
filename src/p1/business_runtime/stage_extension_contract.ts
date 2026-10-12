@@ -231,6 +231,13 @@ function required(value: string, field: string): string {
 export function project_p1_capability_general_slots(
   facts: Readonly<P1CapabilityGeneralFacts>,
 ): P1CapabilityGeneralSlotProjection {
+  const suppliedKeys = Object.keys(facts);
+  if (
+    suppliedKeys.length !== P1_CAPABILITY_GENERAL_SLOT_IDS.length
+    || suppliedKeys.some((key) => !P1_CAPABILITY_GENERAL_SLOT_IDS.includes(key as P1CapabilityGeneralSlotId))
+  ) {
+    throw new TypeError("P1 GENERAL export must contain exactly the 13 predeclared V0186 facts, with no inferred extras");
+  }
   for (const slotId of P1_CAPABILITY_GENERAL_SLOT_IDS) required(facts[slotId], slotId);
 
   if (!exact_ref(facts.capability_ref)) {
@@ -297,7 +304,7 @@ function assertExactSlot(
   slotId: P1CapabilityGeneralSlotId,
 ): string {
   const binding = projection[slotId];
-  if (binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
+  if (!binding || binding.slot_ref !== P1_CAPABILITY_GENERAL_SLOT_REFS[slotId]) {
     throw new TypeError(`${slotId} must bind its exact predeclared P1 V0186 slot_ref`);
   }
   return required(binding.value, slotId);
@@ -306,6 +313,13 @@ function assertExactSlot(
 export function create_p1_capability_stage_extension(
   binding: P1CapabilityOverlayBinding,
 ): StageExtensionContract {
+  const suppliedKeys = Object.keys(binding.general_slots);
+  if (
+    suppliedKeys.length !== P1_CAPABILITY_GENERAL_SLOT_IDS.length
+    || suppliedKeys.some((key) => !P1_CAPABILITY_GENERAL_SLOT_IDS.includes(key as P1CapabilityGeneralSlotId))
+  ) {
+    throw new TypeError("P1 GENERAL overlay must bind exactly the 13 predeclared V0186 slot identities");
+  }
   const capabilityContractRef = assertExactSlot(binding.general_slots, "capability_contract_ref");
   const interfaceRef = assertExactSlot(binding.general_slots, "interface_ref");
   assertExactSlot(binding.general_slots, "operation_ref");
