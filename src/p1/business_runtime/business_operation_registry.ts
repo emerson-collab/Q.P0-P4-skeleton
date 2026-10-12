@@ -729,12 +729,6 @@ export function register_business_event_interface(
       "EVENT Interface/Operation tuple must match one predeclared static P1 registry binding",
     );
   }
-  if (registeredOperation.route.capability_contract_ref !== capabilityContractRef) {
-    throw new StableRuntimeError(
-      "P1_EVENT_BINDING_INVALID",
-      "EVENT Interface and Operation must resolve inside the same exact Capability Contract",
-    );
-  }
   if (surface !== "EVENT") {
     throw new StableRuntimeError("P1_EVENT_BINDING_INVALID", "EVENT binding surface must equal EVENT");
   }
