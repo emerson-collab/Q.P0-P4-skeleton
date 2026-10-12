@@ -509,6 +509,8 @@ function registerOperationRoute(
           : deep_freeze([...existing.interface_bindings, interfaceIdentity]);
       operations.set(route.route_key, deep_freeze({
         ...existing, stage_extension: stageExtension, interface_bindings: interfaceBindings,
+        ...(existing.capability_identity === undefined && capabilityIdentity !== undefined
+          ? { capability_identity: capabilityIdentity } : {}),
       }));
     }
     return existing.route;
