@@ -1311,9 +1311,11 @@ export async function publish_business_event(
     });
   } catch (error) {
     return deep_freeze({
-      outcome_type: "stable_error" as const, subject_ref,
+      outcome_type: "stable_error" as const,
+      subject_ref: typeof subject_ref === "string" ? subject_ref : "",
       stable_error: exactEventError(error),
-      trace_id: runtime_context.trace_id, request_id: runtime_context.request_id,
+      trace_id: typeof runtime_context?.trace_id === "string" ? runtime_context.trace_id : "",
+      request_id: typeof runtime_context?.request_id === "string" ? runtime_context.request_id : "",
     });
   }
 }
@@ -1352,9 +1354,11 @@ export async function consume_business_event(
     });
   } catch (error) {
     return deep_freeze({
-      outcome_type: "stable_error" as const, subject_ref,
+      outcome_type: "stable_error" as const,
+      subject_ref: typeof subject_ref === "string" ? subject_ref : "",
       stable_error: exactEventError(error),
-      trace_id: runtime_context.trace_id, request_id: runtime_context.request_id,
+      trace_id: typeof runtime_context?.trace_id === "string" ? runtime_context.trace_id : "",
+      request_id: typeof runtime_context?.request_id === "string" ? runtime_context.request_id : "",
     });
   }
 }
