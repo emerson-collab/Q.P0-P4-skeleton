@@ -395,7 +395,7 @@ function validateHandoffBinding(value: unknown): GovernedDataHandoffBinding {
       ),
     });
   });
-  const canonicalMemberRefs = [...memberRefs].sort((left, right) => left.localeCompare(right));
+  const canonicalMemberRefs = [...memberRefs].sort((left, right) => left < right ? -1 : left > right ? 1 : 0);
   if (members.some((member, index) => member.member_ref !== canonicalMemberRefs[index])) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_BINDING_ORDER_INVALID",
@@ -443,6 +443,12 @@ function validateP2HandoffObligation(
     value.source_capability_contract_hash,
     "p2_handoff_obligation.source_capability_contract_hash",
   );
+  if (!exact_ref(capabilityContractRef) || capabilityContractRef.includes("#/")) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_SOURCE_IDENTITY_INVALID",
+      "V0117 requires an exact versioned owner Capability Contract identity",
+    );
+  }
   if (value.exact_current_p2_ref !== P2_CONTRACT_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_AUTHORITY_MISMATCH",
@@ -492,8 +498,30 @@ function validateP2HandoffObligation(
   }
 
   const refs = new Set<string>();
+  const sourceInterfaceCategories = new Map<string, GovernedDataCategory>();
   const bindings = bindingValues.map(validateHandoffBinding);
   for (const binding of bindings) {
+    for (const [key, ref] of [
+      ["source_operation_ref", binding.source_operation_ref],
+      ["source_interface_ref", binding.source_interface_ref],
+    ] as const) {
+      const collection = key === "source_operation_ref" ? "operations" : "interfaces";
+      const prefix = `${capabilityContractRef}#/${collection}/`;
+      if (!exact_ref(ref) || !ref.startsWith(prefix) || ref.length <= prefix.length) {
+        throw new GovernedDataProviderRealizationError(
+          "RDS_GOVERNED_DATA_SOURCE_IDENTITY_INVALID",
+          `${binding.binding_ref} must bind an exact ${collection} member of the owner Capability Contract`,
+        );
+      }
+    }
+    const category = sourceInterfaceCategories.get(binding.source_interface_ref);
+    if (category !== undefined && category !== binding.data_category) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_SOURCE_INTERFACE_CATEGORY_CONFLICT",
+        "V0117 forbids one concrete source Interface in multiple governed-data categories",
+      );
+    }
+    sourceInterfaceCategories.set(binding.source_interface_ref, binding.data_category);
     if (refs.has(binding.binding_ref)) {
       throw new GovernedDataProviderRealizationError(
         "RDS_GOVERNED_DATA_BINDING_INVALID",
@@ -506,7 +534,7 @@ function validateP2HandoffObligation(
   const canonicalBindingRefs = bindings
     .map((binding) => binding.binding_ref)
     .slice()
-    .sort((left, right) => left.localeCompare(right));
+    .sort((left, right) => left < right ? -1 : left > right ? 1 : 0);
   if (bindings.some((binding, index) => binding.binding_ref !== canonicalBindingRefs[index])) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_BINDING_ORDER_INVALID",
@@ -799,6 +827,9 @@ async function executeBinding(
 function projectBinding(binding: GovernedDataHandoffBinding): StaticJsonObject {
   return Object.freeze({
     binding_ref: binding.binding_ref,
+    data_category: binding.data_category,
+    source_operation_ref: binding.source_operation_ref,
+    source_interface_ref: binding.source_interface_ref,
     source_access_kind: binding.source_access_kind,
     source_access_ref: binding.source_access_ref,
     members: Object.freeze(
