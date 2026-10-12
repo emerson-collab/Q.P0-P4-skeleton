@@ -827,3 +827,54 @@ test("V0186 missing authorization receipt prevents both Hook dispatch and Operat
   assert.equal(attempts, 0);
   assert.equal(hooks, 0);
 });
+
+
+test("V0186 caller route_key cannot select a different registered Operation", async () => {
+  const a = projection("route_owned_a", "route_owned_a", "CALL", "CALL_INVOKE", "owner_method");
+  const b = projection("route_owned_b", "route_owned_b", "CALL", "CALL_INVOKE", "owner_method");
+  let attempts = 0;
+  register_business_operation(a, async () => { attempts++; return "A"; });
+  register_business_operation(b, async () => { attempts++; return "B"; });
+  const path = {
+    ...invokePath(a.operation_ref.value, "route_owned_a", "route-owned"),
+    route_key: b.operation_ref.value,
+  };
+  const outcome = await invoke_business_operation(path, {}, context(a.operation_ref.value, "route-owned"));
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type === "stable_error") {
+    assert.equal(outcome.stable_error.code, "P1_OPERATION_ROUTE_MISMATCH");
+  }
+  assert.equal(attempts, 0);
+});
+
+test("V0186 ambiguous static Capability/Operation tuple rejects before P0 even with a carried route", async () => {
+  const first = projection("ambiguous_version_op", "ambiguous_version_iface", "CALL", "CALL_INVOKE", "owner_method");
+  const otherContract = "Q.TEST.CONTRACT.CAPABILITY.ALTERNATIVE@V0101";
+  const second = project_p1_capability_general_slots({
+    capability_ref: "Q.TEST.CAPABILITY.ALTERNATIVE@V0101",
+    capability_id: "example",
+    capability_version: "V0101",
+    capability_contract_ref: otherContract,
+    capability_contract_content_hash: `sha256:${"d".repeat(64)}`,
+    stage_contract_ref: P1_CONTRACT_REF,
+    runtime_contract_ref: P0_CONTRACT_REF,
+    operation_id: "ambiguous_version_op",
+    operation_ref: `${otherContract}#/operations/ambiguous_version_op`,
+    interface_ref: `${otherContract}#/interfaces/ambiguous_version_iface`,
+    surface: "CALL",
+    kind: "CALL_INVOKE",
+    method_ref: "owner_method",
+  });
+  let attempts = 0;
+  register_business_operation(first, async () => { attempts++; return 1; });
+  register_business_operation(second, async () => { attempts++; return 2; });
+  const outcome = await invoke_business_operation(
+    invokePath(first.operation_ref.value, "ambiguous_version_op", "ambiguous"),
+    {}, context(first.operation_ref.value, "ambiguous"),
+  );
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type === "stable_error") {
+    assert.equal(outcome.stable_error.code, "P1_OPERATION_ROUTE_MISMATCH");
+  }
+  assert.equal(attempts, 0);
+});
