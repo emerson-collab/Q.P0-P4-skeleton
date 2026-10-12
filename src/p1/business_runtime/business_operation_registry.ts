@@ -888,20 +888,30 @@ function stableP1Outcome(
   });
 }
 
-export async function invoke_business_operation(
+/**
+ * Single P1 execution implementation for an Operation already verified by its
+ * owning Framework path. CALL resolves by Capability+Operation; internal CALL
+ * resolves exact local_route_key; EVENT resolves the verified Interface binding.
+ * All paths still invoke only the existing P0 RuntimeProvider M1 once.
+ */
+async function invokeResolvedOperation(
+  registered: RegisteredBusinessOperation,
   path: Readonly<BusinessOperationInvokePath>,
   input: unknown,
   runtime_context: RuntimeContext,
-  hook_binding_set: readonly HookBinding[] = [],
+  hook_binding_set: readonly HookBinding[],
 ): Promise<BusinessOperationOutcome> {
-  let registered: RegisteredBusinessOperation;
   let validated: ReturnType<typeof validatedP1Context>;
   try {
-    // Route identity and P1 correlation are both resolved BEFORE authorization and P0.
-    registered = resolveRegisteredOperationByPath(path);
+    if (
+      path.capability_id !== registered.route.capability_id
+      || path.operation_id !== registered.route.operation_id
+      || path.route_key !== registered.route.operation_ref
+    ) {
+      throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "Resolved P1 Operation does not match its exact dispatch tuple");
+    }
     validated = validatedP1Context(path, registered.route, runtime_context);
   } catch (error) {
-    // No Operation was resolved: no P0 invocation or invented receipt is possible.
     return stableP1Outcome(error, path?.trace_id ?? "", path?.request_id ?? "");
   }
 
@@ -950,6 +960,21 @@ export async function invoke_business_operation(
     // Unexpected provider failure remains a fail-closed P1 error, never an
     // assertion that a P0 outcome or Operation attempt was observed.
     return stableP1Outcome(error, validated.trace_id, validated.request_id);
+  }
+}
+
+export async function invoke_business_operation(
+  path: Readonly<BusinessOperationInvokePath>,
+  input: unknown,
+  runtime_context: RuntimeContext,
+  hook_binding_set: readonly HookBinding[] = [],
+): Promise<BusinessOperationOutcome> {
+  try {
+    // The carried route_key is checked but never selects the Operation.
+    const registered = resolveRegisteredOperationByPath(path);
+    return await invokeResolvedOperation(registered, path, input, runtime_context, hook_binding_set);
+  } catch (error) {
+    return stableP1Outcome(error, path?.trace_id ?? "", path?.request_id ?? "");
   }
 }
 
@@ -1045,7 +1070,8 @@ export async function invoke_internal_call(
       stage_contract_ref: P1_CONTRACT_REF,
       operation_ref: registered.route.operation_ref,
     });
-    const outcome = await invoke_business_operation(
+    const outcome = await invokeResolvedOperation(
+      registered,
       {
         route_key: registered.route.operation_ref,
         capability_id: registered.route.capability_id,
@@ -1296,7 +1322,7 @@ export async function consume_business_event(
     const binding = resolve_business_event_interface(interface_ref, "EVENT_CONSUME");
     const subjectRef = nonEmptyString(subject_ref, "subject_ref");
     const registered = resolveRegisteredOperationByExactRef(binding.operation_ref);
-    const outcome = await invoke_business_operation({
+    const outcome = await invokeResolvedOperation(registered, {
       route_key: registered.route.operation_ref,
       capability_id: registered.route.capability_id,
       operation_id: registered.route.operation_id,
