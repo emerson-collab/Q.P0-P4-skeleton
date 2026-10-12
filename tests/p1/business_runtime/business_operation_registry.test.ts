@@ -62,7 +62,7 @@ function exactStaticSlots(
 ): P1StaticRuntimeSlotProjection {
   return Object.freeze({
     manifest: { slot_ref: P1_RUNTIME_SLOT_REFS.manifest, value: { capability_ref: slots.capability_ref.value } },
-    qreg: { slot_ref: P1_RUNTIME_SLOT_REFS.qreg, value: { operation_ref: slots.operation_ref.value, interface_ref: slots.interface_ref.value } },
+    qreg: { slot_ref: P1_RUNTIME_SLOT_REFS.qreg, value: { operation_refs: [slots.operation_ref.value], interface_refs: [slots.interface_ref.value] } },
     qconfig: { slot_ref: P1_RUNTIME_SLOT_REFS.qconfig, value: {} },
     operation_contract: { slot_ref: P1_RUNTIME_SLOT_REFS.operation_contract, value: slots.operation_ref.value },
     policy_refs: { slot_ref: P1_RUNTIME_SLOT_REFS.policy_refs, value: [] },
