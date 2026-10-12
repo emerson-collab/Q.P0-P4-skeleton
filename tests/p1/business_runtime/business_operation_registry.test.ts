@@ -405,3 +405,123 @@ test("P1 registers internal-only Operation without inventing an Interface", asyn
   });
   assert.equal(attempts, 1);
 });
+
+test("P1 refuses field-name-only static Runtime Slot bindings", () => {
+  const slots = projection("slot_drift", "slot_drift", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const proper = exactStaticSlots(slots);
+  const invalid = {
+    ...proper,
+    operation_contract: { slot_ref: "operation_contract", value: slots.operation_ref.value },
+  } as typeof proper;
+  assert.throws(
+    () => register_concrete_business_operation(slots, async () => undefined, invalid),
+    (error: unknown) => error instanceof Error && "code" in error &&
+      (error as {code:string}).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+});
+
+function governedHookBinding(
+  bindingRef: string,
+  consumerRef: string,
+  decision: "continue" | "deny",
+): HookBinding {
+  return {
+    binding_ref: bindingRef,
+    canonical_name: "governed_test_hook",
+    hook_point_ref: "before_process",
+    consumer_ref: consumerRef,
+    consumer_contract_ref: CAPABILITY_CONTRACT_REF,
+    provider_bind_interface_ref: P0_BIND_INTERFACE_REF,
+    provider_evaluate_interface_ref: P0_EVALUATE_INTERFACE_REF,
+    allowed_decision_subset: ["continue", "deny"],
+    order: 0,
+    enabled_rule_ref: "Q.TEST.RULE.HOOK@V0100",
+    enabled: true,
+    status: "active",
+    rule_version_ref: "Q.TEST.RULE.HOOK@V0100",
+    consumer: {
+      consumer_ref: consumerRef,
+      evaluate: async () => ({ decision }),
+    },
+  };
+}
+
+test("P1 Hook bind and evaluate project P0-owned Hook facts without direct evaluate calls", async () => {
+  const slots = projection("hook_enabled", "hook_enabled", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const opRef = slots.operation_ref.value;
+  const b = governedHookBinding("Q.TEST.HOOK.BINDING@V0100", "Q.TEST.HOOK.CONSUMER@V0100", "continue");
+  const bound = bind_business_hook(b.hook_point_ref, b.consumer_ref, b);
+  assert.equal(bound.outcome_type, "binding_receipt");
+  if (bound.outcome_type !== "binding_receipt") return;
+  assert.equal(bound.binding_receipt.outcome, "validated");
+  register_business_operation(slots, async () => ({ accepted: true }), [b.binding_ref]);
+  const outcome = await invoke_business_operation(invokePath(opRef, "hook_enabled", "hook-enabled"),
+    { scoped: true }, context(opRef, "hook-enabled"), [b]);
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type !== "response") return;
+  const hook = evaluate_business_hook(b.hook_point_ref, b.consumer_ref, outcome.trace_id, outcome.request_id, outcome.execution_receipt);
+  assert.equal(hook.outcome_type, "hook_decision");
+  if (hook.outcome_type === "hook_decision") {
+    assert.equal(hook.hook_decision, "continue");
+    assert.equal(hook.hook_evidence.length, 1);
+    assert.match(hook.evidence_ref, /^sha256:[a-f0-9]{64}$/);
+  }
+});
+
+test("P0 before_process deny is fail-closed with zero P1 Operation attempts", async () => {
+  const slots = projection("before_deny", "before_deny", "CALL", "CALL_INVOKE", "invoke_business_operation");
+  const opRef = slots.operation_ref.value;
+  const b = governedHookBinding("Q.TEST.HOOK.DENY@V0100", "Q.TEST.HOOK.DENY_CONSUMER@V0100", "deny");
+  let attempts = 0;
+  register_business_operation(slots, async () => { attempts++; return "must-not-run"; }, [b.binding_ref]);
+  const outcome = await invoke_business_operation(invokePath(opRef, "before_deny", "deny"),
+    {}, context(opRef, "deny"), [b]);
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type !== "stable_error") return;
+  assert.equal(outcome.stable_error.code, "before_process_deny");
+  assert.equal(outcome.execution_receipt?.operation_attempts, 0);
+  assert.equal(attempts, 0);
+});
+
+test("P1 REGISTRY returns exact discriminated register/resolve/lookup outcomes", () => {
+  const ref = "Q.TEST.REGISTRY.OBJECT@V0100";
+  const object_contract = Object.freeze({ ref });
+  const registry_rule = Object.freeze({ enabled: true });
+  const registered = register_business_object(ref, object_contract, registry_rule);
+  assert.equal(registered.outcome_type, "registration_receipt");
+  if (registered.outcome_type === "registration_receipt") assert.equal(registered.registration_receipt.object_ref, ref);
+  const resolved = resolve_business_object(ref);
+  assert.equal(resolved.outcome_type, "exact_resolution");
+  if (resolved.outcome_type === "exact_resolution") {
+    assert.equal(resolved.exact_resolution.object_contract, object_contract);
+  }
+  const lookedUp = lookup_business_object(ref);
+  assert.equal(lookedUp.outcome_type, "lookup_result");
+  if (lookedUp.outcome_type === "lookup_result") assert.equal(lookedUp.lookup_result?.object_ref, ref);
+  const absent = lookup_business_object("Q.TEST.REGISTRY.ABSENT@V0100");
+  assert.equal(absent.outcome_type, "lookup_result");
+  if (absent.outcome_type === "lookup_result") assert.equal(absent.lookup_result, null);
+  const unresolved = resolve_business_object("Q.TEST.REGISTRY.ABSENT@V0100");
+  assert.equal(unresolved.outcome_type, "stable_error");
+});
+
+test("P1 dependency_invoke preserves the existing declared client's StableError outcome", async () => {
+  const clientOutcome = Object.freeze({
+    outcome_type: "stable_error" as const,
+    stable_error: Object.freeze({ code: "DECLARED_DEPENDENCY_DENIED", message: "exact provider failure" }),
+    trace_id: "trace:dependency",
+    request_id: "request:dependency",
+  });
+  register_business_dependency_client({
+    local_dependency_id: "exact_dependency",
+    dependency_contract_ref: "Q.TEST.CONTRACT.DEPENDENCY@V0100",
+    dependency_client_ref: "Q.TEST.CLIENT.DEPENDENCY@V0100",
+    dependency_binding_ref: "Q.TEST.BINDING.DEPENDENCY@V0100",
+    invoke: async () => clientOutcome,
+  });
+  const observed = await invoke_dependency("exact_dependency", { unchanged: true },
+    {}, "trace:dependency", "request:dependency");
+  assert.equal(observed, clientOutcome);
+  const missing = await invoke_dependency("unbound_dependency", {}, {}, "trace:dependency", "request:dependency");
+  assert.equal(missing.outcome_type, "stable_error");
+});
