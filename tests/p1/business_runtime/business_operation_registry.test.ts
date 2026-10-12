@@ -692,3 +692,38 @@ test("V0186 one concrete Interface must not bind two different Operations", () =
       && (error as {code:string}).code === "P1_OPERATION_DUPLICATE",
   );
 });
+
+
+test("V0186 GENERAL SlotRef cannot disguise wrong P0 Runtime Contract value", () => {
+  const slots = projection("wrong_runtime_contract", "wrong_runtime_contract", "CALL", "CALL_INVOKE", "owner_method");
+  const invalid = {
+    ...slots,
+    runtime_contract_ref: {
+      slot_ref: slots.runtime_contract_ref.slot_ref,
+      value: "Q.TEST.UNAUTHORIZED.RUNTIME@V0100",
+    },
+  } as P1CapabilityGeneralSlotProjection;
+  assert.throws(
+    () => register_concrete_business_operation(invalid, async () => undefined,
+      exactStaticSlots(slots), testAuthorization),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_OVERLAY_SLOT_INVALID",
+  );
+});
+
+test("V0186 EVENT must match the registered Operation's exact Capability Contract content hash", () => {
+  const source = projection("event_hash_identity", "event_hash_identity", "EVENT", "EVENT_CONSUME", "consume_business_event");
+  register_business_operation(source, async () => ({ result: true }));
+  const forged = {
+    ...source,
+    capability_contract_content_hash: {
+      slot_ref: source.capability_contract_content_hash.slot_ref,
+      value: `sha256:${"c".repeat(64)}`,
+    },
+  } as P1CapabilityGeneralSlotProjection;
+  assert.throws(
+    () => register_business_event_interface(forged),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
+  );
+});
