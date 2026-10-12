@@ -1370,11 +1370,20 @@ export function lookup_business_object(lookup_query: string): BusinessRegistryLo
   }
 }
 
+/** Consuming-stage evidence only; never a P0-issued binding lifecycle receipt. */
+export interface P1HookBindingReceipt {
+  readonly binding_ref: string;
+  readonly exact_source_refs: readonly string[];
+  readonly input_hashes: Readonly<Record<string, string>>;
+  readonly result: "validated";
+  readonly executed_at: string;
+}
+
 export type BusinessHookBindOutcome =
   | Readonly<{
       outcome_type: "binding_receipt";
       binding_validation: "validated";
-      binding_receipt: Readonly<{ binding_ref: string; outcome: "validated"; content_hash: string }>;
+      binding_receipt: P1HookBindingReceipt;
     }>
   | Readonly<{ outcome_type: "stable_error"; stable_error: StableRuntimeErrorShape }>;
 
@@ -1389,10 +1398,25 @@ export function bind_business_hook(
       throw new StableRuntimeError("P1_BINDING_INVALID", "P1 Hook identity must exactly match its declared P0 HookBinding");
     }
     const result = runtime_provider.bind({ binding });
+    // P0 M2 validates only. P1, as the consuming stage, creates a distinct
+    // immutable outer-boundary receipt for governed storage; P0 persists nothing.
+    const binding_receipt: P1HookBindingReceipt = deep_freeze({
+      binding_ref: result.binding_ref,
+      exact_source_refs: [
+        binding.binding_ref,
+        binding.consumer_ref,
+        binding.consumer_contract_ref,
+        binding.enabled_rule_ref,
+        binding.provider_bind_interface_ref,
+      ],
+      input_hashes: { binding: result.content_hash },
+      result: result.outcome,
+      executed_at: new Date().toISOString(),
+    });
     return deep_freeze({
       outcome_type: "binding_receipt" as const,
       binding_validation: result.outcome,
-      binding_receipt: result,
+      binding_receipt,
     });
   } catch (error) {
     return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error, "P1_BINDING_INVALID") });
