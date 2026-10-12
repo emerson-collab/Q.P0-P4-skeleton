@@ -206,6 +206,7 @@ function frozenAuthorities(
           ? `${CAPABILITY_CONTRACT_REF}#/sources/not_authorized`
           : ownerBinding.source_access_ref,
         surface: options.wrong_surface_kind ? "REGISTRY" : "CALL",
+        kind_code: "M1",
         kind: "CALL_INVOKE", method_ref: "read_owner_fact",
         path: Object.freeze(["operation_id", "trace_id", "request_id"]),
         static_mount: Object.freeze(["operation_contract"]),
