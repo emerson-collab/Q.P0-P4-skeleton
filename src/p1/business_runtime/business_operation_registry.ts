@@ -1007,3 +1007,79 @@ export function evaluate_business_hook(
     return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
   }
 }
+
+/**
+ * V0186 dependency_invoke is a P1-internal framework path, not a concrete
+ * Capability CALL_INVOKE anchor. The existing declared dependency client owns
+ * provider Q Interface semantics; this registry neither translates them nor
+ * creates another Runtime or a second protocol.
+ */
+export interface P1DependencyClientRequest {
+  readonly input: unknown;
+  readonly context: unknown;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export interface P1DependencyClientBinding {
+  readonly local_dependency_id: string;
+  readonly dependency_contract_ref: string;
+  readonly dependency_client_ref: string;
+  readonly dependency_binding_ref: string;
+  readonly invoke: (request: Readonly<P1DependencyClientRequest>) =>
+    BusinessOperationOutcome | Promise<BusinessOperationOutcome>;
+}
+
+const p1_dependency_clients = new Map<string, P1DependencyClientBinding>();
+
+export function register_business_dependency_client(binding: P1DependencyClientBinding): void {
+  const id = nonEmptyString(binding.local_dependency_id, "local_dependency_id");
+  for (const [field, ref] of [
+    ["dependency_contract_ref", binding.dependency_contract_ref],
+    ["dependency_client_ref", binding.dependency_client_ref],
+    ["dependency_binding_ref", binding.dependency_binding_ref],
+  ] as const) {
+    if (!exact_ref(ref)) throw new StableRuntimeError("P1_BINDING_INVALID", `${field} must be one exact declared ref`);
+  }
+  if (typeof binding.invoke !== "function") {
+    throw new StableRuntimeError("P1_BINDING_INVALID", "the exact dependency client must expose its existing invoke implementation");
+  }
+  if (p1_dependency_clients.has(id)) {
+    throw new StableRuntimeError("P1_BINDING_INVALID", "duplicate declared local_dependency_id is forbidden");
+  }
+  p1_dependency_clients.set(id, deep_freeze({ ...binding }));
+}
+
+export async function invoke_dependency(
+  local_dependency_id: string,
+  input: unknown,
+  context: unknown,
+  trace_id: string,
+  request_id: string,
+): Promise<BusinessOperationOutcome> {
+  try {
+    const id = nonEmptyString(local_dependency_id, "local_dependency_id");
+    const traceId = nonEmptyString(trace_id, "trace_id");
+    const requestId = nonEmptyString(request_id, "request_id");
+    const binding = p1_dependency_clients.get(id);
+    if (binding === undefined) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "local_dependency_id has no exact registered P1 dependency client");
+    }
+    // Preserve the owning client's exact Q Interface response/error envelope.
+    const outcome = await binding.invoke({ input, context, trace_id: traceId, request_id: requestId });
+    if (
+      (outcome?.outcome_type !== "response" && outcome?.outcome_type !== "stable_error")
+      || outcome.trace_id !== traceId || outcome.request_id !== requestId
+      || (outcome.outcome_type === "response" && !("runtime_result" in outcome))
+      || (outcome.outcome_type === "stable_error" && !("stable_error" in outcome))
+    ) {
+      throw new StableRuntimeError("P1_BINDING_INVALID", "dependency client returned an invalid Q outcome or correlation");
+    }
+    return outcome;
+  } catch (error) {
+    const stable_error = exactEventError(error);
+    return deep_freeze({
+      outcome_type: "stable_error" as const, stable_error, trace_id, request_id,
+    });
+  }
+}
