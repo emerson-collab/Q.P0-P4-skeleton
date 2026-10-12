@@ -461,7 +461,11 @@ function canonicalEvidenceJson(value: unknown): string {
     }
     return input;
   };
-  return JSON.stringify(sorted(value));
+  const encoded = JSON.stringify(sorted(value));
+  if (typeof encoded !== "string") {
+    throw new StableRuntimeError("P1_BINDING_INVALID", "Rule evidence requires canonical JSON material");
+  }
+  return encoded;
 }
 
 function ruleEvidence(
@@ -714,6 +718,17 @@ export function register_business_event_interface(
   }
 
   const registeredOperation = resolveRegisteredOperationByExactRef(operationRef);
+  if (
+    registeredOperation.route.capability_contract_ref !== capabilityContractRef
+    || registeredOperation.route.capability_id !== exactSlotValue(general_slots, "capability_id")
+    || registeredOperation.route.operation_id !== exactSlotValue(general_slots, "operation_id")
+    || !registeredOperation.stage_extension.provided_interface_refs.includes(interfaceRef)
+  ) {
+    throw new StableRuntimeError(
+      "P1_EVENT_BINDING_INVALID",
+      "EVENT Interface/Operation tuple must match one predeclared static P1 registry binding",
+    );
+  }
   if (registeredOperation.route.capability_contract_ref !== capabilityContractRef) {
     throw new StableRuntimeError(
       "P1_EVENT_BINDING_INVALID",
