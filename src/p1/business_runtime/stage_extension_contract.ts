@@ -342,6 +342,13 @@ export function create_p1_capability_stage_extension(
   ) {
     throw new TypeError("P1 GENERAL overlay must bind exactly the 13 predeclared V0186 slot identities");
   }
+  // Reconstruct only the exact 13 declared GENERAL source facts; a caller
+  // cannot bypass content-hash, ownership or Surface/Kind validation merely
+  // by wrapping incorrect values in genuine Slot Ref strings.
+  const facts = Object.fromEntries(
+    P1_CAPABILITY_GENERAL_SLOT_IDS.map((id) => [id, assertExactSlot(binding.general_slots, id)]),
+  ) as unknown as P1CapabilityGeneralFacts;
+  project_p1_capability_general_slots(facts);
   const capabilityContractRef = assertExactSlot(binding.general_slots, "capability_contract_ref");
   const interfaceRef = assertExactSlot(binding.general_slots, "interface_ref");
   assertExactSlot(binding.general_slots, "operation_ref");
