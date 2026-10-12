@@ -1,7 +1,9 @@
 import { StableRuntimeError, deep_freeze, exact_ref, normalize_runtime_error } from "../../p0/runtime_contract.ts";
 import type { RuntimeContext, RuntimeOperation, StableRuntimeErrorShape } from "../../p0/runtime_contract.ts";
 import {
+  P1_CAPABILITY_GENERAL_SLOT_IDS,
   P1_CAPABILITY_GENERAL_SLOT_REFS,
+  project_p1_capability_general_slots,
   P1_CONTRACT_REF,
   resolve_p1_framework_anchor,
 } from "./stage_extension_contract.ts";
@@ -122,6 +124,22 @@ function exactSlotValue(
   return nonEmptyString(binding.value, slotId);
 }
 
+/**
+ * Enforce the entire V0186 GENERAL slot projection before accepting an
+ * Operation/Interface binding. A correct subset cannot authorize the rest.
+ */
+function assertCompleteGeneralProjection(
+  projection: P1CapabilityGeneralSlotProjection,
+): void {
+  const values = Object.fromEntries(
+    P1_CAPABILITY_GENERAL_SLOT_IDS.map((slotId) => [
+      slotId,
+      exactSlotValue(projection, slotId),
+    ]),
+  ) as Record<P1CapabilityGeneralSlotId, string>;
+  project_p1_capability_general_slots(values);
+}
+
 function operationRouteFromProjection(
   projection: P1CapabilityGeneralSlotProjection,
 ): BusinessOperationRouteBinding {
@@ -185,6 +203,7 @@ export function register_business_operation(
   general_slots: P1CapabilityGeneralSlotProjection,
   handler: BusinessOperationHandler,
 ): BusinessOperationRouteBinding {
+  assertCompleteGeneralProjection(general_slots);
   resolve_p1_framework_anchor({
     surface: exactSlotValue(general_slots, "surface"),
     kind: exactSlotValue(general_slots, "kind"),
@@ -421,6 +440,7 @@ export function registered_business_operation_routes(): readonly BusinessOperati
 export function register_business_event_interface(
   general_slots: P1CapabilityGeneralSlotProjection,
 ): BusinessEventInterfaceBinding {
+  assertCompleteGeneralProjection(general_slots);
   const capabilityContractRef = exactSlotValue(general_slots, "capability_contract_ref");
   const interfaceRef = exactSlotValue(general_slots, "interface_ref");
   const operationRef = exactSlotValue(general_slots, "operation_ref");
