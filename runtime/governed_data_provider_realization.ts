@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
-import { StableRuntimeError, deep_freeze } from "#q/p0/runtime_contract";
+import { StableRuntimeError, deep_freeze, exact_ref } from "#q/p0/runtime_contract";
+import { resolve_p1_framework_anchor } from "../src/p1/business_runtime/stage_extension_contract.ts";
 import {
   handler as exposeStaticData,
   type JsonObject as StaticJsonObject,
@@ -13,9 +14,11 @@ export const REPOSITORY_SKELETON_REF =
 export const REPOSITORY_SKELETON_HASH =
   "sha256:0d8b2a5fb33b657db9eff3d379969b8c26e541f9ff5827d443bd8d2aa8fe60c9" as const;
 export const P1_CAPABILITY_MATERIALIZATION_REF =
-  "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0116" as const;
+  "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0117" as const;
 export const P1_CAPABILITY_MATERIALIZATION_HASH =
-  "sha256:59dce7f2b10d04fe6053a28d9f2af09d961746befd10795e874b3226aefaf036" as const;
+  // Raw-byte hash of the explicitly reviewed V0117 corrected candidate.
+  // A candidate hash is NOT an activation/Gate verdict.
+  "sha256:cc1d1933d88125b400b8a6f3fd0042b521f22276ff74b2dda19798ddce76757f" as const;
 export const P1_BUSINESS_RUNTIME_REF =
   "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186" as const;
 export const P2_CONTRACT_REF =
@@ -72,6 +75,47 @@ export interface GovernedDataBindingExecution {
   readonly trace_id: string;
   readonly request_id: string;
   readonly p1_interface_anchor_binding_ref?: string;
+}
+
+/**
+ * Exact pre-instance Source Interface facts are resolved by the owning frozen
+ * Capability Contract, not invented by P2, transport, test data or filenames.
+ * This is a verification-only repository dependency, NOT a new Framework
+ * Interface, invocation entry point, Source authority or Runtime.
+ */
+export interface P1SourceInterfaceResolution {
+  readonly capability_contract_ref: string;
+  readonly capability_contract_content_hash: string;
+  readonly operation_ref: string;
+  readonly interface_ref: string;
+  readonly authorized_source_access_ref: string;
+  readonly surface: string;
+  readonly kind: string;
+  readonly method_ref: string;
+  readonly path: readonly string[];
+  readonly static_mount: readonly string[];
+  readonly dynamic_mount: readonly string[];
+  readonly framework_anchor_binding_ref: string;
+}
+
+export interface GovernedTriadFrozenAuthorities {
+  /** Read a verified, immutable Q.Prompt obligation, not a caller's hash echo. */
+  readonly frozen_prompt_projection_hash: (input: Readonly<{
+    capability_contract_ref: string;
+    capability_contract_content_hash: string;
+    p2_contract_ref: string;
+    p2_contract_content_hash: string;
+    p2_handoff_obligation_snapshot_hash: string;
+  }>) => Promise<string>;
+  /** Resolve P1's exact owner Capability Contract/interface closure. */
+  readonly resolve_source_interface: (input: Readonly<{
+    capability_contract_ref: string;
+    capability_contract_content_hash: string;
+    binding_ref: string;
+    source_operation_ref: string;
+    source_interface_ref: string;
+    source_access_ref: string;
+  }>) => Promise<Readonly<P1SourceInterfaceResolution>>;
 }
 
 export interface P2GovernedDataExposureMaterializer {
@@ -381,7 +425,7 @@ function validateP2HandoffObligation(
   if (value.source_boundary_ref !== P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID",
-      "p2_handoff_obligation source_boundary_ref is not P1CM V0116 p1_to_p2_handoff_declaration_contract",
+      "p2_handoff_obligation source_boundary_ref does not bind exact P1CM V0117 handoff declaration",
     );
   }
   if (value.canonical_binding_order !== "binding_ref_ASCENDING_THEN_member_ref_ASCENDING") {
@@ -488,7 +532,7 @@ function validateTriadObligation(
   if (value.source_boundary_ref !== GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
-      "triad source_boundary_ref is not P1CM V0116 governed_data_exposure_binding_projection_contract",
+      "triad source_boundary_ref does not bind exact P1CM V0117 exposure projection",
     );
   }
   if (value.applicability !== "DECLARED") {
@@ -523,7 +567,7 @@ function validateTriadObligation(
   ) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
-      "triad schema/category/integrity/execution refs must equal exact P1CM V0116 and P2 V0128 boundaries",
+      "triad schema/category/integrity/execution refs must equal exact V0117 and frozen P2 boundaries",
     );
   }
 
