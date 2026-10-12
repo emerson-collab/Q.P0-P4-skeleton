@@ -1,5 +1,5 @@
-import { P0_CONTRACT_REF, P0_PROVIDER_SYMBOL_REF, deep_freeze, exact_ref } from "../../p0/runtime_contract.ts";
-import type { StageExtensionContract } from "../../p0/runtime_contract.ts";
+import { P0_CONTRACT_REF, P0_PROVIDER_SYMBOL_REF, deep_freeze, exact_ref } from "#q/p0/runtime_contract";
+import type { StageExtensionContract } from "#q/p0/runtime_contract";
 
 export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186" as const;
 export const P1_CONTRACT_HASH =
