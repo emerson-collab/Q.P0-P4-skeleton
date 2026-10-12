@@ -467,8 +467,14 @@ function registerOperationRoute(
         !== JSON.stringify(extension.hook_binding_refs)
       || (
         existing.static_runtime_slots !== undefined && staticSlots !== undefined
-        && JSON.stringify((existing.static_runtime_slots.policy_refs as { value: unknown }).value)
-          !== JSON.stringify((staticSlots.policy_refs as { value: unknown }).value)
+        && ([
+          "manifest", "qreg", "qconfig",
+          "operation_contract", "policy_refs", "hook_binding_refs",
+        ] as const).some((id) =>
+          existing.static_runtime_slots![id].slot_ref !== staticSlots[id].slot_ref
+          || canonicalEvidenceJson(existing.static_runtime_slots![id].value)
+            !== canonicalEvidenceJson(staticSlots[id].value)
+        )
       )
     ) {
       throw new StableRuntimeError("P1_OPERATION_DUPLICATE", "P1-derived route_key already has a different exact Operation binding");
@@ -511,6 +517,8 @@ function registerOperationRoute(
         ...existing, stage_extension: stageExtension, interface_bindings: interfaceBindings,
         ...(existing.capability_identity === undefined && capabilityIdentity !== undefined
           ? { capability_identity: capabilityIdentity } : {}),
+        ...(existing.static_runtime_slots === undefined && staticSlots !== undefined
+          ? { static_runtime_slots: staticSlots } : {}),
       }));
     }
     return existing.route;
