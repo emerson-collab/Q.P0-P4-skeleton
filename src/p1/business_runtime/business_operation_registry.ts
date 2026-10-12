@@ -568,9 +568,6 @@ export async function invoke_internal_call(
   if (runtimeContext === null || typeof runtimeContext !== "object" || Array.isArray(runtimeContext)) {
     throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "runtime_context must be an exact P0 RuntimeContext object");
   }
-  if (runtimeContext.stage_contract_ref !== P1_CONTRACT_REF) {
-    throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "internal CALL must originate inside the exact P1 Stage");
-  }
   const traceId = nonEmptyString(request.trace_id, "trace_id");
   const parentRequestId = nonEmptyString(request.parent_request_id, "parent_request_id");
   void parentRequestId;
@@ -584,6 +581,9 @@ export async function invoke_internal_call(
 
   let callPath: readonly string[];
   try {
+    if (runtimeContext.stage_contract_ref !== P1_CONTRACT_REF) {
+      throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "internal CALL must originate inside the exact P1 Stage");
+    }
     callPath = exactInternalCallPath(request.call_path);
     if (!Number.isSafeInteger(request.call_depth) || request.call_depth < 0) {
       throw new StableRuntimeError(
