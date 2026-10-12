@@ -4,7 +4,6 @@ import type { StageExtensionContract } from "#q/p0/runtime_contract";
 export const P1_CONTRACT_REF = "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186" as const;
 export const P1_CONTRACT_HASH =
   "sha256:4637e7370406d558514f8ff3e076336b0e557e5b002e8a7123fa51db4d68dbc3" as const;
-export const P1_CAPABILITY_MATERIALIZATION_REF = "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0116" as const;
 
 export const P1_CAPABILITY_GENERAL_SLOT_IDS = [
   "capability_ref",
