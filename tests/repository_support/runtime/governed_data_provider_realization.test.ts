@@ -653,3 +653,37 @@ test("V0117 independent frozen Q.Prompt hash must match exactly", async () => {
   assert.deepEqual(events, []);
   assert.deepEqual(observed, []);
 });
+
+test("V0117 source Operation identity must resolve from the exact owner Contract", async () => {
+  const b = binding("STATIC", "owner-resolution");
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeWithExactAuthorities({
+      p2_handoff_obligation: p2Handoff([b]),
+      ...frozenV0117Projection([b]),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(b)],
+    }, materializer([]), memoryStore(events),
+       frozenAuthorities([b], { wrong_owner_operation: true })),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
+  );
+  assert.deepEqual(events, []);
+});
+
+test("V0117 source-access authorization must come from the exact owner binding", async () => {
+  const b = binding("STATIC", "source-access");
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeWithExactAuthorities({
+      p2_handoff_obligation: p2Handoff([b]),
+      ...frozenV0117Projection([b]),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(b)],
+    }, materializer([]), memoryStore(events),
+       frozenAuthorities([b], { wrong_source_access: true })),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
+  );
+  assert.deepEqual(events, []);
+});
