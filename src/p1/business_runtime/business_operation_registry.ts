@@ -421,7 +421,7 @@ function canonicalEvidenceJson(value: unknown): string {
     if (input !== null && typeof input === "object") {
       return Object.fromEntries(Object.entries(input as Record<string, unknown>)
         .filter(([,v]) => v !== undefined)
-        .sort(([a],[b]) => a.localeCompare(b))
+        .sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0)
         .map(([k,v]) => [k, sorted(v)]));
     }
     return input;
@@ -567,6 +567,9 @@ export async function invoke_internal_call(
   const runtimeContext = request.runtime_context;
   if (runtimeContext === null || typeof runtimeContext !== "object" || Array.isArray(runtimeContext)) {
     throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "runtime_context must be an exact P0 RuntimeContext object");
+  }
+  if (runtimeContext.stage_contract_ref !== P1_CONTRACT_REF) {
+    throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "internal CALL must originate inside the exact P1 Stage");
   }
   const traceId = nonEmptyString(request.trace_id, "trace_id");
   const parentRequestId = nonEmptyString(request.parent_request_id, "parent_request_id");
@@ -992,13 +995,14 @@ export function evaluate_business_hook(
     const evidence = execution_receipt.hook_evidence.filter(
       (item) => item.hook_point_ref === hook_point_value && item.consumer_ref === consumer_id,
     );
-    if (evidence.length !== 1 || evidence[0]?.decision === undefined || evidence[0].error !== undefined) {
+    const exactDecision = evidence[0];
+    if (evidence.length !== 1 || exactDecision?.decision === undefined || exactDecision.error !== undefined) {
       throw new StableRuntimeError("P1_BINDING_INVALID", "P1 Hook evaluation must resolve one exact P0 decision");
     }
     const hook_evidence = deep_freeze(evidence);
     return deep_freeze({
       outcome_type: "hook_decision" as const,
-      hook_decision: evidence[0].decision,
+      hook_decision: exactDecision.decision,
       hook_evidence,
       evidence_ref: `sha256:${createHash("sha256").update(canonicalEvidenceJson(hook_evidence), "utf8").digest("hex")}`,
     });
