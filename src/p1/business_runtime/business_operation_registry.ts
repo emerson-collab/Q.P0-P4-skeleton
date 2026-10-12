@@ -1584,8 +1584,23 @@ export async function invoke_dependency(
     if (
       (outcome?.outcome_type !== "response" && outcome?.outcome_type !== "stable_error")
       || outcome.trace_id !== traceId || outcome.request_id !== requestId
-      || (outcome.outcome_type === "response" && !("runtime_result" in outcome))
-      || (outcome.outcome_type === "stable_error" && !("stable_error" in outcome))
+      || (
+        outcome.outcome_type === "response"
+        && (
+          !Object.prototype.hasOwnProperty.call(outcome, "runtime_result")
+          || Object.prototype.hasOwnProperty.call(outcome, "stable_error")
+        )
+      )
+      || (
+        outcome.outcome_type === "stable_error"
+        && (
+          !Object.prototype.hasOwnProperty.call(outcome, "stable_error")
+          || Object.prototype.hasOwnProperty.call(outcome, "runtime_result")
+          || typeof outcome.stable_error?.code !== "string"
+          || outcome.stable_error.code.length === 0
+          || typeof outcome.stable_error.message !== "string"
+        )
+      )
     ) {
       throw new StableRuntimeError("P1_BINDING_INVALID", "dependency client returned an invalid Q outcome or correlation");
     }
