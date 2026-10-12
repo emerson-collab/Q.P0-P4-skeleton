@@ -595,3 +595,99 @@ test("V0186 EVENT Interface fails closed unless it is in the bound Operation's s
       && (error as { code: string }).code === "P1_EVENT_BINDING_INVALID",
   );
 });
+
+test("V0186 authorization precedes the sole P0 Operation attempt and receipt evidence is factual", async () => {
+  const slots = projection("guard_order", "guard_order", "CALL", "CALL_INVOKE", "owner_method");
+  const opRef = slots.operation_ref.value;
+  const order: string[] = [];
+  const verifier: BusinessOperationAuthorization = async (_input, ctx, policyRefs) => {
+    order.push("authorization_completed");
+    assert.equal(ctx.operation_ref, opRef);
+    assert.deepEqual(policyRefs, []);
+    return { authorization_receipt: Object.freeze({ operation_ref: opRef, complete: true }) };
+  };
+  const handler: BusinessOperationHandler = async () => {
+    order.push("operation_attempt");
+    return { completed: true };
+  };
+  register_concrete_business_operation(slots, handler, exactStaticSlots(slots), verifier);
+  const response = await invoke_business_operation(
+    invokePath(opRef, "guard_order", "guard-order"), {}, context(opRef, "guard-order"),
+  );
+  assert.equal(response.outcome_type, "response");
+  if (response.outcome_type !== "response") return;
+  assert.deepEqual(order, ["authorization_completed", "operation_attempt"]);
+  const receipt = response.execution_receipt;
+  assert.equal(receipt.operation_attempt, 1);
+  assert.match(receipt.outcome_hash, /^sha256:[a-f0-9]{64}$/);
+  const authRule = receipt.rule_evidence.find((v) => v.rule_ref.endsWith("/P1-OP-105"));
+  assert.equal(authRule?.result, "PASS");
+  assert.equal(authRule?.observation.authorization_completed_before_operation_attempt, true);
+  assert.match(String(authRule?.observation.authorization_receipt_hash), /^sha256:[a-f0-9]{64}$/);
+  const bindingRule = receipt.rule_evidence.find((v) => v.rule_ref.endsWith("/P1-OP-107"));
+  assert.equal(bindingRule?.observation.authoritative_outcome_hash, receipt.outcome_hash);
+});
+
+test("V0186 authorization without a completed receipt fails closed before P0", async () => {
+  const slots = projection("guard_missing_proof", "guard_missing_proof", "CALL", "CALL_INVOKE", "owner_method");
+  const opRef = slots.operation_ref.value;
+  let attempts = 0;
+  register_concrete_business_operation(slots, async () => {
+    attempts += 1;
+    return "must-not-run";
+  }, exactStaticSlots(slots), async () => ({ authorization_receipt: undefined }));
+  const response = await invoke_business_operation(
+    invokePath(opRef, "guard_missing_proof", "missing-proof"), {}, context(opRef, "missing-proof"),
+  );
+  assert.equal(response.outcome_type, "stable_error");
+  if (response.outcome_type !== "stable_error") return;
+  assert.equal(response.stable_error.code, "P1_AUTHORIZATION_NOT_COMPLETED");
+  assert.equal(response.execution_receipt?.operation_attempt, 0);
+  assert.equal(response.execution_receipt?.rule_evidence.find((v) =>
+    v.rule_ref.endsWith("/P1-OP-105"))?.result, "FAIL");
+  assert.equal(attempts, 0);
+});
+
+test("V0186 concrete-denied authorization preserves StableError and zero attempts", async () => {
+  const slots = projection("guard_deny", "guard_deny", "CALL", "CALL_INVOKE", "owner_method");
+  const opRef = slots.operation_ref.value;
+  let attempts = 0;
+  register_concrete_business_operation(
+    slots, async () => { attempts++; return "must-not-run"; }, exactStaticSlots(slots),
+    async () => { throw { code: "EXACT_DENIAL", message: "Operation authorization denied" }; },
+  );
+  const response = await invoke_business_operation(
+    invokePath(opRef, "guard_deny", "guard-deny"), {}, context(opRef, "guard-deny"),
+  );
+  assert.equal(response.outcome_type, "stable_error");
+  if (response.outcome_type !== "stable_error") return;
+  assert.equal(response.stable_error.code, "EXACT_DENIAL");
+  assert.equal(response.execution_receipt?.operation_attempt, 0);
+  assert.equal(attempts, 0);
+});
+
+test("V0186 multiple exact Interfaces can bind one existing Operation without creating another Runtime", () => {
+  const call = projection("shared_operation", "shared_call", "CALL", "CALL_INVOKE", "owner_call");
+  const event = projection("shared_operation", "shared_event", "EVENT", "EVENT_CONSUME", "consume_business_event");
+  const handler: BusinessOperationHandler = async () => "same-handler";
+  register_concrete_business_operation(call, handler, exactStaticSlots(call), testAuthorization);
+  register_concrete_business_operation(event, handler, exactStaticSlots(event), testAuthorization);
+  const eventBinding = register_business_event_interface(event);
+  assert.equal(eventBinding.operation_ref, call.operation_ref.value);
+  assert.equal(
+    registered_business_operation_routes().filter(v => v.route_key === call.operation_ref.value).length,
+    1,
+  );
+});
+
+test("V0186 one concrete Interface must not bind two different Operations", () => {
+  const a = projection("unique_iface_first", "shared_identity", "CALL", "CALL_INVOKE", "owner_call");
+  const b = projection("unique_iface_second", "shared_identity", "CALL", "CALL_INVOKE", "owner_call");
+  const h: BusinessOperationHandler = async () => "noop";
+  register_concrete_business_operation(a, h, exactStaticSlots(a), testAuthorization);
+  assert.throws(
+    () => register_concrete_business_operation(b, h, exactStaticSlots(b), testAuthorization),
+    (error: unknown) => error instanceof Error && "code" in error
+      && (error as {code:string}).code === "P1_OPERATION_DUPLICATE",
+  );
+});
