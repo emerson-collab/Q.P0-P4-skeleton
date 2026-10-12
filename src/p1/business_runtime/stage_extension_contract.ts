@@ -70,6 +70,22 @@ export const P1_RUNTIME_SLOT_REFS = deep_freeze(
   ) as Record<P1RuntimeSlotId, string>,
 );
 
+/** V0186 interface-classification GENERAL facts, bound at STATIC_OVERLAY_BIND.
+ * Neither value is an invocation-time Runtime Slot or a caller override.
+ */
+export type P1InterfaceSurface = "CALL" | "HOOK" | "EVENT" | "REGISTRY";
+export type P1InterfaceKind =
+  | "CALL_INVOKE"
+  | "HOOK_BIND" | "HOOK_EVALUATE"
+  | "EVENT_PUBLISH" | "EVENT_CONSUME"
+  | "REGISTRY_REGISTER" | "REGISTRY_RESOLVE" | "REGISTRY_LOOKUP";
+
+export type P1InterfaceClassification =
+  | Readonly<{ surface: "CALL"; kind: "CALL_INVOKE" }>
+  | Readonly<{ surface: "HOOK"; kind: "HOOK_BIND" | "HOOK_EVALUATE" }>
+  | Readonly<{ surface: "EVENT"; kind: "EVENT_PUBLISH" | "EVENT_CONSUME" }>
+  | Readonly<{ surface: "REGISTRY"; kind: "REGISTRY_REGISTER" | "REGISTRY_RESOLVE" | "REGISTRY_LOOKUP" }>;
+
 export interface P1CapabilityGeneralFacts {
   readonly capability_ref: string;
   readonly capability_id: string;
@@ -81,8 +97,8 @@ export interface P1CapabilityGeneralFacts {
   readonly operation_id: string;
   readonly operation_ref: string;
   readonly interface_ref: string;
-  readonly surface: string;
-  readonly kind: string;
+  readonly surface: P1InterfaceSurface;
+  readonly kind: P1InterfaceKind;
   readonly method_ref: string;
 }
 
@@ -100,8 +116,8 @@ export type P1FrameworkAnchorMethodPolicy =
   | "MUST_EQUAL_FRAMEWORK_ENTRY_METHOD_REF_UNDER_EXISTING_EVENT_CONTRACT";
 
 export interface P1FrameworkAnchorBinding {
-  readonly surface: string;
-  readonly kind: string;
+  readonly surface: P1InterfaceSurface;
+  readonly kind: P1InterfaceKind;
   readonly framework_interface_ref: string;
   readonly framework_entry_method_ref: string;
   readonly concrete_method_ref_policy: P1FrameworkAnchorMethodPolicy;
