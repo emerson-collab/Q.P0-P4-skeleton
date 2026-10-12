@@ -102,6 +102,8 @@ export interface P1SourceInterfaceResolution {
 export interface GovernedTriadFrozenAuthorities {
   /** Read a verified, immutable Q.Prompt obligation, not a caller's hash echo. */
   readonly frozen_prompt_projection_hash: (input: Readonly<{
+    p1_capability_materialization_ref: typeof P1_CAPABILITY_MATERIALIZATION_REF;
+    p1_capability_materialization_hash: typeof P1_CAPABILITY_MATERIALIZATION_HASH;
     capability_contract_ref: string;
     capability_contract_content_hash: string;
     p2_contract_ref: string;
@@ -820,6 +822,8 @@ async function verifyFrozenPreInstanceClosure(
 
   const exactPromptHash = exactHash(
     await authorities.frozen_prompt_projection_hash(Object.freeze({
+      p1_capability_materialization_ref: P1_CAPABILITY_MATERIALIZATION_REF,
+      p1_capability_materialization_hash: P1_CAPABILITY_MATERIALIZATION_HASH,
       capability_contract_ref: handoff.capability_contract_ref,
       capability_contract_content_hash: handoff.capability_contract_hash,
       p2_contract_ref: P2_CONTRACT_REF,
