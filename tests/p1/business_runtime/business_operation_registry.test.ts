@@ -263,6 +263,14 @@ test("EVENT_PUBLISH rejects context drift or missing owner evidence before trans
     forgedOwner, { publish() { deliveries += 1; return undefined; } });
   assert.equal(forged.outcome_type, "stable_error");
   assert.equal(deliveries, 0);
+  const altered = { ...owner, runtime_result: { forged_business_fact: true } };
+  const forgedResult = await publish_business_event(
+    binding.interface_ref, "subject:guard", {}, realContext,
+    altered,
+    { publish() { deliveries += 1; return undefined; } },
+  );
+  assert.equal(forgedResult.outcome_type, "stable_error");
+  assert.equal(deliveries, 0);
 });
 
 test("P1 internal_call_invoke advances exact child path/depth and uses RuntimeContext request_id", async () => {
