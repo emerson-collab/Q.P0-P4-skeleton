@@ -67,6 +67,8 @@ function binding(
   return Object.freeze({
     binding_ref: `binding:${category.toLowerCase()}:${suffix}`,
     data_category: category,
+    source_operation_ref: `${CAPABILITY_CONTRACT_REF}#/operations/expose_${category.toLowerCase()}_source`,
+    source_interface_ref: `${CAPABILITY_CONTRACT_REF}#/interfaces/expose_${category.toLowerCase()}_source`,
     source_access_kind: kind,
     source_access_ref: `${CAPABILITY_CONTRACT_REF}#/sources/${category.toLowerCase()}/${suffix}`,
     members: Object.freeze([
@@ -146,6 +148,31 @@ function p2Handoff(bindings: readonly GovernedDataHandoffBinding[]) {
   return Object.freeze({
     ...withoutHash,
     p2_handoff_obligation_snapshot_hash: hash(withoutHash),
+  });
+}
+
+function frozenV0117Projection(bindings: readonly GovernedDataHandoffBinding[]) {
+  const handoff = p2Handoff(bindings);
+  const value = Object.freeze({
+    exact_capability_contract_ref_and_hash: Object.freeze({
+      ref: CAPABILITY_CONTRACT_REF, hash: CAPABILITY_CONTRACT_HASH,
+    }),
+    exact_frozen_current_p2_ref_and_hash: Object.freeze({
+      ref: P2_CONTRACT_REF, hash: P2_CONTRACT_HASH,
+    }),
+    p2_handoff_obligation_snapshot_hash: handoff.p2_handoff_obligation_snapshot_hash,
+    bindings: Object.freeze([...bindings].map(b => Object.freeze({
+      ...b,
+      target_p2_operation_id: `expose_${b.data_category.toLowerCase()}_data`,
+      target_p2_operation_catalog_ref: `${P2_CONTRACT_REF}#/operation_catalog/provider/governed_data_exposure`,
+      target_p2_primary_interface_profile_ref: `${P2_CONTRACT_REF}#/interface_semantics/new_governed_data_operations_primary_interface`,
+      target_p2_carrier_binding_ref: `${P2_CONTRACT_REF}#/governed_data_material_contract/q_interface_carrier_binding`,
+      declared_instance_variable_refs: Object.freeze([]),
+    }))),
+  });
+  return Object.freeze({
+    governed_data_exposure_binding_projection: value,
+    governed_data_exposure_binding_projection_hash: hash(value),
   });
 }
 
@@ -253,6 +280,7 @@ test("V0152 realizes exact triad, skips P2 for empty category, and commits only 
   const result = await realizeGovernedDataTriad(
     Object.freeze({
       p2_handoff_obligation: p2Handoff(bindings),
+        ...frozenV0117Projection(bindings),
       governed_data_json_triad_obligation: triadObligation(),
       binding_executions: Object.freeze([
         execution(runtimeBinding),
@@ -320,6 +348,7 @@ test("V0152 fails closed when canonical triad resource identity is changed", asy
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: p2Handoff([staticBinding]),
+        ...frozenV0117Projection([staticBinding]),
         governed_data_json_triad_obligation: triadObligation({
           canonical_file_set: Object.freeze({
             STATIC: Object.freeze({
@@ -357,6 +386,7 @@ test("V0152 fails closed instead of reordering noncanonical binding order", asyn
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: p2Handoff(noncanonical),
+        ...frozenV0117Projection(noncanonical),
         governed_data_json_triad_obligation: triadObligation(),
         binding_executions: Object.freeze([
           execution(staticBinding),
@@ -380,6 +410,7 @@ test("V0152 requires exactly one execution input for every declared binding", as
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: p2Handoff([staticBinding]),
+        ...frozenV0117Projection([staticBinding]),
         governed_data_json_triad_obligation: triadObligation(),
         binding_executions: Object.freeze([]),
       }),
@@ -401,6 +432,7 @@ test("V0152 exact readback mismatch forbids set-hash and triad commit", async ()
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: p2Handoff([staticBinding]),
+        ...frozenV0117Projection([staticBinding]),
         governed_data_json_triad_obligation: triadObligation(),
         binding_executions: Object.freeze([execution(staticBinding)]),
       }),
@@ -429,6 +461,7 @@ test("V0152 NOT_APPLICABLE triad cannot execute P2 or storage", async () => {
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: p2Handoff([staticBinding]),
+        ...frozenV0117Projection([staticBinding]),
         governed_data_json_triad_obligation: triadObligation({
           applicability: "NOT_APPLICABLE",
         }),
@@ -460,6 +493,7 @@ test("V0152 DECLARED_Q_INTERFACE_SOURCE_FACT requires pre-resolved P1 V0186 anch
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: p2Handoff([dynamicBinding]),
+        ...frozenV0117Projection([dynamicBinding]),
         governed_data_json_triad_obligation: triadObligation(),
         binding_executions: Object.freeze([invalidExecution]),
       }),
@@ -481,6 +515,7 @@ test("V0152 rejects tampered p2_handoff obligation snapshot before execution", a
     () => realizeGovernedDataTriad(
       Object.freeze({
         p2_handoff_obligation: Object.freeze(handoff),
+        ...frozenV0117Projection([staticBinding]),
         governed_data_json_triad_obligation: triadObligation(),
         binding_executions: Object.freeze([execution(staticBinding)]),
       }),
