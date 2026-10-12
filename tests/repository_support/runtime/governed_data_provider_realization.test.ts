@@ -177,7 +177,13 @@ function frozenV0117Projection(bindings: readonly GovernedDataHandoffBinding[]) 
 /** Test-only providers for independently frozen Q.Prompt/Capability Source facts. */
 function frozenAuthorities(
   originalBindings: readonly GovernedDataHandoffBinding[],
-  options: Readonly<{ wrong_prompt_hash?: boolean; wrong_owner_operation?: boolean }> = {},
+  options: Readonly<{
+    wrong_prompt_hash?: boolean;
+    wrong_owner_operation?: boolean;
+    wrong_source_access?: boolean;
+    wrong_surface_kind?: boolean;
+    overlapping_layers?: boolean;
+  }> = {},
 ): GovernedTriadFrozenAuthorities {
   const frozen = frozenV0117Projection(originalBindings);
   return Object.freeze({
@@ -196,11 +202,16 @@ function frozenAuthorities(
           ? `${CAPABILITY_CONTRACT_REF}#/operations/different`
           : ownerBinding.source_operation_ref,
         interface_ref: ownerBinding.source_interface_ref,
-        authorized_source_access_ref: ownerBinding.source_access_ref,
-        surface: "CALL", kind: "CALL_INVOKE", method_ref: "read_owner_fact",
+        authorized_source_access_ref: options.wrong_source_access
+          ? `${CAPABILITY_CONTRACT_REF}#/sources/not_authorized`
+          : ownerBinding.source_access_ref,
+        surface: options.wrong_surface_kind ? "REGISTRY" : "CALL",
+        kind: "CALL_INVOKE", method_ref: "read_owner_fact",
         path: Object.freeze(["operation_id", "trace_id", "request_id"]),
         static_mount: Object.freeze(["operation_contract"]),
-        dynamic_mount: Object.freeze(["input", "runtime_result"]),
+        dynamic_mount: options.overlapping_layers
+          ? Object.freeze(["input", "operation_contract"])
+          : Object.freeze(["input", "runtime_result"]),
         framework_anchor_binding_ref:
           `${P1_BUSINESS_RUNTIME_REF}#/concrete_interface_framework_anchor_crosswalk/anchors/CALL_INVOKE`,
       });
@@ -370,6 +381,12 @@ test("V0152 realizes exact triad, skips P2 for empty category, and commits only 
   assert.equal(staticProjection.data_category, "STATIC");
   assert.equal(staticProjection.bindings.length, 1);
   assert.equal(staticProjection.material_envelopes.length, 1);
+  // P2 physical JSON must preserve source identity without copying the
+  // V0117 pre-instance projection's target profiles or instance values.
+  assert.equal(staticProjection.bindings[0].source_operation_ref, staticBinding.source_operation_ref);
+  assert.equal(staticProjection.bindings[0].source_interface_ref, staticBinding.source_interface_ref);
+  assert.equal(staticProjection.bindings[0].data_category, "STATIC");
+  assert.equal(staticProjection.bindings[0].target_p2_carrier_binding_ref, undefined);
   assert.equal(dynamicProjection.data_category, "DYNAMIC");
   assert.deepEqual(dynamicProjection.bindings, []);
   assert.deepEqual(dynamicProjection.material_envelopes, []);
