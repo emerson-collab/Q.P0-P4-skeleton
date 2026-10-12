@@ -101,6 +101,7 @@ export interface BusinessInternalCallSuccess {
   readonly child_call_depth: number;
   readonly trace_id: string;
   readonly child_request_id: string;
+  readonly execution_receipt?: P1ExecutionReceipt;
 }
 
 export interface BusinessInternalCallFailure {
@@ -108,6 +109,7 @@ export interface BusinessInternalCallFailure {
   readonly stable_error: StableRuntimeErrorShape;
   readonly trace_id: string;
   readonly child_request_id: string;
+  readonly execution_receipt?: P1ExecutionReceipt;
 }
 
 export type BusinessInternalCallOutcome =
@@ -564,7 +566,14 @@ export async function invoke_internal_call(
 
     const childCallPath = deep_freeze([...callPath, registered.route.operation_ref]);
     const childCallDepth = request.call_depth + 1;
-    const runtimeResult = await invoke_business_operation(
+    // The nested invocation has its own bound Operation identity but reuses the
+    // exact P0 correlation values. P1 never redefines or bypasses the P0 pipeline.
+    const childRuntimeContext: RuntimeContext = deep_freeze({
+      ...runtimeContext,
+      stage_contract_ref: P1_CONTRACT_REF,
+      operation_ref: registered.route.operation_ref,
+    });
+    const outcome = await invoke_business_operation(
       {
         route_key: registered.route.operation_ref,
         capability_id: registered.route.capability_id,
@@ -573,16 +582,25 @@ export async function invoke_internal_call(
         request_id: childRequestId,
       },
       request.input,
-      runtimeContext,
+      childRuntimeContext,
     );
-
+    if (outcome.outcome_type === "stable_error") {
+      return deep_freeze({
+        outcome_type: "stable_error" as const,
+        stable_error: outcome.stable_error,
+        trace_id: traceId,
+        child_request_id: childRequestId,
+        ...(outcome.execution_receipt === undefined ? {} : { execution_receipt: outcome.execution_receipt }),
+      });
+    }
     return deep_freeze({
       outcome_type: "response" as const,
-      runtime_result: runtimeResult,
+      runtime_result: outcome.runtime_result,
       child_call_path: childCallPath,
       child_call_depth: childCallDepth,
       trace_id: traceId,
       child_request_id: childRequestId,
+      execution_receipt: outcome.execution_receipt,
     });
   } catch (error) {
     return internalCallStableError(error, traceId, childRequestId);
