@@ -748,3 +748,30 @@ test("V0186 all 18 Runtime Slot source facts and binding phases equal the exact 
   assert.equal(P1_RUNTIME_SLOT_CATALOG.runtime_result.semantic_owner_ref,
     `${P0_CONTRACT_REF}#/runtime_result`);
 });
+
+
+test("V0186 PATH/STATIC_MOUNT/DYNAMIC_MOUNT collections are exactly each declared Interface union", () => {
+  const root = new URL("../../../spec/p1/business_runtime/interface/", import.meta.url);
+  const projected = JSON.parse(
+    readFileSync(new URL("business_interfaces.json", root), "utf8"),
+  ) as {
+    interfaces: Record<string, {
+      path: string[];
+      static_mount: string[];
+      dynamic_mount: string[];
+    }>;
+  };
+  for (const [layer, filename] of [
+    ["path", "path_field_collection.txt"],
+    ["static_mount", "static_mount_field_collection.txt"],
+    ["dynamic_mount", "dynamic_mount_field_collection.txt"],
+  ] as const) {
+    const sourceUnion = [...new Set(
+      Object.values(projected.interfaces).flatMap((item) => item[layer]),
+    )].sort();
+    const collection = readFileSync(new URL(filename, root), "utf8")
+      .split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    assert.equal(new Set(collection).size, collection.length, `${layer} contains duplicate names`);
+    assert.deepEqual(collection.sort(), sourceUnion, `${layer} exact V0186 union mismatch`);
+  }
+});
