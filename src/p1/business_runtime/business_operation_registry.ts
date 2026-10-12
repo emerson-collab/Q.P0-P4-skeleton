@@ -37,6 +37,7 @@ export interface P1ExecutionReceipt {
   readonly trace_id: string;
   readonly request_id: string;
   readonly outcome_type: "response" | "stable_error";
+  readonly operation_attempt: 0 | 1;
   readonly operation_attempts: 0 | 1;
   readonly hook_evidence: readonly HookEvidence[];
   readonly rule_evidence: readonly P1RuleEvidence[];
@@ -465,8 +466,8 @@ function finalizedReceipt(
       { finalized_outcome_type: outcomeType }),
   ]);
   const receipt: P1ExecutionReceipt = deep_freeze({
-    ...base, outcome_type: outcomeType, operation_attempts: p0.operation_attempts,
-    hook_evidence: p0.hook_evidence, rule_evidence,
+    ...base, outcome_type: outcomeType, operation_attempt: p0.operation_attempts,
+    operation_attempts: p0.operation_attempts, hook_evidence: p0.hook_evidence, rule_evidence,
   });
   completed_p1_receipts.add(receipt);
   return receipt;
@@ -486,10 +487,12 @@ export async function invoke_business_operation(
     if (runtime_context.stage_contract_ref !== P1_CONTRACT_REF || runtime_context.operation_ref !== registered.route.operation_ref) {
       throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "P0 RuntimeContext must exactly match the bound P1 Stage and Operation");
     }
-    // The StageExtension and static hook refs are frozen at registration; the invocation cannot select them.
+    // P1 checks the exact route/correlation before P0 performs its own immutable
+    // RuntimeContext validation and frozen-hook invocation pipeline.
+    const validated_context: RuntimeContext = runtime_context;
     const p0 = await runtime_provider.invoke({
       stage_extension: registered.stage_extension,
-      runtime_context, input,
+      runtime_context: validated_context, input,
       operation: registered.handler,
       hook_binding_set,
     });
