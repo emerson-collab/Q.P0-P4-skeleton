@@ -775,3 +775,25 @@ test("V0186 PATH/STATIC_MOUNT/DYNAMIC_MOUNT collections are exactly each declare
     assert.deepEqual(collection.sort(), sourceUnion, `${layer} exact V0186 union mismatch`);
   }
 });
+
+
+test("V0134/V0186 P1 execution paths have one sole P0 provider invocation and no second Runtime", () => {
+  const code = readFileSync(
+    new URL("../../../src/p1/business_runtime/business_operation_registry.ts", import.meta.url),
+    "utf8",
+  );
+  assert.equal((code.match(/runtime_provider\.invoke\(/g) ?? []).length, 1);
+  assert.equal(code.includes("await registered.handler("), false);
+  assert.equal(code.includes("new RuntimePipeline("), false);
+  assert.equal(code.includes("new HookAnchor("), false);
+  assert.equal(code.includes("runtime_pipeline.ts"), false);
+  assert.equal(code.includes("hook_anchor.ts"), false);
+  for (const frameworkPath of [
+    "invoke_business_operation", "invoke_internal_call", "invoke_dependency",
+    "bind_business_hook", "evaluate_business_hook", "publish_business_event",
+    "consume_business_event", "register_business_object", "resolve_business_object",
+    "lookup_business_object",
+  ]) {
+    assert.match(code, new RegExp(`export (?:async )?function ${frameworkPath}\\(`));
+  }
+});
