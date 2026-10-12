@@ -797,3 +797,20 @@ test("V0117 source member fact lineage must resolve exactly under owner authorit
   );
   assert.deepEqual(events, []);
 });
+
+test("V0117 rejects a retargeted capability_publication declaration", async () => {
+  const b = binding("STATIC", "publication-ref");
+  const original = p2Handoff([b]);
+  const {p2_handoff_obligation_snapshot_hash: ignored, ...base} = original;
+  const updated = {...base, capability_publication: {mode:"NONE",external_provider_surface_ref:"wrong"}};
+  const events: string[] = [];
+  await assert.rejects(() => realizeGovernedDataTriad({
+    p2_handoff_obligation: {...updated, p2_handoff_obligation_snapshot_hash:hash(updated)},
+    ...frozenV0117Projection([b]),
+    governed_data_json_triad_obligation: triadObligation(),
+    binding_executions:[execution(b)],
+  }, materializer([]), memoryStore(events)),
+  (err: unknown) => err instanceof GovernedDataProviderRealizationError
+     && err.code === "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID");
+  assert.deepEqual(events,[]);
+});
