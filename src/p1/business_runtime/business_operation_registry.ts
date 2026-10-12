@@ -132,15 +132,48 @@ export interface BusinessEventInterfaceBinding {
 }
 
 export interface BusinessEventPublishRequest {
+  readonly subject_ref: string;
   readonly interface_ref: string;
   readonly operation_ref: string;
   readonly input: unknown;
   readonly runtime_context: RuntimeContext;
+  readonly trace_id: string;
+  readonly request_id: string;
 }
 
 export interface BusinessEventPublisher {
   publish(request: Readonly<BusinessEventPublishRequest>): unknown | Promise<unknown>;
 }
+
+export interface P1EventExecutionReceipt {
+  readonly subject_ref: string;
+  readonly interface_ref: string;
+  readonly operation_ref: string;
+  readonly trace_id: string;
+  readonly request_id: string;
+  readonly outcome_type: "response";
+  readonly owner_execution_receipt: P1ExecutionReceipt;
+}
+
+export interface BusinessEventSuccess {
+  readonly outcome_type: "response";
+  readonly subject_ref: string;
+  readonly runtime_result: unknown;
+  readonly execution_receipt: P1EventExecutionReceipt;
+  readonly evidence_ref: string;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export interface BusinessEventFailure {
+  readonly outcome_type: "stable_error";
+  readonly subject_ref: string;
+  readonly stable_error: StableRuntimeErrorShape;
+  readonly trace_id: string;
+  readonly request_id: string;
+}
+
+export type BusinessEventOutcome = BusinessEventSuccess | BusinessEventFailure;
 
 interface RegisteredBusinessOperation {
   readonly route: BusinessOperationRouteBinding;
@@ -152,6 +185,7 @@ interface RegisteredBusinessOperation {
 const operations = new Map<string, RegisteredBusinessOperation>();
 const business_objects = new Map<string, BusinessRegistryEntry>();
 const event_interfaces = new Map<string, BusinessEventInterfaceBinding>();
+const completed_p1_receipts = new WeakSet<P1ExecutionReceipt>();
 
 function nonEmptyString(value: string, field: string): string {
   if (value.length === 0) {
@@ -430,10 +464,12 @@ function finalizedReceipt(
     ruleEvidence("P1-OP-107", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
       { finalized_outcome_type: outcomeType }),
   ]);
-  return deep_freeze({
+  const receipt: P1ExecutionReceipt = deep_freeze({
     ...base, outcome_type: outcomeType, operation_attempts: p0.operation_attempts,
     hook_evidence: p0.hook_evidence, rule_evidence,
   });
+  completed_p1_receipts.add(receipt);
+  return receipt;
 }
 
 export async function invoke_business_operation(
@@ -715,46 +751,123 @@ export function registered_business_event_interface_refs(): readonly string[] {
   return deep_freeze([...event_interfaces.keys()].sort());
 }
 
-export async function publish_business_event(
-  interface_ref: string,
-  input: unknown,
-  runtime_context: RuntimeContext,
-  publisher: BusinessEventPublisher,
-): Promise<unknown> {
-  const binding = resolve_business_event_interface(interface_ref, "EVENT_PUBLISH");
-  resolveRegisteredOperationByExactRef(binding.operation_ref);
-  if (runtime_context.operation_ref !== binding.operation_ref) {
-    throw new StableRuntimeError(
-      "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH",
-      "RuntimeContext operation_ref must equal the exact Operation bound by the EVENT_PUBLISH Interface",
-    );
-  }
-  return await publisher.publish(deep_freeze({
+function exactEventError(error: unknown): StableRuntimeErrorShape {
+  const normalized = normalize_runtime_error(error, "P1_EVENT_BINDING_INVALID");
+  return normalized.details === undefined
+    ? { code: normalized.code, message: normalized.message }
+    : { code: normalized.code, message: normalized.message, details: normalized.details };
+}
+
+function eventReceipt(
+  binding: BusinessEventInterfaceBinding,
+  subjectRef: string,
+  ownerReceipt: P1ExecutionReceipt,
+): P1EventExecutionReceipt {
+  return deep_freeze({
+    subject_ref: subjectRef,
     interface_ref: binding.interface_ref,
     operation_ref: binding.operation_ref,
-    input,
-    runtime_context,
-  } satisfies BusinessEventPublishRequest));
+    trace_id: ownerReceipt.trace_id,
+    request_id: ownerReceipt.request_id,
+    outcome_type: "response" as const,
+    owner_execution_receipt: ownerReceipt,
+  });
+}
+
+function eventEvidenceRef(receipt: P1EventExecutionReceipt): string {
+  return `sha256:${createHash("sha256").update(canonicalEvidenceJson(receipt), "utf8").digest("hex")}`;
+}
+
+export async function publish_business_event(
+  interface_ref: string,
+  subject_ref: string,
+  input: unknown,
+  runtime_context: RuntimeContext,
+  owner_execution: BusinessOperationSuccess,
+  publisher: BusinessEventPublisher,
+): Promise<BusinessEventOutcome> {
+  try {
+    const binding = resolve_business_event_interface(interface_ref, "EVENT_PUBLISH");
+    resolveRegisteredOperationByExactRef(binding.operation_ref);
+    const subjectRef = nonEmptyString(subject_ref, "subject_ref");
+    if (runtime_context.stage_contract_ref !== P1_CONTRACT_REF
+      || runtime_context.operation_ref !== binding.operation_ref) {
+      throw new StableRuntimeError("P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH", "RuntimeContext must bind the exact P1 owning Operation");
+    }
+    if (
+      owner_execution?.outcome_type !== "response"
+      || owner_execution.execution_receipt === undefined
+      || !completed_p1_receipts.has(owner_execution.execution_receipt)
+      || owner_execution.execution_receipt.outcome_type !== "response"
+      || owner_execution.execution_receipt.operation_ref !== binding.operation_ref
+      || owner_execution.trace_id !== runtime_context.trace_id
+      || owner_execution.request_id !== runtime_context.request_id
+      || owner_execution.execution_receipt.trace_id !== runtime_context.trace_id
+      || owner_execution.execution_receipt.request_id !== runtime_context.request_id
+    ) {
+      throw new StableRuntimeError("P1_EVENT_BINDING_INVALID",
+        "EVENT_PUBLISH requires a completed, exact, owning P1 Operation outcome and execution receipt");
+    }
+    // Publication is transport-only, after the owning Operation has completed; it never re-executes the Operation.
+    const runtimeResult = await publisher.publish(deep_freeze({
+      subject_ref: subjectRef, interface_ref: binding.interface_ref, operation_ref: binding.operation_ref,
+      input, runtime_context, trace_id: runtime_context.trace_id, request_id: runtime_context.request_id,
+    }));
+    const execution_receipt = eventReceipt(binding, subjectRef, owner_execution.execution_receipt);
+    return deep_freeze({
+      outcome_type: "response" as const,
+      subject_ref: subjectRef, runtime_result: runtimeResult, execution_receipt,
+      evidence_ref: eventEvidenceRef(execution_receipt),
+      trace_id: runtime_context.trace_id, request_id: runtime_context.request_id,
+    });
+  } catch (error) {
+    return deep_freeze({
+      outcome_type: "stable_error" as const, subject_ref,
+      stable_error: exactEventError(error),
+      trace_id: runtime_context.trace_id, request_id: runtime_context.request_id,
+    });
+  }
 }
 
 export async function consume_business_event(
   interface_ref: string,
+  subject_ref: string,
   input: unknown,
   runtime_context: RuntimeContext,
-): Promise<unknown> {
-  const binding = resolve_business_event_interface(interface_ref, "EVENT_CONSUME");
-  const registered = resolveRegisteredOperationByExactRef(binding.operation_ref);
-  return await invoke_business_operation(
-    {
+  hook_binding_set: readonly HookBinding[] = [],
+): Promise<BusinessEventOutcome> {
+  try {
+    const binding = resolve_business_event_interface(interface_ref, "EVENT_CONSUME");
+    const subjectRef = nonEmptyString(subject_ref, "subject_ref");
+    const registered = resolveRegisteredOperationByExactRef(binding.operation_ref);
+    const outcome = await invoke_business_operation({
       route_key: registered.route.operation_ref,
       capability_id: registered.route.capability_id,
       operation_id: registered.route.operation_id,
       trace_id: runtime_context.trace_id,
       request_id: runtime_context.request_id,
-    },
-    input,
-    runtime_context,
-  );
+    }, input, runtime_context, hook_binding_set);
+    if (outcome.outcome_type === "stable_error") {
+      return deep_freeze({
+        outcome_type: "stable_error" as const, subject_ref: subjectRef,
+        stable_error: outcome.stable_error,
+        trace_id: outcome.trace_id, request_id: outcome.request_id,
+      });
+    }
+    const execution_receipt = eventReceipt(binding, subjectRef, outcome.execution_receipt);
+    return deep_freeze({
+      outcome_type: "response" as const, subject_ref: subjectRef,
+      runtime_result: outcome.runtime_result,
+      execution_receipt, evidence_ref: eventEvidenceRef(execution_receipt),
+      trace_id: outcome.trace_id, request_id: outcome.request_id,
+    });
+  } catch (error) {
+    return deep_freeze({
+      outcome_type: "stable_error" as const, subject_ref,
+      stable_error: exactEventError(error),
+      trace_id: runtime_context.trace_id, request_id: runtime_context.request_id,
+    });
+  }
 }
 
 export function register_business_object(
