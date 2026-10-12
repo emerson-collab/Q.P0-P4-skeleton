@@ -199,11 +199,32 @@ export interface BusinessEventFailure {
 
 export type BusinessEventOutcome = BusinessEventSuccess | BusinessEventFailure;
 
+/** Both are P1 registration-time projections of already-declared GENERAL facts. */
+interface RegisteredCapabilityIdentity {
+  readonly capability_ref: string;
+  readonly capability_version: string;
+  readonly capability_contract_ref: string;
+  readonly capability_contract_content_hash: string;
+  readonly capability_id: string;
+  readonly stage_contract_ref: string;
+  readonly runtime_contract_ref: string;
+}
+
+interface RegisteredInterfaceIdentity {
+  readonly interface_ref: string;
+  readonly operation_ref: string;
+  readonly surface: string;
+  readonly kind: string;
+  readonly method_ref: string;
+}
+
 interface RegisteredBusinessOperation {
   readonly route: BusinessOperationRouteBinding;
   readonly handler: BusinessOperationHandler;
   readonly authorization: BusinessOperationAuthorization;
   readonly stage_extension: StageExtensionContract;
+  readonly capability_identity?: RegisteredCapabilityIdentity;
+  readonly interface_bindings: readonly RegisteredInterfaceIdentity[];
   readonly static_runtime_slots?: P1StaticRuntimeSlotProjection;
 }
 
@@ -382,7 +403,38 @@ function registerOperationRoute(
   authorization: BusinessOperationAuthorization,
   extension: StageExtensionContract,
   staticSlots?: P1StaticRuntimeSlotProjection,
+  capabilityIdentity?: RegisteredCapabilityIdentity,
+  interfaceIdentity?: RegisteredInterfaceIdentity,
 ): BusinessOperationRouteBinding {
+  // ONE_PER_CAPABILITY forbids conflicting GENERAL facts across Operations
+  // resolved inside one exact Capability Contract.
+  for (const registered of operations.values()) {
+    if (registered.route.capability_contract_ref === route.capability_contract_ref) {
+      if (
+        registered.route.capability_contract_content_hash !== route.capability_contract_content_hash
+        || registered.route.capability_id !== route.capability_id
+      ) {
+        throw new StableRuntimeError(
+          "P1_OVERLAY_SLOT_INVALID",
+          "Capability Contract ref must preserve one exact hash and capability identity",
+        );
+      }
+      if (registered.capability_identity !== undefined && capabilityIdentity !== undefined) {
+        for (const field of [
+          "capability_ref", "capability_version", "capability_contract_ref",
+          "capability_contract_content_hash", "capability_id",
+          "stage_contract_ref", "runtime_contract_ref",
+        ] as const) {
+          if (registered.capability_identity[field] !== capabilityIdentity[field]) {
+            throw new StableRuntimeError(
+              "P1_OVERLAY_SLOT_INVALID",
+              `one Capability must preserve exact GENERAL identity fact ${field}`,
+            );
+          }
+        }
+      }
+    }
+  }
   // An exact concrete Interface can be owned by only one registered Operation.
   for (const ifaceRef of extension.provided_interface_refs) {
     for (const registered of operations.values()) {
@@ -421,6 +473,25 @@ function registerOperationRoute(
     ) {
       throw new StableRuntimeError("P1_OPERATION_DUPLICATE", "P1-derived route_key already has a different exact Operation binding");
     }
+    if (interfaceIdentity !== undefined) {
+      const declared = existing.interface_bindings.find(
+        (binding) => binding.interface_ref === interfaceIdentity.interface_ref,
+      );
+      if (
+        declared !== undefined
+        && (
+          declared.operation_ref !== interfaceIdentity.operation_ref
+          || declared.surface !== interfaceIdentity.surface
+          || declared.kind !== interfaceIdentity.kind
+          || declared.method_ref !== interfaceIdentity.method_ref
+        )
+      ) {
+        throw new StableRuntimeError(
+          "P1_OVERLAY_SLOT_INVALID",
+          "an exact Interface ref cannot change its Surface, Kind, Method or Operation binding",
+        );
+      }
+    }
     const ifaceRefs = extension.provided_interface_refs.filter(
       (interfaceRef) => !existing.stage_extension.provided_interface_refs.includes(interfaceRef),
     );
@@ -432,13 +503,22 @@ function registerOperationRoute(
           ...ifaceRefs,
         ],
       });
-      operations.set(route.route_key, deep_freeze({ ...existing, stage_extension: stageExtension }));
+      const interfaceBindings: readonly RegisteredInterfaceIdentity[] =
+        interfaceIdentity === undefined
+          ? existing.interface_bindings
+          : deep_freeze([...existing.interface_bindings, interfaceIdentity]);
+      operations.set(route.route_key, deep_freeze({
+        ...existing, stage_extension: stageExtension, interface_bindings: interfaceBindings,
+      }));
     }
     return existing.route;
   }
   const frozenRoute = deep_freeze({ ...route });
   operations.set(frozenRoute.route_key, deep_freeze({
-    route: frozenRoute, handler, authorization, stage_extension: extension, ...(staticSlots === undefined ? {} : { static_runtime_slots: staticSlots }),
+    route: frozenRoute, handler, authorization, stage_extension: extension,
+    ...(capabilityIdentity === undefined ? {} : { capability_identity: capabilityIdentity }),
+    interface_bindings: interfaceIdentity === undefined ? [] : [interfaceIdentity],
+    ...(staticSlots === undefined ? {} : { static_runtime_slots: staticSlots }),
   }));
   return frozenRoute;
 }
@@ -464,7 +544,26 @@ export function register_business_operation(
     kind: exactSlotValue(general_slots, "kind"),
     method_ref: exactSlotValue(general_slots, "method_ref"),
   });
-  return registerOperationRoute(operationRouteFromProjection(general_slots), handler, authorization, extension, static_runtime_slots);
+  const capabilityIdentity: RegisteredCapabilityIdentity = deep_freeze({
+    capability_ref: exactSlotValue(general_slots, "capability_ref"),
+    capability_version: exactSlotValue(general_slots, "capability_version"),
+    capability_contract_ref: exactSlotValue(general_slots, "capability_contract_ref"),
+    capability_contract_content_hash: exactSlotValue(general_slots, "capability_contract_content_hash"),
+    capability_id: exactSlotValue(general_slots, "capability_id"),
+    stage_contract_ref: exactSlotValue(general_slots, "stage_contract_ref"),
+    runtime_contract_ref: exactSlotValue(general_slots, "runtime_contract_ref"),
+  });
+  const interfaceIdentity: RegisteredInterfaceIdentity = deep_freeze({
+    interface_ref: exactSlotValue(general_slots, "interface_ref"),
+    operation_ref: exactSlotValue(general_slots, "operation_ref"),
+    surface: exactSlotValue(general_slots, "surface"),
+    kind: exactSlotValue(general_slots, "kind"),
+    method_ref: exactSlotValue(general_slots, "method_ref"),
+  });
+  return registerOperationRoute(
+    operationRouteFromProjection(general_slots), handler, authorization,
+    extension, static_runtime_slots, capabilityIdentity, interfaceIdentity,
+  );
 }
 
 /**
@@ -985,8 +1084,16 @@ export function register_business_event_interface(
   }
 
   const registeredOperation = resolveRegisteredOperationByExactRef(operationRef);
+  const preverifiedInterface = registeredOperation.interface_bindings.find(
+    (identity) => identity.interface_ref === interfaceRef,
+  );
   if (
-    registeredOperation.route.capability_contract_ref !== capabilityContractRef
+    preverifiedInterface === undefined
+    || preverifiedInterface.operation_ref !== operationRef
+    || preverifiedInterface.surface !== surface
+    || preverifiedInterface.kind !== kind
+    || preverifiedInterface.method_ref !== methodRef
+    || registeredOperation.route.capability_contract_ref !== capabilityContractRef
     || registeredOperation.route.capability_contract_content_hash
       !== exactSlotValue(general_slots, "capability_contract_content_hash")
     || registeredOperation.route.capability_id !== exactSlotValue(general_slots, "capability_id")
