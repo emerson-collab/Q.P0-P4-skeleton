@@ -466,7 +466,12 @@ test("P1 Hook bind and evaluate project P0-owned Hook facts without direct evalu
   const bound = bind_business_hook(b.hook_point_ref, b.consumer_ref, b);
   assert.equal(bound.outcome_type, "binding_receipt");
   if (bound.outcome_type !== "binding_receipt") return;
-  assert.equal(bound.binding_receipt.outcome, "validated");
+  assert.equal(bound.binding_receipt.result, "validated");
+  assert.notEqual(bound.binding_receipt, bound.binding_validation);
+  assert.ok(bound.binding_receipt.exact_source_refs.includes(P0_BIND_INTERFACE_REF));
+  assert.match(bound.binding_receipt.input_hashes.binding ?? "", /^[a-f0-9]{64}$/);
+  assert.equal(Object.isFrozen(bound.binding_receipt), true);
+  assert.equal(Number.isNaN(Date.parse(bound.binding_receipt.executed_at)), false);
   register_business_operation(slots, async () => ({ accepted: true }), [b.binding_ref]);
   const outcome = await invoke_business_operation(invokePath(opRef, "hook_enabled", "hook-enabled"),
     { scoped: true }, context(opRef, "hook-enabled"), [b]);
