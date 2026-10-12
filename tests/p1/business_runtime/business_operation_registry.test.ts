@@ -388,6 +388,7 @@ test("P1 registers internal-only Operation without inventing an Interface", asyn
   let attempts = 0;
   register_internal_business_operation({
     capability_contract_ref: CAPABILITY_CONTRACT_REF,
+    capability_contract_content_hash: `sha256:${"b".repeat(64)}`,
     capability_id: "example",
     operation_id: operationId,
     operation_ref: operationRef,
