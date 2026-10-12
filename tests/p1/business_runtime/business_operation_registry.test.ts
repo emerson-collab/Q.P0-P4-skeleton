@@ -1,20 +1,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { P0_CONTRACT_REF } from "../../../src/p0/runtime_contract.ts";
-import type { RuntimeContext } from "../../../src/p0/runtime_contract.ts";
+import { P0_CONTRACT_REF, P0_BIND_INTERFACE_REF, P0_EVALUATE_INTERFACE_REF } from "#q/p0/runtime_contract";
+import type { HookBinding, RuntimeContext } from "#q/p0/runtime_contract";
 import {
   consume_business_event,
   invoke_business_operation,
   invoke_internal_call,
   publish_business_event,
   register_business_event_interface,
-  register_business_operation,
+  register_business_operation as register_concrete_business_operation,
+  register_business_object,
+  resolve_business_object,
+  lookup_business_object,
+  bind_business_hook,
+  evaluate_business_hook,
+  register_business_dependency_client,
+  invoke_dependency,
   register_internal_business_operation,
   registered_business_operation_routes,
   resolve_business_operation,
 } from "../../../src/p1/business_runtime/business_operation_registry.ts";
+import type { BusinessOperationHandler, P1StaticRuntimeSlotProjection } from "../../../src/p1/business_runtime/business_operation_registry.ts";
+import type { P1CapabilityGeneralSlotProjection } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
 import {
   P1_CONTRACT_REF,
+  P1_RUNTIME_SLOT_REFS,
   project_p1_capability_general_slots,
 } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
 
@@ -45,9 +55,43 @@ function projection(
   });
 }
 
+
+function exactStaticSlots(
+  slots: P1CapabilityGeneralSlotProjection,
+  hookBindingRefs: readonly string[] = [],
+): P1StaticRuntimeSlotProjection {
+  return Object.freeze({
+    manifest: { slot_ref: P1_RUNTIME_SLOT_REFS.manifest, value: { capability_ref: slots.capability_ref.value } },
+    qreg: { slot_ref: P1_RUNTIME_SLOT_REFS.qreg, value: { operation_ref: slots.operation_ref.value, interface_ref: slots.interface_ref.value } },
+    qconfig: { slot_ref: P1_RUNTIME_SLOT_REFS.qconfig, value: {} },
+    operation_contract: { slot_ref: P1_RUNTIME_SLOT_REFS.operation_contract, value: slots.operation_ref.value },
+    policy_refs: { slot_ref: P1_RUNTIME_SLOT_REFS.policy_refs, value: [] },
+    hook_binding_refs: { slot_ref: P1_RUNTIME_SLOT_REFS.hook_binding_refs, value: [...hookBindingRefs] },
+  });
+}
+
+function register_business_operation(
+  slots: P1CapabilityGeneralSlotProjection,
+  handler: BusinessOperationHandler,
+  hookBindingRefs: readonly string[] = [],
+) {
+  return register_concrete_business_operation(slots, handler, exactStaticSlots(slots, hookBindingRefs));
+}
+
+function invokePath(operationRef: string, operationId: string, suffix: string) {
+  return {
+    route_key: operationRef,
+    capability_id: "example",
+    operation_id: operationId,
+    trace_id: `trace:${suffix}`,
+    request_id: `request:${suffix}`,
+  };
+}
+
+
 function context(operationRef: string, suffix: string): RuntimeContext {
   return Object.freeze({
-    stage_contract_ref: "Q.TEST.PREVIOUS@V0100",
+    stage_contract_ref: P1_CONTRACT_REF,
     operation_ref: operationRef,
     trace_id: `trace:${suffix}`,
     request_id: `request:${suffix}`,
@@ -56,129 +100,102 @@ function context(operationRef: string, suffix: string): RuntimeContext {
   });
 }
 
-test("P1 derives route_key as exact operation_ref bytes and resolves the exact route tuple", async () => {
+test("P1 derives route_key and enters exactly one P0 RuntimeProvider invocation", async () => {
   const slots = projection("read_example", "read_example", "CALL", "CALL_INVOKE", "invoke_business_operation");
   const operationRef = slots.operation_ref.value;
   let attempts = 0;
-  const handler = async (input: unknown, runtimeContext: RuntimeContext) => {
+  const handler = async (input: unknown, ctx: RuntimeContext) => {
     attempts += 1;
-    return { input, operation_ref: runtimeContext.operation_ref, stage_contract_ref: runtimeContext.stage_contract_ref };
+    return { input, operation_ref: ctx.operation_ref, stage_contract_ref: ctx.stage_contract_ref };
   };
   const route = register_business_operation(slots, handler);
-
   assert.equal(route.route_key, operationRef);
   assert.equal(route.route_key, route.operation_ref);
-  assert.equal(registered_business_operation_routes().at(-1)?.route_key, operationRef);
-
-  const path = {
-    route_key: operationRef,
-    capability_id: "example",
-    operation_id: "read_example",
-    trace_id: "trace:call",
-    request_id: "request:call",
-  };
+  assert.ok(registered_business_operation_routes().some(x => x.route_key === operationRef));
+  const path = invokePath(operationRef, "read_example", "call");
   assert.equal(resolve_business_operation(path), handler);
-  assert.deepEqual(
-    await invoke_business_operation(path, { value: 1 }, context("transport-selected-ignored", "call")),
-    { input: { value: 1 }, operation_ref: operationRef, stage_contract_ref: P1_CONTRACT_REF },
-  );
+  const outcome = await invoke_business_operation(path, { value: 1 }, context(operationRef, "call"));
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type !== "response") return;
+  assert.deepEqual(outcome.runtime_result, {
+    input: { value: 1 }, operation_ref: operationRef, stage_contract_ref: P1_CONTRACT_REF,
+  });
+  assert.equal(outcome.execution_receipt.operation_attempts, 1);
+  assert.equal(outcome.execution_receipt.operation_ref, operationRef);
+  assert.equal(outcome.execution_receipt.rule_evidence.length, 5);
   assert.equal(attempts, 1);
 });
 
-test("P1 rejects any carried route_key or route tuple drift before Operation attempt", async () => {
+test("P1 rejects any carried route_key or tuple drift before P0 Operation attempt", async () => {
   const slots = projection("update_example", "update_example", "CALL", "CALL_INVOKE", "invoke_business_operation");
   const operationRef = slots.operation_ref.value;
   let attempts = 0;
-  register_business_operation(slots, async () => {
-    attempts += 1;
-    return "should-not-run";
-  });
-
-  await assert.rejects(
-    () => invoke_business_operation({
-      route_key: `${operationRef}:alias`,
-      capability_id: "example",
-      operation_id: "update_example",
-      trace_id: "trace:mismatch",
-      request_id: "request:mismatch",
-    }, {}, context(operationRef, "mismatch")),
-    (error: unknown) => error instanceof Error && "code" in error
-      && (error as { code: string }).code === "P1_OPERATION_ROUTE_MISMATCH",
-  );
-
-  await assert.rejects(
-    () => invoke_business_operation({
-      route_key: operationRef,
-      capability_id: "wrong-capability",
-      operation_id: "update_example",
-      trace_id: "trace:mismatch2",
-      request_id: "request:mismatch2",
-    }, {}, context(operationRef, "mismatch2")),
-    (error: unknown) => error instanceof Error && "code" in error
-      && (error as { code: string }).code === "P1_OPERATION_ROUTE_MISMATCH",
-  );
-
+  register_business_operation(slots, async () => { attempts += 1; return "should-not-run"; });
+  const wrongRoute = await invoke_business_operation({
+    ...invokePath(operationRef, "update_example", "mismatch"), route_key: `${operationRef}:alias`,
+  }, {}, context(operationRef, "mismatch"));
+  assert.equal(wrongRoute.outcome_type, "stable_error");
+  if (wrongRoute.outcome_type === "stable_error") assert.equal(wrongRoute.stable_error.code, "P1_OPERATION_ROUTE_MISMATCH");
+  const wrongOwner = await invoke_business_operation({
+    ...invokePath(operationRef, "update_example", "mismatch2"), capability_id: "wrong-capability",
+  }, {}, context(operationRef, "mismatch2"));
+  assert.equal(wrongOwner.outcome_type, "stable_error");
+  if (wrongOwner.outcome_type === "stable_error") assert.equal(wrongOwner.stable_error.code, "P1_OPERATION_ROUTE_MISMATCH");
+  const wrongContext = await invoke_business_operation(invokePath(operationRef, "update_example", "wrongctx"),
+    {}, context("Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100#/operations/unrelated", "wrongctx"));
+  assert.equal(wrongContext.outcome_type, "stable_error");
   assert.equal(attempts, 0);
 });
 
-test("EVENT_CONSUME binds from exact GENERAL slots and invokes the existing Operation directly", async () => {
-  const slots = projection(
-    "consume_example",
-    "example_event_consume",
-    "EVENT",
-    "EVENT_CONSUME",
-    "consume_business_event",
-  );
+test("EVENT_CONSUME preserves exact input and uses the sole P0 invocation", async () => {
+  const slots = projection("consume_example", "example_event_consume", "EVENT", "EVENT_CONSUME", "consume_business_event");
   const operationRef = slots.operation_ref.value;
   let observedInput: unknown;
-  register_business_operation(slots, async (input, runtimeContext) => {
+  register_business_operation(slots, async (input, ctx) => {
     observedInput = input;
-    return { operation_ref: runtimeContext.operation_ref, stage_contract_ref: runtimeContext.stage_contract_ref };
+    return { operation_ref: ctx.operation_ref, stage_contract_ref: ctx.stage_contract_ref };
   });
   const binding = register_business_event_interface(slots);
   assert.equal(binding.operation_ref, operationRef);
-
   const input = Object.freeze({ event_id: "event:1", exact: true });
-  assert.deepEqual(
-    await consume_business_event(binding.interface_ref, input, context("transport-selected-ignored", "consume")),
-    { operation_ref: operationRef, stage_contract_ref: P1_CONTRACT_REF },
-  );
+  const outcome = await consume_business_event(binding.interface_ref, "subject:example", input, context(operationRef, "consume"));
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type !== "response") return;
+  assert.deepEqual(outcome.runtime_result, { operation_ref: operationRef, stage_contract_ref: P1_CONTRACT_REF });
+  assert.equal(outcome.subject_ref, "subject:example");
+  assert.equal(outcome.execution_receipt.owner_execution_receipt.operation_attempts, 1);
+  assert.match(outcome.evidence_ref, /^sha256:[a-f0-9]{64}$/);
   assert.equal(observedInput, input);
 });
 
-test("EVENT_PUBLISH preserves exact binding and never re-executes owner Operation", async () => {
-  const slots = projection(
-    "publish_example",
-    "example_event_publish",
-    "EVENT",
-    "EVENT_PUBLISH",
-    "publish_business_event",
-  );
+test("EVENT_PUBLISH requires completed P1 owner receipt and never re-executes Operation", async () => {
+  const slots = projection("publish_example", "example_event_publish", "EVENT", "EVENT_PUBLISH", "publish_business_event");
   const operationRef = slots.operation_ref.value;
   let attempts = 0;
   let published: unknown;
   register_business_operation(slots, async () => {
     attempts += 1;
-    return "must-not-run";
+    return { authoritative_fact: true };
   });
   const binding = register_business_event_interface(slots);
   const runtimeContext = context(operationRef, "publish");
-
-  assert.deepEqual(
-    await publish_business_event(binding.interface_ref, { authoritative_fact: true }, runtimeContext, {
-      publish(request) {
-        published = request;
-        return { published: true };
-      },
-    }),
-    { published: true },
-  );
-  assert.equal(attempts, 0);
+  const owner = await invoke_business_operation(invokePath(operationRef, "publish_example", "publish"),
+    { authoritative_fact: true }, runtimeContext);
+  assert.equal(owner.outcome_type, "response");
+  if (owner.outcome_type !== "response") return;
+  const outcome = await publish_business_event(binding.interface_ref, "subject:publish",
+    { authoritative_fact: true }, runtimeContext, owner, {
+      publish(request) { published = request; return { published: true }; },
+    });
+  assert.equal(outcome.outcome_type, "response");
+  if (outcome.outcome_type !== "response") return;
+  assert.deepEqual(outcome.runtime_result, { published: true });
+  assert.equal(outcome.execution_receipt.owner_execution_receipt, owner.execution_receipt);
+  assert.equal(attempts, 1);
   assert.deepEqual(published, {
-    interface_ref: binding.interface_ref,
-    operation_ref: operationRef,
-    input: { authoritative_fact: true },
-    runtime_context: runtimeContext,
+    subject_ref: "subject:publish", interface_ref: binding.interface_ref, operation_ref: operationRef,
+    input: { authoritative_fact: true }, runtime_context: runtimeContext,
+    trace_id: runtimeContext.trace_id, request_id: runtimeContext.request_id,
   });
 });
 
@@ -213,30 +230,28 @@ test("EVENT exact slots reject wrong kind or wrong framework method", () => {
   );
 });
 
-test("EVENT_PUBLISH rejects runtime Operation drift before transport delivery", async () => {
-  const slots = projection(
-    "publish_context_guard",
-    "publish_context_guard",
-    "EVENT",
-    "EVENT_PUBLISH",
-    "publish_business_event",
-  );
-  register_business_operation(slots, async () => undefined);
+test("EVENT_PUBLISH rejects context drift or missing owner evidence before transport", async () => {
+  const slots = projection("publish_context_guard", "publish_context_guard", "EVENT", "EVENT_PUBLISH", "publish_business_event");
+  const operationRef = slots.operation_ref.value;
+  register_business_operation(slots, async () => ({ fact: true }));
   const binding = register_business_event_interface(slots);
   let deliveries = 0;
-  await assert.rejects(
-    () => publish_business_event(
-      binding.interface_ref,
-      {},
-      context(`${CAPABILITY_CONTRACT_REF}#/operations/other`, "publish-guard"),
-      { publish() { deliveries += 1; return undefined; } },
-    ),
-    (error: unknown) => error instanceof Error && "code" in error
-      && (error as { code: string }).code === "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH",
-  );
+  const realContext = context(operationRef, "publish-guard");
+  const owner = await invoke_business_operation(invokePath(operationRef, "publish_context_guard", "publish-guard"), {}, realContext);
+  assert.equal(owner.outcome_type, "response");
+  if (owner.outcome_type !== "response") return;
+  const bad = await publish_business_event(binding.interface_ref, "subject:guard", {},
+    context(`${CAPABILITY_CONTRACT_REF}#/operations/other`, "publish-guard"), owner,
+    { publish() { deliveries += 1; return undefined; } });
+  assert.equal(bad.outcome_type, "stable_error");
+  if (bad.outcome_type === "stable_error") assert.equal(bad.stable_error.code, "P1_EVENT_RUNTIME_CONTEXT_OPERATION_MISMATCH");
+  assert.equal(deliveries, 0);
+  const forgedOwner = { ...owner, execution_receipt: { ...owner.execution_receipt } };
+  const forged = await publish_business_event(binding.interface_ref, "subject:guard", {}, realContext,
+    forgedOwner, { publish() { deliveries += 1; return undefined; } });
+  assert.equal(forged.outcome_type, "stable_error");
   assert.equal(deliveries, 0);
 });
-
 
 test("P1 internal_call_invoke advances exact child path/depth and uses RuntimeContext request_id", async () => {
   const slots = projection(
