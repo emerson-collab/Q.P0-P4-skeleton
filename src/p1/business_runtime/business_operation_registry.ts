@@ -343,6 +343,20 @@ function registerOperationRoute(
   extension: StageExtensionContract,
   staticSlots?: P1StaticRuntimeSlotProjection,
 ): BusinessOperationRouteBinding {
+  // An exact concrete Interface can be owned by only one registered Operation.
+  for (const ifaceRef of extension.provided_interface_refs) {
+    for (const registered of operations.values()) {
+      if (
+        registered.route.operation_ref !== route.operation_ref
+        && registered.stage_extension.provided_interface_refs.includes(ifaceRef)
+      ) {
+        throw new StableRuntimeError(
+          "P1_OPERATION_DUPLICATE",
+          "a concrete Interface ref must bind exactly one existing Operation",
+        );
+      }
+    }
+  }
   const existing = operations.get(route.route_key);
   if (existing !== undefined) {
     // One Operation may own multiple exact Interface identities. The Operation,
