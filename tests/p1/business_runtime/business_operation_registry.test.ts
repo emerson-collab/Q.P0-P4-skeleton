@@ -21,7 +21,7 @@ import {
   resolve_business_operation,
 } from "../../../src/p1/business_runtime/business_operation_registry.ts";
 import type { BusinessOperationHandler, P1StaticRuntimeSlotProjection } from "../../../src/p1/business_runtime/business_operation_registry.ts";
-import type { P1CapabilityGeneralSlotProjection } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
+import type { P1CapabilityGeneralSlotProjection, P1InterfaceSurface, P1InterfaceKind } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
 import {
   P1_CONTRACT_REF,
   P1_RUNTIME_SLOT_REFS,
@@ -34,8 +34,8 @@ const CAPABILITY_CONTRACT_REF = "Q.TEST.CONTRACT.CAPABILITY.EXAMPLE@V0100";
 function projection(
   operationId: string,
   interfaceId: string,
-  surface: string,
-  kind: string,
+  surface: P1InterfaceSurface,
+  kind: P1InterfaceKind,
   methodRef: string,
 ) {
   return project_p1_capability_general_slots({
