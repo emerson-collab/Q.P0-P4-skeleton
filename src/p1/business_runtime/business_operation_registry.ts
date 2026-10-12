@@ -239,7 +239,7 @@ function bindP1RuntimeSlot<K extends P1RuntimeSlotId>(
   value: unknown,
 ): Readonly<{ slot_ref: string; value: unknown }> {
   const descriptor = P1_RUNTIME_SLOT_CATALOG[id];
-  if (descriptor.binding_phase !== phase || value === undefined) {
+  if (descriptor.binding_phase !== phase) {
     throw new StableRuntimeError(
       "P1_OVERLAY_SLOT_INVALID",
       `P1 Runtime Slot ${id} must bind its exact declared V0186 source and phase`,
@@ -256,8 +256,8 @@ function exactStaticRuntimeSlot(
   if (binding === undefined || binding.slot_ref !== P1_RUNTIME_SLOT_REFS[id]) {
     throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} must bind its exact V0186 P1 runtime slot_ref`);
   }
-  if (P1_RUNTIME_SLOT_CATALOG[id].source_class !== "P1_STATIC_RUNTIME_PROJECTION") {
-    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} is not a P1 static runtime projection`);
+  if (P1_RUNTIME_SLOT_CATALOG[id].source_class !== "P1_STATIC_RUNTIME_PROJECTION" || binding.value === undefined) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} requires its exact static governed runtime projection value`);
   }
   return bindP1RuntimeSlot(id, "STATIC_OVERLAY_BIND", binding.value).value;
 }
@@ -710,13 +710,14 @@ function validatedP1Context(
   const contextSnapshot: RuntimeContext = runtime_context.attributes === undefined
     ? deep_freeze({ ...runtime_context })
     : deep_freeze({ ...runtime_context, attributes: { ...runtime_context.attributes } });
-  return Object.freeze({
+  const validated = Object.freeze({
     route_key: bindP1RuntimeSlot("route_key", "PRE_DISPATCH_ROUTE_BIND", route.operation_ref).value as string,
     operation_ref: route.operation_ref,
     trace_id: bindP1RuntimeSlot("trace_id", "INVOCATION_ENTRY", path.trace_id).value as string,
     request_id: bindP1RuntimeSlot("request_id", "INVOCATION_ENTRY", path.request_id).value as string,
     runtime_context: bindP1RuntimeSlot("runtime_context", "P0_RUNTIME_ENTRY", contextSnapshot).value as RuntimeContext,
   });
+  return bindP1RuntimeSlot("validated_context", "PRE_OPERATION", validated).value as typeof validated;
 }
 
 function stableP1Outcome(
@@ -725,11 +726,12 @@ function stableP1Outcome(
   request_id: string,
 ): FinalizedBusinessOperationOutcome {
   const stable = normalize_runtime_error(error, "P1_OPERATION_ROUTE_MISMATCH");
+  const normalized: StableRuntimeErrorShape = stable.details === undefined
+    ? { code: stable.code, message: stable.message }
+    : { code: stable.code, message: stable.message, details: stable.details };
   return deep_freeze({
-    outcome_type: "stable_error" as const,
-    stable_error: stable.details === undefined
-      ? { code: stable.code, message: stable.message }
-      : { code: stable.code, message: stable.message, details: stable.details },
+    outcome_type: bindP1RuntimeSlot("outcome_type", "OUTCOME_FINALIZATION", "stable_error").value as "stable_error",
+    stable_error: bindP1RuntimeSlot("stable_error", "OUTCOME_FINALIZATION", normalized).value as StableRuntimeErrorShape,
     trace_id, request_id,
   });
 }
@@ -751,9 +753,10 @@ export async function invoke_business_operation(
     return stableP1Outcome(error, path?.trace_id ?? "", path?.request_id ?? "");
   }
 
+  const inputSlot = bindP1RuntimeSlot("input", "INVOCATION_ENTRY", input);
   let authorization: Readonly<AuthorizationEvidence>;
   try {
-    authorization = await verifyBoundAuthorization(registered, input, validated.runtime_context);
+    authorization = await verifyBoundAuthorization(registered, inputSlot.value, validated.runtime_context);
   } catch (error) {
     // Before-Operation authorization failure has zero attempts and no fake P0 result.
     const finalized = stableP1Outcome(error, validated.trace_id, validated.request_id);
@@ -765,7 +768,6 @@ export async function invoke_business_operation(
 
   try {
     // The sole P0 Runtime owns Hook ordering, context validation and the attempt.
-    const inputSlot = bindP1RuntimeSlot("input", "INVOCATION_ENTRY", input);
     const p0: RuntimeInvokeResult<unknown> = await runtime_provider.invoke({
       stage_extension: registered.stage_extension,
       runtime_context: validated.runtime_context,
