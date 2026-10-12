@@ -727,3 +727,44 @@ test("V0117 one source Interface cannot be reclassified across P2 categories", a
   );
   assert.deepEqual(events, []);
 });
+
+test("V0117 frozen instance-variable refs cannot contain runtime values", async () => {
+  const b = binding("STATIC", "instance-var");
+  const original = frozenV0117Projection([b]).governed_data_exposure_binding_projection;
+  const changed = {
+    ...original,
+    bindings: original.bindings.map(row => ({
+      ...row, declared_instance_variable_refs: ["unbound-runtime-value"],
+    })),
+  };
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeGovernedDataTriad({
+      p2_handoff_obligation: p2Handoff([b]),
+      governed_data_exposure_binding_projection: changed,
+      governed_data_exposure_binding_projection_hash: hash(changed),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(b)],
+    }, materializer([]), memoryStore(events)),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_PROJECTION_BINDING_MISMATCH",
+  );
+  assert.deepEqual(events, []);
+});
+
+test("V0117 refuses any triad execution without governed upstream authorities", async () => {
+  const b = binding("STATIC", "no-authority");
+  const events: string[] = [];
+  await assert.rejects(
+    () => realizeWithExactAuthorities({
+      p2_handoff_obligation: p2Handoff([b]),
+      ...frozenV0117Projection([b]),
+      governed_data_json_triad_obligation: triadObligation(),
+      binding_executions: [execution(b)],
+    }, materializer([]), memoryStore(events),
+       undefined as unknown as GovernedTriadFrozenAuthorities),
+    (err: unknown) => err instanceof GovernedDataProviderRealizationError
+      && err.code === "RDS_GOVERNED_DATA_AUTHORITY_UNAVAILABLE",
+  );
+  assert.deepEqual(events, []);
+});
