@@ -512,6 +512,48 @@ function finalizedReceipt(
   return receipt;
 }
 
+/**
+ * P1 PRE_OPERATION validated_context is a route/correlation validation result.
+ * The P0 RuntimeContext itself remains P0-owned and is revalidated by P0 M1.
+ * No new field, caller-derived route authority or second Runtime is introduced.
+ */
+function validatedP1Context(
+  path: Readonly<BusinessOperationInvokePath>,
+  route: Readonly<BusinessOperationRouteBinding>,
+  runtime_context: RuntimeContext,
+): Readonly<{
+  readonly route_key: string;
+  readonly operation_ref: string;
+  readonly trace_id: string;
+  readonly request_id: string;
+  readonly runtime_context: RuntimeContext;
+}> {
+  if (runtime_context === null || typeof runtime_context !== "object" || Array.isArray(runtime_context)) {
+    throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "P0 RuntimeContext must be present for the exact P1 Operation");
+  }
+  if (
+    typeof path.trace_id !== "string" || path.trace_id.length === 0
+    || typeof path.request_id !== "string" || path.request_id.length === 0
+    || path.trace_id !== runtime_context.trace_id
+    || path.request_id !== runtime_context.request_id
+    || runtime_context.stage_contract_ref !== P1_CONTRACT_REF
+    || runtime_context.operation_ref !== route.operation_ref
+    || path.route_key !== route.operation_ref
+  ) {
+    throw new StableRuntimeError(
+      "P1_OPERATION_ROUTE_MISMATCH",
+      "P1 validated_context requires exact derived route, Stage, Operation and invocation correlation",
+    );
+  }
+  return Object.freeze({
+    route_key: route.operation_ref,
+    operation_ref: route.operation_ref,
+    trace_id: path.trace_id,
+    request_id: path.request_id,
+    runtime_context,
+  });
+}
+
 export async function invoke_business_operation(
   path: Readonly<BusinessOperationInvokePath>,
   input: unknown,
@@ -520,18 +562,12 @@ export async function invoke_business_operation(
 ): Promise<BusinessOperationOutcome> {
   try {
     const registered = resolveRegisteredOperationByPath(path);
-    if (path.trace_id !== runtime_context.trace_id || path.request_id !== runtime_context.request_id) {
-      throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "Invocation correlation does not match the resolved P1 route context");
-    }
-    if (runtime_context.stage_contract_ref !== P1_CONTRACT_REF || runtime_context.operation_ref !== registered.route.operation_ref) {
-      throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "P0 RuntimeContext must exactly match the bound P1 Stage and Operation");
-    }
-    // P1 checks the exact route/correlation before P0 performs its own immutable
-    // RuntimeContext validation and frozen-hook invocation pipeline.
-    const validated_context: RuntimeContext = runtime_context;
+    const validated_context = validatedP1Context(path, registered.route, runtime_context);
+    // P1 validated only P1-owned route/identity/correlation; P0 validates and
+    // freezes the existing RuntimeContext at P0_RUNTIME_ENTRY.
     const p0 = await runtime_provider.invoke({
       stage_extension: registered.stage_extension,
-      runtime_context: validated_context, input,
+      runtime_context: validated_context.runtime_context, input,
       operation: registered.handler,
       hook_binding_set,
     });
