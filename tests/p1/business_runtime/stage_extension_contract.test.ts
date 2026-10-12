@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { P0_CONTRACT_REF } from "../../../src/p0/runtime_contract.ts";
+import { P0_CONTRACT_REF } from "#q/p0/runtime_contract";
 import {
   P1_CAPABILITY_GENERAL_SLOT_REFS,
+  P1_RUNTIME_SLOT_IDS,
+  P1_RUNTIME_SLOT_REFS,
+  P1_RUNTIME_SLOT_CATALOG,
   P1_CONTRACT_REF,
   P1_FRAMEWORK_ANCHOR_CROSSWALK,
   create_p1_capability_stage_extension,
@@ -130,5 +133,37 @@ test("unknown Surface/Kind cannot create or infer a new framework anchor", () =>
       method_ref: "watch_business_object",
     }),
     /must resolve exactly one pre-existing P1 V0186 framework anchor/,
+  );
+});
+
+test("V0186 runtime slot catalog preserves all 18 exact identities, source classes and phases", () => {
+  const expected = [
+    "route_key", "trace_id", "request_id", "manifest", "qreg", "qconfig",
+    "operation_contract", "policy_refs", "hook_binding_refs", "input",
+    "runtime_context", "validated_context", "operation_attempt",
+    "outcome_type", "runtime_result", "stable_error", "execution_receipt", "rule_evidence",
+  ];
+  assert.deepEqual(P1_RUNTIME_SLOT_IDS, expected);
+  assert.equal(new Set(P1_RUNTIME_SLOT_IDS).size, 18);
+  for (const slotId of P1_RUNTIME_SLOT_IDS) {
+    assert.equal(
+      P1_RUNTIME_SLOT_REFS[slotId],
+      `${P1_CONTRACT_REF}#/overlay_slot_catalog/runtime_slots/${slotId}`,
+    );
+    assert.equal(P1_RUNTIME_SLOT_CATALOG[slotId].accepted_source_fact.length > 0, true);
+  }
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.route_key.source_class, "P1_DERIVED_RUNTIME");
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.route_key.binding_phase, "PRE_DISPATCH_ROUTE_BIND");
+  for (const id of ["manifest", "qreg", "qconfig", "operation_contract", "policy_refs", "hook_binding_refs"] as const) {
+    assert.equal(P1_RUNTIME_SLOT_CATALOG[id].source_class, "P1_STATIC_RUNTIME_PROJECTION");
+    assert.equal(P1_RUNTIME_SLOT_CATALOG[id].binding_phase, "STATIC_OVERLAY_BIND");
+  }
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.runtime_result.source_class, "P0_RUNTIME_OUTPUT");
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.runtime_result.binding_phase, "P0_RUNTIME_RETURN");
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.execution_receipt.binding_phase, "POST_OUTCOME_PRE_RETURN");
+  assert.equal(P1_RUNTIME_SLOT_CATALOG.rule_evidence.binding_phase, "POST_OUTCOME_PRE_RETURN");
+  assert.equal(
+    new Set([...Object.keys(P1_CAPABILITY_GENERAL_SLOT_REFS), ...P1_RUNTIME_SLOT_IDS]).size,
+    13 + 18,
   );
 });
