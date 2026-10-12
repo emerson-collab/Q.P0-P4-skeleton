@@ -16,8 +16,8 @@ export const REPOSITORY_SKELETON_HASH =
 export const P1_CAPABILITY_MATERIALIZATION_REF =
   "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0117" as const;
 export const P1_CAPABILITY_MATERIALIZATION_HASH =
-  // Raw-byte hash of the explicitly reviewed V0117 corrected candidate.
-  // A candidate hash is NOT an activation/Gate verdict.
+  // Exact SHA-256 of the frozen P1 Materialization Source bytes.
+  // This is an integrity binding, not a second semantic authority.
   "sha256:cc1d1933d88125b400b8a6f3fd0042b521f22276ff74b2dda19798ddce76757f" as const;
 export const P1_BUSINESS_RUNTIME_REF =
   "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186" as const;
@@ -479,7 +479,7 @@ function validateP2HandoffObligation(
   if (value.source_boundary_ref !== P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_HANDOFF_OBLIGATION_INVALID",
-      "p2_handoff_obligation source_boundary_ref does not bind exact P1CM V0117 handoff declaration",
+      `p2_handoff_obligation source_boundary_ref must bind ${P1_TO_P2_HANDOFF_SOURCE_BOUNDARY_REF}`,
     );
   }
   if (value.canonical_binding_order !== "binding_ref_ASCENDING_THEN_member_ref_ASCENDING") {
@@ -523,7 +523,7 @@ function validateP2HandoffObligation(
   if (value.exact_current_p2_ref !== P2_CONTRACT_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_AUTHORITY_MISMATCH",
-      "p2_handoff_obligation exact_current_p2_ref is not CURRENT P2 V0128",
+      `p2_handoff_obligation exact_current_p2_ref must equal ${P2_CONTRACT_REF}`,
     );
   }
   if (value.exact_current_p2_hash !== P2_CONTRACT_HASH) {
@@ -631,7 +631,7 @@ function validateTriadObligation(
   if (value.source_boundary_ref !== GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
-      "triad source_boundary_ref does not bind exact P1CM V0117 exposure projection",
+      `triad source_boundary_ref must bind ${GOVERNED_DATA_TRIAD_SOURCE_BOUNDARY_REF}`,
     );
   }
   if (value.applicability !== "DECLARED") {
@@ -666,7 +666,7 @@ function validateTriadObligation(
   ) {
     throw new GovernedDataProviderRealizationError(
       "RDS_GOVERNED_DATA_TRIAD_OBLIGATION_INVALID",
-      "triad schema/category/integrity/execution refs must equal exact V0117 and frozen P2 boundaries",
+      "triad schema/category/integrity/execution refs must equal the declared frozen P1/P2 boundaries",
     );
   }
 
