@@ -20,7 +20,7 @@ import {
   registered_business_operation_routes,
   resolve_business_operation,
 } from "../../../src/p1/business_runtime/business_operation_registry.ts";
-import type { BusinessOperationAuthorization, BusinessOperationHandler, P1StaticRuntimeSlotProjection } from "../../../src/p1/business_runtime/business_operation_registry.ts";
+import type { BusinessOperationAuthorization, BusinessOperationHandler, BusinessOperationOutcome, P1StaticRuntimeSlotProjection } from "../../../src/p1/business_runtime/business_operation_registry.ts";
 import type { P1CapabilityGeneralSlotProjection, P1InterfaceSurface, P1InterfaceKind } from "../../../src/p1/business_runtime/stage_extension_contract.ts";
 import {
   P1_CONTRACT_REF,
@@ -970,4 +970,26 @@ test("V0186 malformed EVENT RuntimeContext returns StableError without an Operat
   );
   assert.equal(response.outcome_type, "stable_error");
   assert.equal(attempts, 0);
+});
+
+
+test("V0186 dependency outcomes reject simultaneous runtime_result and stable_error variants", async () => {
+  register_business_dependency_client({
+    local_dependency_id: "mixed_outcome",
+    dependency_contract_ref: "Q.TEST.CONTRACT.DEPENDENCY@V0100",
+    dependency_client_ref: "Q.TEST.CLIENT.DEPENDENCY@V0100",
+    dependency_binding_ref: "Q.TEST.BINDING.DEPENDENCY@V0100",
+    invoke: async () => ({
+      outcome_type: "response",
+      runtime_result: { value: 1 },
+      stable_error: { code: "FORBIDDEN", message: "mixed outcome" },
+      trace_id: "trace:mixed",
+      request_id: "request:mixed",
+    } as unknown as BusinessOperationOutcome),
+  });
+  const outcome = await invoke_dependency("mixed_outcome", {}, {}, "trace:mixed", "request:mixed");
+  assert.equal(outcome.outcome_type, "stable_error");
+  if (outcome.outcome_type === "stable_error") {
+    assert.equal(outcome.stable_error.code, "P1_BINDING_INVALID");
+  }
 });
