@@ -5,6 +5,7 @@ import type { HookBinding, HookEvidence, RuntimeContext, RuntimeOperation, Runti
 import {
   P1_CAPABILITY_GENERAL_SLOT_IDS,
   P1_CAPABILITY_GENERAL_SLOT_REFS,
+  P1_RUNTIME_SLOT_CATALOG,
   P1_RUNTIME_SLOT_REFS,
   P1_CONTRACT_REF,
   create_p1_capability_stage_extension,
@@ -13,6 +14,7 @@ import {
 import type {
   P1CapabilityGeneralSlotId,
   P1CapabilityGeneralSlotProjection,
+  P1RuntimeSlotId,
 } from "./stage_extension_contract.ts";
 
 export type P1StaticRuntimeSlotId =
@@ -227,6 +229,25 @@ function exactSlotValue(
   return nonEmptyString(binding.value, slotId);
 }
 
+/**
+ * A Runtime Slot is a named target with one exact V0186 ref, source class and
+ * binding phase. This is a P1-owned transient projection, never a new Runtime.
+ */
+function bindP1RuntimeSlot<K extends P1RuntimeSlotId>(
+  id: K,
+  phase: (typeof P1_RUNTIME_SLOT_CATALOG)[K]["binding_phase"],
+  value: unknown,
+): Readonly<{ slot_ref: string; value: unknown }> {
+  const descriptor = P1_RUNTIME_SLOT_CATALOG[id];
+  if (descriptor.binding_phase !== phase || value === undefined) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      `P1 Runtime Slot ${id} must bind its exact declared V0186 source and phase`,
+    );
+  }
+  return Object.freeze({ slot_ref: P1_RUNTIME_SLOT_REFS[id], value });
+}
+
 function exactStaticRuntimeSlot(
   slots: P1StaticRuntimeSlotProjection,
   id: P1StaticRuntimeSlotId,
@@ -235,10 +256,10 @@ function exactStaticRuntimeSlot(
   if (binding === undefined || binding.slot_ref !== P1_RUNTIME_SLOT_REFS[id]) {
     throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} must bind its exact V0186 P1 runtime slot_ref`);
   }
-  if (binding.value === undefined) {
-    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} requires its governed runtime projection value`);
+  if (P1_RUNTIME_SLOT_CATALOG[id].source_class !== "P1_STATIC_RUNTIME_PROJECTION") {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} is not a P1 static runtime projection`);
   }
-  return binding.value;
+  return bindP1RuntimeSlot(id, "STATIC_OVERLAY_BIND", binding.value).value;
 }
 
 function staticRefList(value: unknown, field: string): readonly string[] {
@@ -327,8 +348,9 @@ function operationRouteFromProjection(
     );
   }
 
+  const routeKeySlot = bindP1RuntimeSlot("route_key", "PRE_DISPATCH_ROUTE_BIND", operationRef);
   return deep_freeze({
-    route_key: operationRef,
+    route_key: routeKeySlot.value as string,
     capability_contract_ref: capabilityContractRef,
     capability_id: capabilityId,
     operation_id: operationId,
@@ -650,6 +672,7 @@ function finalizedReceipt(
     outcome_hash, operation_attempt: operation_attempts,
     operation_attempts, hook_evidence, rule_evidence,
   });
+  bindP1RuntimeSlot("rule_evidence", "POST_OUTCOME_PRE_RETURN", rule_evidence);
   completed_p1_receipts.add(receipt);
   return receipt;
 }
@@ -688,11 +711,11 @@ function validatedP1Context(
     ? deep_freeze({ ...runtime_context })
     : deep_freeze({ ...runtime_context, attributes: { ...runtime_context.attributes } });
   return Object.freeze({
-    route_key: route.operation_ref,
+    route_key: bindP1RuntimeSlot("route_key", "PRE_DISPATCH_ROUTE_BIND", route.operation_ref).value as string,
     operation_ref: route.operation_ref,
-    trace_id: path.trace_id,
-    request_id: path.request_id,
-    runtime_context: contextSnapshot,
+    trace_id: bindP1RuntimeSlot("trace_id", "INVOCATION_ENTRY", path.trace_id).value as string,
+    request_id: bindP1RuntimeSlot("request_id", "INVOCATION_ENTRY", path.request_id).value as string,
+    runtime_context: bindP1RuntimeSlot("runtime_context", "P0_RUNTIME_ENTRY", contextSnapshot).value as RuntimeContext,
   });
 }
 
@@ -742,27 +765,33 @@ export async function invoke_business_operation(
 
   try {
     // The sole P0 Runtime owns Hook ordering, context validation and the attempt.
+    const inputSlot = bindP1RuntimeSlot("input", "INVOCATION_ENTRY", input);
     const p0: RuntimeInvokeResult<unknown> = await runtime_provider.invoke({
       stage_extension: registered.stage_extension,
       runtime_context: validated.runtime_context,
-      input,
+      input: inputSlot.value,
       operation: registered.handler,
       hook_binding_set,
     });
     // Finalize first, create the P1 execution receipt second, return last.
     const finalized: FinalizedBusinessOperationOutcome = p0.outcome === "success"
       ? deep_freeze({
-          outcome_type: "response" as const, runtime_result: p0.value,
+          outcome_type: bindP1RuntimeSlot("outcome_type", "OUTCOME_FINALIZATION", "response").value as "response",
+          runtime_result: bindP1RuntimeSlot("runtime_result", "P0_RUNTIME_RETURN", p0.value).value,
           trace_id: p0.trace_id, request_id: p0.request_id,
         })
       : stableP1Outcome(p0.outcome === "error"
           ? p0.error
           : new StableRuntimeError("before_process_deny", "P0 before_process denied the Operation"),
           p0.trace_id, p0.request_id);
+    const operationAttempt = bindP1RuntimeSlot("operation_attempt", "OPERATION_ATTEMPT", p0.operation_attempts);
     const execution_receipt = finalizedReceipt(
-      registered.route, finalized, p0.operation_attempts, p0.hook_evidence, authorization,
+      registered.route, finalized, operationAttempt.value as 0 | 1, p0.hook_evidence, authorization,
     );
-    return deep_freeze({ ...finalized, execution_receipt });
+    return deep_freeze({
+      ...finalized,
+      execution_receipt: bindP1RuntimeSlot("execution_receipt", "POST_OUTCOME_PRE_RETURN", execution_receipt).value as P1ExecutionReceipt,
+    });
   } catch (error) {
     // Unexpected provider failure remains a fail-closed P1 error, never an
     // assertion that a P0 outcome or Operation attempt was observed.
