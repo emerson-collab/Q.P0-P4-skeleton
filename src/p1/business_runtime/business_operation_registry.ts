@@ -1286,6 +1286,13 @@ export async function publish_business_event(
       || owner_execution.request_id !== runtime_context.request_id
       || owner_execution.execution_receipt.trace_id !== runtime_context.trace_id
       || owner_execution.execution_receipt.request_id !== runtime_context.request_id
+      || owner_execution.execution_receipt.outcome_hash !== `sha256:${createHash("sha256")
+        .update(canonicalEvidenceJson({
+          outcome_type: "response",
+          runtime_result: owner_execution.runtime_result,
+          trace_id: owner_execution.trace_id,
+          request_id: owner_execution.request_id,
+        }), "utf8").digest("hex")}`
     ) {
       throw new StableRuntimeError("P1_EVENT_BINDING_INVALID",
         "EVENT_PUBLISH requires a completed, exact, owning P1 Operation outcome and execution receipt");
