@@ -167,3 +167,377 @@ test("V0186 runtime slot catalog preserves all 18 exact identities, source class
     13 + 18,
   );
 });
+
+
+/**
+ * Non-authoritative contract-to-repository acceptance fixtures.
+ * Exact interface whitelist snapshots are transcribed from P0 V0134 and P1 V0186.
+ * Do not infer additional Surface, Kind, Method or three-layer fields from code.
+ */
+import { readFileSync } from "node:fs";
+
+test("Contract V0186 exact interface whitelist: 10 framework methods and three disjoint field layers", () => {
+  const expected = {
+  "business_operation_invoke": {
+    "surface": "CALL",
+    "kind_code": "M1",
+    "kind": "CALL_INVOKE",
+    "method_ref": "invoke_business_operation",
+    "path": [
+      "route_key",
+      "capability_id",
+      "operation_id",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "manifest",
+      "surface",
+      "qreg",
+      "qconfig",
+      "operation_contract",
+      "policy_refs",
+      "hook_binding_refs"
+    ],
+    "dynamic_mount": [
+      "input",
+      "runtime_context",
+      "validated_context",
+      "operation_attempt",
+      "outcome_type",
+      "runtime_result",
+      "stable_error",
+      "execution_receipt",
+      "rule_evidence"
+    ]
+  },
+  "internal_call_invoke": {
+    "surface": "CALL",
+    "kind_code": "M1",
+    "kind": "CALL_INVOKE",
+    "method_ref": "invoke_internal_call",
+    "path": [
+      "local_route_key",
+      "trace_id",
+      "parent_request_id",
+      "call_path",
+      "call_depth"
+    ],
+    "static_mount": [
+      "target_operation_contract",
+      "cycle_rule",
+      "depth_rule",
+      "hook_binding_refs"
+    ],
+    "dynamic_mount": [
+      "input",
+      "runtime_context",
+      "child_request_id",
+      "child_call_path",
+      "child_call_depth",
+      "outcome_type",
+      "runtime_result",
+      "stable_error",
+      "execution_receipt",
+      "rule_evidence"
+    ]
+  },
+  "dependency_invoke": {
+    "surface": "CALL",
+    "kind_code": "M1",
+    "kind": "CALL_INVOKE",
+    "method_ref": "invoke_dependency",
+    "path": [
+      "local_dependency_id",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "dependency_contract_ref",
+      "dependency_client_ref",
+      "dependency_binding_ref"
+    ],
+    "dynamic_mount": [
+      "input",
+      "context",
+      "provider_resolution",
+      "dependency_request",
+      "outcome_type",
+      "runtime_result",
+      "stable_error",
+      "execution_receipt",
+      "rule_evidence"
+    ]
+  },
+  "business_hook_bind": {
+    "surface": "HOOK",
+    "kind_code": "M2",
+    "kind": "HOOK_BIND",
+    "method_ref": "bind_business_hook",
+    "path": [
+      "hook_point_value",
+      "consumer_id"
+    ],
+    "static_mount": [
+      "p0_runtime_hook_bind_ref",
+      "consumer_contract",
+      "order",
+      "enabled_rule"
+    ],
+    "dynamic_mount": [
+      "binding_validation",
+      "outcome_type",
+      "binding_receipt",
+      "stable_error"
+    ]
+  },
+  "business_hook_evaluate": {
+    "surface": "HOOK",
+    "kind_code": "M3",
+    "kind": "HOOK_EVALUATE",
+    "method_ref": "evaluate_business_hook",
+    "path": [
+      "hook_point_value",
+      "consumer_id",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "p0_runtime_hook_evaluate_ref",
+      "consumer_contract",
+      "order"
+    ],
+    "dynamic_mount": [
+      "hook_envelope",
+      "hook_decision",
+      "hook_evidence",
+      "outcome_type",
+      "evidence_ref",
+      "stable_error"
+    ]
+  },
+  "business_registry_register": {
+    "surface": "REGISTRY",
+    "kind_code": "M6",
+    "kind": "REGISTRY_REGISTER",
+    "method_ref": "register_business_object",
+    "path": [
+      "object_ref"
+    ],
+    "static_mount": [
+      "object_contract",
+      "registry_rule"
+    ],
+    "dynamic_mount": [
+      "registration_receipt",
+      "outcome_type",
+      "stable_error"
+    ]
+  },
+  "business_registry_resolve": {
+    "surface": "REGISTRY",
+    "kind_code": "M7",
+    "kind": "REGISTRY_RESOLVE",
+    "method_ref": "resolve_business_object",
+    "path": [
+      "resolution_key"
+    ],
+    "static_mount": [
+      "object_contract",
+      "registry_rule"
+    ],
+    "dynamic_mount": [
+      "exact_resolution",
+      "outcome_type",
+      "stable_error"
+    ]
+  },
+  "business_registry_lookup": {
+    "surface": "REGISTRY",
+    "kind_code": "M8",
+    "kind": "REGISTRY_LOOKUP",
+    "method_ref": "lookup_business_object",
+    "path": [
+      "lookup_query"
+    ],
+    "static_mount": [
+      "object_contract",
+      "registry_rule"
+    ],
+    "dynamic_mount": [
+      "lookup_result",
+      "outcome_type",
+      "stable_error"
+    ]
+  },
+  "business_event_publish": {
+    "surface": "EVENT",
+    "kind_code": "M4",
+    "kind": "EVENT_PUBLISH",
+    "method_ref": "publish_business_event",
+    "path": [
+      "subject_ref",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "operation_contract",
+      "result_contract_ref",
+      "receipt_contract_ref",
+      "policy_refs"
+    ],
+    "dynamic_mount": [
+      "input",
+      "runtime_context",
+      "outcome_type",
+      "runtime_result",
+      "stable_error",
+      "execution_receipt",
+      "evidence_ref"
+    ]
+  },
+  "business_event_consume": {
+    "surface": "EVENT",
+    "kind_code": "M5",
+    "kind": "EVENT_CONSUME",
+    "method_ref": "consume_business_event",
+    "path": [
+      "subject_ref",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "operation_contract",
+      "result_contract_ref",
+      "receipt_contract_ref",
+      "policy_refs"
+    ],
+    "dynamic_mount": [
+      "input",
+      "runtime_context",
+      "outcome_type",
+      "runtime_result",
+      "stable_error",
+      "execution_receipt",
+      "evidence_ref"
+    ]
+  }
+} as const;
+  const file = JSON.parse(readFileSync(
+    new URL("../../../spec/p1/business_runtime/interface/business_interfaces.json", import.meta.url),
+    "utf8",
+  )) as { interfaces: Record<string, Record<string, unknown>> };
+  assert.deepEqual(Object.keys(file.interfaces), Object.keys(expected));
+  for (const [name, contract] of Object.entries(expected)) {
+    const actual = file.interfaces[name];
+    assert.ok(actual, `missing V0186 interface ${name}`);
+    for (const key of ["surface", "kind_code", "kind", "method_ref", "path", "static_mount", "dynamic_mount"] as const) {
+      assert.deepEqual(actual[key], contract[key], `${name}.${key} whitelist mismatch`);
+    }
+    const layers = [...contract.path, ...contract.static_mount, ...contract.dynamic_mount];
+    assert.equal(new Set(layers).size, layers.length, `${name} has duplicate layer members`);
+  }
+  assert.equal(Object.keys(P1_FRAMEWORK_ANCHOR_CROSSWALK).length, 8);
+  for (const [name, contract] of Object.entries(expected)) {
+    if (name === "internal_call_invoke" || name === "dependency_invoke") continue;
+    const anchor = resolve_p1_framework_anchor({
+      surface: contract.surface,
+      kind: contract.kind,
+      method_ref: contract.method_ref,
+    });
+    assert.equal(anchor.framework_interface_ref, `${P1_CONTRACT_REF}#/interfaces/${name}`);
+    assert.equal(anchor.framework_entry_method_ref, contract.method_ref);
+  }
+});
+
+test("Contract V0134 exact interface whitelist: 3 P0 public/internal methods and fields", () => {
+  const expected = {
+  "runtime_execution_invoke": {
+    "surface": "CALL",
+    "kind_code": "M1",
+    "kind": "CALL_INVOKE",
+    "method_ref": "invoke",
+    "path": [
+      "operation_id",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "operation_contract",
+      "policy_refs",
+      "hook_binding_refs",
+      "receipt_contract_ref"
+    ],
+    "dynamic_mount": [
+      "input",
+      "runtime_context",
+      "validated_context",
+      "operation_attempt",
+      "outcome_type",
+      "runtime_result",
+      "stable_error",
+      "execution_receipt",
+      "evidence_ref"
+    ]
+  },
+  "runtime_hook_bind": {
+    "surface": "HOOK",
+    "kind_code": "M2",
+    "kind": "HOOK_BIND",
+    "method_ref": "bind",
+    "path": [
+      "hook_point_value",
+      "consumer_id"
+    ],
+    "static_mount": [
+      "consumer_contract",
+      "order",
+      "enabled_rule",
+      "policy_refs"
+    ],
+    "dynamic_mount": [
+      "binding_validation",
+      "binding_receipt",
+      "stable_error"
+    ]
+  },
+  "runtime_hook_evaluate": {
+    "surface": "HOOK",
+    "kind_code": "M3",
+    "kind": "HOOK_EVALUATE",
+    "method_ref": "evaluate",
+    "path": [
+      "hook_point_value",
+      "consumer_id",
+      "trace_id",
+      "request_id"
+    ],
+    "static_mount": [
+      "consumer_contract",
+      "order",
+      "policy_refs"
+    ],
+    "dynamic_mount": [
+      "hook_envelope",
+      "hook_decision",
+      "hook_evidence",
+      "evidence_ref",
+      "stable_error"
+    ]
+  }
+} as const;
+  const file = JSON.parse(readFileSync(
+    new URL("../../../spec/p0/interface/runtime_interfaces.json", import.meta.url),
+    "utf8",
+  )) as { interfaces: Record<string, Record<string, unknown>> };
+  assert.deepEqual(Object.keys(file.interfaces), Object.keys(expected));
+  for (const [name, contract] of Object.entries(expected)) {
+    const actual = file.interfaces[name];
+    assert.ok(actual, `missing V0134 interface ${name}`);
+    for (const key of ["surface", "kind_code", "kind", "method_ref", "path", "static_mount", "dynamic_mount"] as const) {
+      assert.deepEqual(actual[key], contract[key], `${name}.${key} whitelist mismatch`);
+    }
+    const layers = [...contract.path, ...contract.static_mount, ...contract.dynamic_mount];
+    assert.equal(new Set(layers).size, layers.length, `${name} has duplicate layer members`);
+  }
+});
