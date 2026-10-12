@@ -1,14 +1,62 @@
-import { StableRuntimeError, deep_freeze, exact_ref, normalize_runtime_error } from "../../p0/runtime_contract.ts";
-import type { RuntimeContext, RuntimeOperation, StableRuntimeErrorShape } from "../../p0/runtime_contract.ts";
+import { createHash } from "node:crypto";
+import { P0_CONTRACT_REF, P0_PROVIDER_SYMBOL_REF, StableRuntimeError, deep_freeze, exact_ref, normalize_runtime_error } from "#q/p0/runtime_contract";
+import { runtime_provider } from "#q/p0/stage_handler";
+import type { HookBinding, HookEvidence, RuntimeContext, RuntimeOperation, RuntimeInvokeResult, StableRuntimeErrorShape, StageExtensionContract } from "#q/p0/runtime_contract";
 import {
+  P1_CAPABILITY_GENERAL_SLOT_IDS,
   P1_CAPABILITY_GENERAL_SLOT_REFS,
+  P1_RUNTIME_SLOT_REFS,
   P1_CONTRACT_REF,
+  create_p1_capability_stage_extension,
   resolve_p1_framework_anchor,
 } from "./stage_extension_contract.ts";
 import type {
   P1CapabilityGeneralSlotId,
   P1CapabilityGeneralSlotProjection,
 } from "./stage_extension_contract.ts";
+
+export type P1StaticRuntimeSlotId =
+  | "manifest" | "qreg" | "qconfig" | "operation_contract" | "policy_refs" | "hook_binding_refs";
+
+export type P1StaticRuntimeSlotProjection = Readonly<Record<
+  P1StaticRuntimeSlotId, Readonly<{ slot_ref: string; value: unknown }>
+>>;
+
+export interface P1RuleEvidence {
+  readonly rule_ref: string;
+  readonly result: "PASS" | "FAIL";
+  readonly evidence_ref: string;
+  readonly trace_id: string;
+  readonly request_id: string;
+  readonly operation_ref: string;
+  readonly observation: Readonly<Record<string, unknown>>;
+}
+
+export interface P1ExecutionReceipt {
+  readonly operation_ref: string;
+  readonly trace_id: string;
+  readonly request_id: string;
+  readonly outcome_type: "response" | "stable_error";
+  readonly operation_attempts: 0 | 1;
+  readonly hook_evidence: readonly HookEvidence[];
+  readonly rule_evidence: readonly P1RuleEvidence[];
+}
+
+export interface BusinessOperationSuccess {
+  readonly outcome_type: "response";
+  readonly runtime_result: unknown;
+  readonly trace_id: string;
+  readonly request_id: string;
+  readonly execution_receipt: P1ExecutionReceipt;
+}
+export interface BusinessOperationFailure {
+  readonly outcome_type: "stable_error";
+  readonly stable_error: StableRuntimeErrorShape;
+  readonly trace_id: string;
+  readonly request_id: string;
+  readonly execution_receipt?: P1ExecutionReceipt;
+}
+export type BusinessOperationOutcome = BusinessOperationSuccess | BusinessOperationFailure;
 
 export type BusinessOperationHandler = RuntimeOperation<unknown, unknown>;
 export type BusinessEventInterfaceKind = "EVENT_PUBLISH" | "EVENT_CONSUME";
@@ -95,6 +143,8 @@ export interface BusinessEventPublisher {
 interface RegisteredBusinessOperation {
   readonly route: BusinessOperationRouteBinding;
   readonly handler: BusinessOperationHandler;
+  readonly stage_extension: StageExtensionContract;
+  readonly static_runtime_slots?: P1StaticRuntimeSlotProjection;
 }
 
 const operations = new Map<string, RegisteredBusinessOperation>();
@@ -120,6 +170,52 @@ function exactSlotValue(
     );
   }
   return nonEmptyString(binding.value, slotId);
+}
+
+function exactStaticRuntimeSlot(
+  slots: P1StaticRuntimeSlotProjection,
+  id: P1StaticRuntimeSlotId,
+): unknown {
+  const binding = slots[id];
+  if (binding === undefined || binding.slot_ref !== P1_RUNTIME_SLOT_REFS[id]) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} must bind its exact V0186 P1 runtime slot_ref`);
+  }
+  if (binding.value === undefined) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${id} requires its governed runtime projection value`);
+  }
+  return binding.value;
+}
+
+function staticRefList(value: unknown, field: string): readonly string[] {
+  if (!Array.isArray(value) || value.some((ref: unknown) => typeof ref !== "string" || !exact_ref(ref))) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", `${field} must be an array of exact governed refs`);
+  }
+  return deep_freeze([...value] as string[]);
+}
+
+function exactGeneralSlotProjection(projection: P1CapabilityGeneralSlotProjection): void {
+  for (const id of P1_CAPABILITY_GENERAL_SLOT_IDS) exactSlotValue(projection, id);
+}
+
+function createRegisteredStageExtension(
+  projection: P1CapabilityGeneralSlotProjection,
+  staticSlots: P1StaticRuntimeSlotProjection,
+): StageExtensionContract {
+  exactGeneralSlotProjection(projection);
+  for (const id of [
+    "manifest", "qreg", "qconfig", "operation_contract", "policy_refs", "hook_binding_refs",
+  ] as const) exactStaticRuntimeSlot(staticSlots, id);
+  if (exactStaticRuntimeSlot(staticSlots, "operation_contract") !== exactSlotValue(projection, "operation_ref")) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "operation_contract must project the exact bound operation_ref");
+  }
+  staticRefList(exactStaticRuntimeSlot(staticSlots, "policy_refs"), "policy_refs");
+  const hookBindingRefs = staticRefList(exactStaticRuntimeSlot(staticSlots, "hook_binding_refs"), "hook_binding_refs");
+  return create_p1_capability_stage_extension({
+    general_slots: projection,
+    implementation_ref: exactSlotValue(projection, "capability_contract_ref"),
+    provided_interface_refs: [exactSlotValue(projection, "interface_ref")],
+    hook_binding_refs: hookBindingRefs,
+  });
 }
 
 function operationRouteFromProjection(
@@ -158,6 +254,8 @@ function operationRouteFromProjection(
 function registerOperationRoute(
   route: Readonly<BusinessOperationRouteBinding>,
   handler: BusinessOperationHandler,
+  extension: StageExtensionContract,
+  staticSlots?: P1StaticRuntimeSlotProjection,
 ): BusinessOperationRouteBinding {
   const existing = operations.get(route.route_key);
   if (existing !== undefined) {
@@ -167,39 +265,39 @@ function registerOperationRoute(
       || existing.route.capability_id !== route.capability_id
       || existing.route.operation_id !== route.operation_id
       || existing.route.operation_ref !== route.operation_ref
+      || JSON.stringify(existing.stage_extension) !== JSON.stringify(extension)
     ) {
-      throw new StableRuntimeError(
-        "P1_OPERATION_DUPLICATE",
-        "P1-derived route_key already has a different exact Operation binding",
-      );
+      throw new StableRuntimeError("P1_OPERATION_DUPLICATE", "P1-derived route_key already has a different exact Operation binding");
     }
     return existing.route;
   }
-
   const frozenRoute = deep_freeze({ ...route });
-  operations.set(frozenRoute.route_key, deep_freeze({ route: frozenRoute, handler }));
+  operations.set(frozenRoute.route_key, deep_freeze({
+    route: frozenRoute, handler, stage_extension: extension, ...(staticSlots === undefined ? {} : { static_runtime_slots: staticSlots }),
+  }));
   return frozenRoute;
 }
 
 export function register_business_operation(
   general_slots: P1CapabilityGeneralSlotProjection,
   handler: BusinessOperationHandler,
+  static_runtime_slots: P1StaticRuntimeSlotProjection,
 ): BusinessOperationRouteBinding {
+  if (!static_runtime_slots) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "every concrete Operation requires exact P1 static runtime slots");
+  }
+  const extension = createRegisteredStageExtension(general_slots, static_runtime_slots);
   resolve_p1_framework_anchor({
     surface: exactSlotValue(general_slots, "surface"),
     kind: exactSlotValue(general_slots, "kind"),
     method_ref: exactSlotValue(general_slots, "method_ref"),
   });
-  return registerOperationRoute(operationRouteFromProjection(general_slots), handler);
+  return registerOperationRoute(operationRouteFromProjection(general_slots), handler, extension, static_runtime_slots);
 }
 
 /**
- * Register an internal-only Operation that has no concrete Capability Interface.
- *
- * The binding uses exactly the four route-consistency facts owned by P1 V0186:
- * capability_contract_ref, capability_id, operation_id and operation_ref.
- * No Interface identity is invented for an Operation whose Capability Contract declares
- * interface_refs: [].
+ * Internal-only Operation: no invented concrete Interface identity.
+ * It still binds P0's existing StageExtension and sole RuntimeProvider.
  */
 export function register_internal_business_operation(
   binding: Readonly<BusinessInternalOperationBinding>,
@@ -210,27 +308,33 @@ export function register_internal_business_operation(
   const operationId = nonEmptyString(binding.operation_id, "operation_id");
   const operationRef = nonEmptyString(binding.operation_ref, "operation_ref");
   if (!exact_ref(capabilityContractRef) || capabilityContractRef.includes("#/")) {
-    throw new StableRuntimeError(
-      "P1_OVERLAY_SLOT_INVALID",
-      "internal capability_contract_ref must be one exact versioned Capability Contract ref",
-    );
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "internal capability_contract_ref must be one exact versioned Capability Contract ref");
   }
-  if (
-    !exact_ref(operationRef)
-    || operationRef !== `${capabilityContractRef}#/operations/${operationId}`
-  ) {
-    throw new StableRuntimeError(
-      "P1_OVERLAY_SLOT_INVALID",
-      "internal operation_ref must exactly match capability_contract_ref and operation_id",
-    );
+  if (!exact_ref(operationRef) || operationRef !== `${capabilityContractRef}#/operations/${operationId}`) {
+    throw new StableRuntimeError("P1_OVERLAY_SLOT_INVALID", "internal operation_ref must exactly match capability_contract_ref and operation_id");
   }
+  const extension: StageExtensionContract = deep_freeze({
+    stage_id: "P1",
+    stage_role: "NONE",
+    stage_contract_ref: P1_CONTRACT_REF,
+    implementation_ref: capabilityContractRef,
+    provided_interface_refs: [],
+    consumed_interface_refs: [`${P0_CONTRACT_REF}#/interfaces/runtime_execution_invoke`],
+    hook_consumer_refs: [],
+    hook_binding_refs: [],
+    port_refs: [],
+    upstream_runtime_ref: P0_CONTRACT_REF,
+    runtime_provider_symbol_ref: P0_PROVIDER_SYMBOL_REF,
+    status: "active",
+    rule_version_ref: P1_CONTRACT_REF,
+  });
   return registerOperationRoute(deep_freeze({
     route_key: operationRef,
     capability_contract_ref: capabilityContractRef,
     capability_id: capabilityId,
     operation_id: operationId,
     operation_ref: operationRef,
-  }), handler);
+  }), handler, extension);
 }
 
 function resolveRegisteredOperationByExactRef(operationRef: string): RegisteredBusinessOperation {
@@ -274,29 +378,108 @@ export function resolve_business_operation(
   return resolveRegisteredOperationByPath(path).handler;
 }
 
+function canonicalEvidenceJson(value: unknown): string {
+  const sorted = (input: unknown): unknown => {
+    if (Array.isArray(input)) return input.map(sorted);
+    if (input !== null && typeof input === "object") {
+      return Object.fromEntries(Object.entries(input as Record<string, unknown>)
+        .filter(([,v]) => v !== undefined)
+        .sort(([a],[b]) => a.localeCompare(b))
+        .map(([k,v]) => [k, sorted(v)]));
+    }
+    return input;
+  };
+  return JSON.stringify(sorted(value));
+}
+
+function ruleEvidence(
+  ruleId: string,
+  result: "PASS" | "FAIL",
+  operationRef: string,
+  traceId: string,
+  requestId: string,
+  observation: Readonly<Record<string, unknown>>,
+): P1RuleEvidence {
+  const evidence_ref = `sha256:${createHash("sha256").update(canonicalEvidenceJson(observation), "utf8").digest("hex")}`;
+  return deep_freeze({
+    rule_ref: `${P1_CONTRACT_REF}#/contract_rule_set/rules/${ruleId}`,
+    result, evidence_ref, trace_id: traceId, request_id: requestId,
+    operation_ref: operationRef, observation: deep_freeze({ ...observation }),
+  });
+}
+
+function finalizedReceipt(
+  route: BusinessOperationRouteBinding,
+  p0: RuntimeInvokeResult<unknown>,
+  outcomeType: "response" | "stable_error",
+): P1ExecutionReceipt {
+  // P0 controls actual invocation attempts and hook evidence. P1 only projects its outcome/receipt.
+  const base = { operation_ref: route.operation_ref, trace_id: p0.trace_id, request_id: p0.request_id };
+  const rule_evidence = deep_freeze([
+    ruleEvidence("P1-OP-103", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
+      { exact_route_key: route.route_key, route_matches_operation: route.route_key === route.operation_ref }),
+    ruleEvidence("P1-OP-104", p0.operation_attempts <= 1 ? "PASS" : "FAIL",
+      route.operation_ref, p0.trace_id, p0.request_id, { operation_attempts: p0.operation_attempts }),
+    // Authorization is Capability-owned; a generic P0 hook snapshot cannot certify business authorization.
+    ruleEvidence("P1-OP-105", "FAIL", route.operation_ref, p0.trace_id, p0.request_id,
+      { authorization_evidence_not_supplied_by_generic_skeleton: true }),
+    ruleEvidence("P1-OP-106", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
+      { outcome_finalized_before_receipt: true }),
+    ruleEvidence("P1-OP-107", "PASS", route.operation_ref, p0.trace_id, p0.request_id,
+      { finalized_outcome_type: outcomeType }),
+  ]);
+  return deep_freeze({
+    ...base, outcome_type: outcomeType, operation_attempts: p0.operation_attempts,
+    hook_evidence: p0.hook_evidence, rule_evidence,
+  });
+}
+
 export async function invoke_business_operation(
   path: Readonly<BusinessOperationInvokePath>,
   input: unknown,
   runtime_context: RuntimeContext,
-): Promise<unknown> {
-  const registered = resolveRegisteredOperationByPath(path);
-  if (
-    path.trace_id !== runtime_context.trace_id
-    || path.request_id !== runtime_context.request_id
-  ) {
-    throw new StableRuntimeError(
-      "P1_OPERATION_ROUTE_MISMATCH",
-      "Invocation correlation does not match the resolved P1 route context",
-    );
+  hook_binding_set: readonly HookBinding[] = [],
+): Promise<BusinessOperationOutcome> {
+  try {
+    const registered = resolveRegisteredOperationByPath(path);
+    if (path.trace_id !== runtime_context.trace_id || path.request_id !== runtime_context.request_id) {
+      throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "Invocation correlation does not match the resolved P1 route context");
+    }
+    if (runtime_context.stage_contract_ref !== P1_CONTRACT_REF || runtime_context.operation_ref !== registered.route.operation_ref) {
+      throw new StableRuntimeError("P1_OPERATION_ROUTE_MISMATCH", "P0 RuntimeContext must exactly match the bound P1 Stage and Operation");
+    }
+    // The StageExtension and static hook refs are frozen at registration; the invocation cannot select them.
+    const p0 = await runtime_provider.invoke({
+      stage_extension: registered.stage_extension,
+      runtime_context, input,
+      operation: registered.handler,
+      hook_binding_set,
+    });
+    const outcomeType: "response" | "stable_error" = p0.outcome === "success" ? "response" : "stable_error";
+    const execution_receipt = finalizedReceipt(registered.route, p0, outcomeType);
+    if (p0.outcome === "success") {
+      return deep_freeze({
+        outcome_type: "response" as const, runtime_result: p0.value,
+        trace_id: p0.trace_id, request_id: p0.request_id, execution_receipt,
+      });
+    }
+    const stable_error: StableRuntimeErrorShape = p0.outcome === "error"
+      ? p0.error
+      : { code: p0.reason, message: "P0 before_process denied the Operation" };
+    return deep_freeze({
+      outcome_type: "stable_error" as const, stable_error,
+      trace_id: p0.trace_id, request_id: p0.request_id, execution_receipt,
+    });
+  } catch (error) {
+    const stable = normalize_runtime_error(error, "P1_OPERATION_ROUTE_MISMATCH");
+    return deep_freeze({
+      outcome_type: "stable_error" as const,
+      stable_error: stable.details === undefined
+        ? { code: stable.code, message: stable.message }
+        : { code: stable.code, message: stable.message, details: stable.details },
+      trace_id: path.trace_id, request_id: path.request_id,
+    });
   }
-
-  const boundRuntimeContext = deep_freeze({
-    ...runtime_context,
-    stage_contract_ref: P1_CONTRACT_REF,
-    operation_ref: registered.route.operation_ref,
-  } satisfies RuntimeContext);
-
-  return await registered.handler(input, boundRuntimeContext);
 }
 
 function exactInternalCallPath(value: readonly string[]): readonly string[] {
