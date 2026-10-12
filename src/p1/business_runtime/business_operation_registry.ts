@@ -9,11 +9,13 @@ import {
   P1_RUNTIME_SLOT_REFS,
   P1_CONTRACT_REF,
   create_p1_capability_stage_extension,
+  project_p1_capability_general_slots,
   resolve_p1_framework_anchor,
 } from "./stage_extension_contract.ts";
 import type {
   P1CapabilityGeneralSlotId,
   P1CapabilityGeneralSlotProjection,
+  P1CapabilityGeneralFacts,
   P1RuntimeSlotId,
 } from "./stage_extension_contract.ts";
 
@@ -84,6 +86,7 @@ export type BusinessEventInterfaceKind = "EVENT_PUBLISH" | "EVENT_CONSUME";
 export interface BusinessOperationRouteBinding {
   readonly route_key: string;
   readonly capability_contract_ref: string;
+  readonly capability_contract_content_hash: string;
   readonly capability_id: string;
   readonly operation_id: string;
   readonly operation_ref: string;
@@ -91,6 +94,7 @@ export interface BusinessOperationRouteBinding {
 
 export interface BusinessInternalOperationBinding {
   readonly capability_contract_ref: string;
+  readonly capability_contract_content_hash: string;
   readonly capability_id: string;
   readonly operation_id: string;
   readonly operation_ref: string;
@@ -281,6 +285,18 @@ function exactGeneralSlotProjection(projection: P1CapabilityGeneralSlotProjectio
     );
   }
   for (const id of P1_CAPABILITY_GENERAL_SLOT_IDS) exactSlotValue(projection, id);
+  const facts = Object.fromEntries(
+    P1_CAPABILITY_GENERAL_SLOT_IDS.map((id) => [id, exactSlotValue(projection, id)]),
+  ) as unknown as P1CapabilityGeneralFacts;
+  try {
+    project_p1_capability_general_slots(facts);
+  } catch (error) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      "the exact 13 GENERAL Slot values fail V0186 authority or Interface binding validation",
+      { source_error: error instanceof Error ? error.message : "unknown" },
+    );
+  }
 }
 
 function createRegisteredStageExtension(
@@ -328,6 +344,7 @@ function operationRouteFromProjection(
   projection: P1CapabilityGeneralSlotProjection,
 ): BusinessOperationRouteBinding {
   const capabilityContractRef = exactSlotValue(projection, "capability_contract_ref");
+  const capabilityContractHash = exactSlotValue(projection, "capability_contract_content_hash");
   const capabilityId = exactSlotValue(projection, "capability_id");
   const operationId = exactSlotValue(projection, "operation_id");
   const operationRef = exactSlotValue(projection, "operation_ref");
@@ -352,6 +369,7 @@ function operationRouteFromProjection(
   return deep_freeze({
     route_key: routeKeySlot.value as string,
     capability_contract_ref: capabilityContractRef,
+    capability_contract_content_hash: capabilityContractHash,
     capability_id: capabilityId,
     operation_id: operationId,
     operation_ref: operationRef,
@@ -387,6 +405,7 @@ function registerOperationRoute(
       existing.handler !== handler
       || existing.authorization !== authorization
       || existing.route.capability_contract_ref !== route.capability_contract_ref
+      || existing.route.capability_contract_content_hash !== route.capability_contract_content_hash
       || existing.route.capability_id !== route.capability_id
       || existing.route.operation_id !== route.operation_id
       || existing.route.operation_ref !== route.operation_ref
@@ -464,6 +483,12 @@ export function register_internal_business_operation(
     );
   }
   const capabilityContractRef = nonEmptyString(binding.capability_contract_ref, "capability_contract_ref");
+  if (!/^sha256:[0-9a-f]{64}$/.test(binding.capability_contract_content_hash)) {
+    throw new StableRuntimeError(
+      "P1_OVERLAY_SLOT_INVALID",
+      "internal Operation must carry its exact Capability Contract content-hash identity",
+    );
+  }
   const capabilityId = nonEmptyString(binding.capability_id, "capability_id");
   const operationId = nonEmptyString(binding.operation_id, "operation_id");
   const operationRef = nonEmptyString(binding.operation_ref, "operation_ref");
@@ -491,6 +516,7 @@ export function register_internal_business_operation(
   return registerOperationRoute(deep_freeze({
     route_key: operationRef,
     capability_contract_ref: capabilityContractRef,
+    capability_contract_content_hash: binding.capability_contract_content_hash,
     capability_id: capabilityId,
     operation_id: operationId,
     operation_ref: operationRef,
@@ -961,6 +987,8 @@ export function register_business_event_interface(
   const registeredOperation = resolveRegisteredOperationByExactRef(operationRef);
   if (
     registeredOperation.route.capability_contract_ref !== capabilityContractRef
+    || registeredOperation.route.capability_contract_content_hash
+      !== exactSlotValue(general_slots, "capability_contract_content_hash")
     || registeredOperation.route.capability_id !== exactSlotValue(general_slots, "capability_id")
     || registeredOperation.route.operation_id !== exactSlotValue(general_slots, "operation_id")
     || !registeredOperation.stage_extension.provided_interface_refs.includes(interfaceRef)
