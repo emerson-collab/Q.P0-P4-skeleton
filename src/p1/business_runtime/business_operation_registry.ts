@@ -1187,8 +1187,11 @@ export function registered_business_event_interface_refs(): readonly string[] {
   return deep_freeze([...event_interfaces.keys()].sort());
 }
 
-function exactEventError(error: unknown): StableRuntimeErrorShape {
-  const normalized = normalize_runtime_error(error, "P1_EVENT_BINDING_INVALID");
+function exactEventError(
+  error: unknown,
+  fallback_code = "P1_EVENT_BINDING_INVALID",
+): StableRuntimeErrorShape {
+  const normalized = normalize_runtime_error(error, fallback_code);
   return normalized.details === undefined
     ? { code: normalized.code, message: normalized.message }
     : { code: normalized.code, message: normalized.message, details: normalized.details };
@@ -1340,7 +1343,7 @@ export function register_business_object(
       registration_receipt: deep_freeze({ object_ref: objectRef }),
     });
   } catch (error) {
-    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error, "P1_BINDING_INVALID") });
   }
 }
 
@@ -1353,7 +1356,7 @@ export function resolve_business_object(resolution_key: string): BusinessRegistr
     }
     return deep_freeze({ outcome_type: "exact_resolution" as const, exact_resolution: entry });
   } catch (error) {
-    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error, "P1_BINDING_INVALID") });
   }
 }
 
@@ -1363,7 +1366,7 @@ export function lookup_business_object(lookup_query: string): BusinessRegistryLo
     const entry = business_objects.get(query);
     return deep_freeze({ outcome_type: "lookup_result" as const, lookup_result: entry ?? null });
   } catch (error) {
-    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error, "P1_BINDING_INVALID") });
   }
 }
 
@@ -1392,7 +1395,7 @@ export function bind_business_hook(
       binding_receipt: result,
     });
   } catch (error) {
-    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error, "P1_BINDING_INVALID") });
   }
 }
 
@@ -1437,7 +1440,7 @@ export function evaluate_business_hook(
       evidence_ref: `sha256:${createHash("sha256").update(canonicalEvidenceJson(hook_evidence), "utf8").digest("hex")}`,
     });
   } catch (error) {
-    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error) });
+    return deep_freeze({ outcome_type: "stable_error" as const, stable_error: exactEventError(error, "P1_BINDING_INVALID") });
   }
 }
 
@@ -1510,7 +1513,7 @@ export async function invoke_dependency(
     }
     return outcome;
   } catch (error) {
-    const stable_error = exactEventError(error);
+    const stable_error = exactEventError(error, "P1_BINDING_INVALID");
     return deep_freeze({
       outcome_type: "stable_error" as const, stable_error, trace_id, request_id,
     });
