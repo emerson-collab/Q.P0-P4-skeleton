@@ -33,6 +33,43 @@ export const P1_CAPABILITY_GENERAL_SLOT_REFS = deep_freeze(
   ) as Record<P1CapabilityGeneralSlotId, string>,
 );
 
+/** Exact V0186 runtime slots; values are supplied only by their owning P1/P0 phase. */
+export const P1_RUNTIME_SLOT_CATALOG = deep_freeze({
+  route_key: { source_class: "P1_DERIVED_RUNTIME", binding_phase: "PRE_DISPATCH_ROUTE_BIND", accepted_source_fact: "operation_ref" },
+  trace_id: { source_class: "INVOCATION_CORRELATION", binding_phase: "INVOCATION_ENTRY", accepted_source_fact: "trace_id" },
+  request_id: { source_class: "INVOCATION_CORRELATION", binding_phase: "INVOCATION_ENTRY", accepted_source_fact: "request_id" },
+  manifest: { source_class: "P1_STATIC_RUNTIME_PROJECTION", binding_phase: "STATIC_OVERLAY_BIND", accepted_source_fact: "bound_capability_general_overlay" },
+  qreg: { source_class: "P1_STATIC_RUNTIME_PROJECTION", binding_phase: "STATIC_OVERLAY_BIND", accepted_source_fact: "bound_operation_interface_registry_projection" },
+  qconfig: { source_class: "P1_STATIC_RUNTIME_PROJECTION", binding_phase: "STATIC_OVERLAY_BIND", accepted_source_fact: "governed_policy_projection" },
+  operation_contract: { source_class: "P1_STATIC_RUNTIME_PROJECTION", binding_phase: "STATIC_OVERLAY_BIND", accepted_source_fact: "operation_ref" },
+  policy_refs: { source_class: "P1_STATIC_RUNTIME_PROJECTION", binding_phase: "STATIC_OVERLAY_BIND", accepted_source_fact: "governed_policy_refs" },
+  hook_binding_refs: { source_class: "P1_STATIC_RUNTIME_PROJECTION", binding_phase: "STATIC_OVERLAY_BIND", accepted_source_fact: "validated_hook_binding_refs" },
+  input: { source_class: "INVOCATION_INPUT", binding_phase: "INVOCATION_ENTRY", accepted_source_fact: "input" },
+  runtime_context: { source_class: "P0_RUNTIME_INPUT", binding_phase: "P0_RUNTIME_ENTRY", accepted_source_fact: "runtime_context" },
+  validated_context: { source_class: "P1_RUNTIME", binding_phase: "PRE_OPERATION", accepted_source_fact: "validated_context" },
+  operation_attempt: { source_class: "P1_RUNTIME", binding_phase: "OPERATION_ATTEMPT", accepted_source_fact: "operation_attempt" },
+  outcome_type: { source_class: "P1_RUNTIME", binding_phase: "OUTCOME_FINALIZATION", accepted_source_fact: "outcome_type" },
+  runtime_result: { source_class: "P0_RUNTIME_OUTPUT", binding_phase: "P0_RUNTIME_RETURN", accepted_source_fact: "runtime_result" },
+  stable_error: { source_class: "P1_RUNTIME", binding_phase: "OUTCOME_FINALIZATION", accepted_source_fact: "stable_error" },
+  execution_receipt: { source_class: "P1_RUNTIME", binding_phase: "POST_OUTCOME_PRE_RETURN", accepted_source_fact: "execution_receipt" },
+  rule_evidence: { source_class: "P1_RUNTIME", binding_phase: "POST_OUTCOME_PRE_RETURN", accepted_source_fact: "rule_evidence" },
+} as const);
+
+export type P1RuntimeSlotId = keyof typeof P1_RUNTIME_SLOT_CATALOG;
+
+export const P1_RUNTIME_SLOT_IDS = deep_freeze(
+  Object.keys(P1_RUNTIME_SLOT_CATALOG) as P1RuntimeSlotId[],
+);
+
+export const P1_RUNTIME_SLOT_REFS = deep_freeze(
+  Object.fromEntries(
+    P1_RUNTIME_SLOT_IDS.map((slotId) => [
+      slotId,
+      `${P1_CONTRACT_REF}#/overlay_slot_catalog/runtime_slots/${slotId}`,
+    ]),
+  ) as Record<P1RuntimeSlotId, string>,
+);
+
 export interface P1CapabilityGeneralFacts {
   readonly capability_ref: string;
   readonly capability_id: string;
