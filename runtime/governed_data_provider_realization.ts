@@ -897,7 +897,7 @@ async function verifyFrozenPreInstanceClosure(
     ) {
       throw new GovernedDataProviderRealizationError(
         "RDS_GOVERNED_DATA_SOURCE_ANCHOR_INVALID",
-        "source Interface execution requires exact p1_interface_anchor_binding_ref from its pre-instance V0186 Framework anchor",
+        "source Interface execution requires p1_interface_anchor_binding_ref from its pre-instance V0186 Framework anchor",
       );
     }
     const layerFields: string[] = [];
