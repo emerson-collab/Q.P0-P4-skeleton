@@ -37,6 +37,7 @@ export interface P1ExecutionReceipt {
   readonly trace_id: string;
   readonly request_id: string;
   readonly outcome_type: "response" | "stable_error";
+  readonly outcome_hash: string;
   readonly operation_attempt: 0 | 1;
   readonly operation_attempts: 0 | 1;
   readonly hook_evidence: readonly HookEvidence[];
