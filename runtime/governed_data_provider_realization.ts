@@ -721,6 +721,128 @@ function verifyFrozenV0117Projection(
   }
 }
 
+/**
+ * Read, don't invent, both upstream proofs. The verifier's two adapters are
+ * supplied by the governed outer boundary: Q.Prompt's immutable snapshot and
+ * the exact owner Capability Contract. Nothing here acts as a P2 source resolver,
+ * generates a Framework anchor, or expands the provider's semantic authority.
+ */
+async function verifyFrozenPreInstanceClosure(
+  handoff: Readonly<{
+    capability_contract_ref: string;
+    capability_contract_hash: string;
+    p2_handoff_obligation_snapshot_hash: string;
+    bindings: readonly GovernedDataHandoffBinding[];
+  }>,
+  projection_hash: string,
+  executions: ReadonlyMap<string, GovernedDataBindingExecution>,
+  authorities: GovernedTriadFrozenAuthorities,
+): Promise<void> {
+  if (
+    !authorities
+    || typeof authorities.frozen_prompt_projection_hash !== "function"
+    || typeof authorities.resolve_source_interface !== "function"
+  ) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_AUTHORITY_UNAVAILABLE",
+      "V0117 requires frozen Q.Prompt and exact source Capability Contract verification before P2 exposure",
+    );
+  }
+
+  const exactPromptHash = exactHash(
+    await authorities.frozen_prompt_projection_hash(Object.freeze({
+      capability_contract_ref: handoff.capability_contract_ref,
+      capability_contract_content_hash: handoff.capability_contract_hash,
+      p2_contract_ref: P2_CONTRACT_REF,
+      p2_contract_content_hash: P2_CONTRACT_HASH,
+      p2_handoff_obligation_snapshot_hash: handoff.p2_handoff_obligation_snapshot_hash,
+    })),
+    "frozen_prompt_projection_hash",
+  );
+  if (exactPromptHash !== projection_hash) {
+    throw new GovernedDataProviderRealizationError(
+      "RDS_GOVERNED_DATA_PROMPT_PROJECTION_MISMATCH",
+      "V0117 projection hash must equal the independently verified immutable Q.Prompt obligation hash",
+    );
+  }
+
+  for (const binding of handoff.bindings) {
+    const execution = executions.get(binding.binding_ref);
+    if (!execution) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_EXECUTION_BINDING_INVALID",
+        "every declared V0117 binding must have one execution before exposure",
+      );
+    }
+    const source: Readonly<P1SourceInterfaceResolution> =
+      await authorities.resolve_source_interface(Object.freeze({
+        capability_contract_ref: handoff.capability_contract_ref,
+        capability_contract_content_hash: handoff.capability_contract_hash,
+        binding_ref: binding.binding_ref,
+        source_operation_ref: binding.source_operation_ref,
+        source_interface_ref: binding.source_interface_ref,
+        source_access_ref: binding.source_access_ref,
+      }));
+    if (
+      source === null || typeof source !== "object"
+      || source.capability_contract_ref !== handoff.capability_contract_ref
+      || source.capability_contract_content_hash !== handoff.capability_contract_hash
+      || source.operation_ref !== binding.source_operation_ref
+      || source.interface_ref !== binding.source_interface_ref
+      || source.authorized_source_access_ref !== binding.source_access_ref
+    ) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
+        "exact owner source Operation, Interface and source-access authorization must match the frozen V0117 binding",
+      );
+    }
+    let anchor: ReturnType<typeof resolve_p1_framework_anchor>;
+    try {
+      anchor = resolve_p1_framework_anchor({
+        surface: source.surface,
+        kind: source.kind,
+        method_ref: source.method_ref,
+      });
+    } catch {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_SOURCE_ANCHOR_INVALID",
+        "source Interface Surface/Kind/Method must resolve exactly one pre-existing V0186 Framework anchor",
+      );
+    }
+    const expectedAnchorRef =
+      `${P1_BUSINESS_RUNTIME_REF}#/concrete_interface_framework_anchor_crosswalk/anchors/${anchor.kind}`;
+    if (
+      source.framework_anchor_binding_ref !== expectedAnchorRef
+      || execution.p1_interface_anchor_binding_ref !== expectedAnchorRef
+    ) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_SOURCE_ANCHOR_INVALID",
+        "source Interface must preserve its exact pre-instance V0186 Framework anchor binding",
+      );
+    }
+    const layerFields: string[] = [];
+    for (const layer of ["path", "static_mount", "dynamic_mount"] as const) {
+      const facts = source[layer];
+      if (
+        !Array.isArray(facts)
+        || facts.some((field: unknown) => typeof field !== "string" || field.length === 0)
+      ) {
+        throw new GovernedDataProviderRealizationError(
+          "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
+          "source Interface must carry complete declared PATH/STATIC_MOUNT/DYNAMIC_MOUNT field sets",
+        );
+      }
+      layerFields.push(...facts);
+    }
+    if (new Set(layerFields).size !== layerFields.length) {
+      throw new GovernedDataProviderRealizationError(
+        "RDS_GOVERNED_DATA_SOURCE_INTERFACE_MISMATCH",
+        "source Interface Layer field identities must be unique and disjoint",
+      );
+    }
+  }
+}
+
 function executionMap(
   executions: readonly GovernedDataBindingExecution[],
   bindings: readonly GovernedDataHandoffBinding[],
@@ -846,6 +968,7 @@ export async function realizeGovernedDataTriad(
   input: Readonly<GovernedDataTriadRealizationInput>,
   materialization: P2GovernedDataExposureMaterializer,
   store: GovernedDataTriadDurableStore,
+  authorities: GovernedTriadFrozenAuthorities,
 ): Promise<GovernedDataTriadRealizationResult> {
   const storeAuthorityRef = requiredString(
     store.authority_ref,
@@ -860,6 +983,12 @@ export async function realizeGovernedDataTriad(
     handoff,
   );
   const executions = executionMap(input.binding_executions, handoff.bindings);
+  await verifyFrozenPreInstanceClosure(
+    handoff,
+    input.governed_data_exposure_binding_projection_hash,
+    executions,
+    authorities,
+  );
 
   const projectedFiles = new Map<
     GovernedDataCategory,
