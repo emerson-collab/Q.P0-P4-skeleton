@@ -338,7 +338,7 @@ function memoryStore(
   });
 }
 
-test("V0152 realizes exact triad, skips P2 for empty category, and commits only after all readbacks", async () => {
+test("P2 governed-data triad: realizes exact triad, skips P2 for empty category, and commits only after all readbacks", async () => {
   const staticBinding = binding("STATIC", "a");
   const runtimeBinding = binding("RUNTIME", "r");
   const bindings = Object.freeze([runtimeBinding, staticBinding]);
@@ -416,7 +416,7 @@ test("V0152 realizes exact triad, skips P2 for empty category, and commits only 
   assert.equal(result.triad_set_hash_algorithm, GOVERNED_DATA_TRIAD_SET_HASH_ALGORITHM);
 });
 
-test("V0152 fails closed when canonical triad resource identity is changed", async () => {
+test("P2 governed-data triad: fails closed when canonical triad resource identity is changed", async () => {
   const staticBinding = binding("STATIC", "a");
   const events: string[] = [];
   await assert.rejects(
@@ -452,7 +452,7 @@ test("V0152 fails closed when canonical triad resource identity is changed", asy
   assert.deepEqual(events, []);
 });
 
-test("V0152 fails closed instead of reordering noncanonical binding order", async () => {
+test("P2 governed-data triad: fails closed instead of reordering noncanonical binding order", async () => {
   const staticBinding = binding("STATIC", "a");
   const runtimeBinding = binding("RUNTIME", "r");
   const noncanonical = Object.freeze([staticBinding, runtimeBinding]);
@@ -478,7 +478,7 @@ test("V0152 fails closed instead of reordering noncanonical binding order", asyn
   assert.deepEqual(events, []);
 });
 
-test("V0152 requires exactly one execution input for every declared binding", async () => {
+test("P2 governed-data triad: requires exactly one execution input for every declared binding", async () => {
   const staticBinding = binding("STATIC", "a");
   const events: string[] = [];
   await assert.rejects(
@@ -499,7 +499,7 @@ test("V0152 requires exactly one execution input for every declared binding", as
   assert.deepEqual(events, []);
 });
 
-test("V0152 exact readback mismatch forbids set-hash and triad commit", async () => {
+test("P2 governed-data triad: exact readback mismatch forbids set-hash and triad commit", async () => {
   const staticBinding = binding("STATIC", "a");
   const observed: GovernedDataCategory[] = [];
   const events: string[] = [];
@@ -528,7 +528,7 @@ test("V0152 exact readback mismatch forbids set-hash and triad commit", async ()
   ]);
 });
 
-test("V0152 NOT_APPLICABLE triad cannot execute P2 or storage", async () => {
+test("P2 governed-data triad: NOT_APPLICABLE triad cannot execute P2 or storage", async () => {
   const staticBinding = binding("STATIC", "a");
   const observed: GovernedDataCategory[] = [];
   const events: string[] = [];
@@ -553,7 +553,7 @@ test("V0152 NOT_APPLICABLE triad cannot execute P2 or storage", async () => {
   assert.deepEqual(events, []);
 });
 
-test("V0152 DECLARED_Q_INTERFACE_SOURCE_FACT requires pre-resolved P1 V0186 anchor evidence", async () => {
+test("P2 governed-data triad: DECLARED_Q_INTERFACE_SOURCE_FACT requires pre-resolved P1 V0186 anchor evidence", async () => {
   const dynamicBinding = binding(
     "DYNAMIC",
     "d",
@@ -579,7 +579,7 @@ test("V0152 DECLARED_Q_INTERFACE_SOURCE_FACT requires pre-resolved P1 V0186 anch
   );
 });
 
-test("V0152 rejects tampered p2_handoff obligation snapshot before execution", async () => {
+test("P2 governed-data triad: rejects tampered p2_handoff obligation snapshot before execution", async () => {
   const staticBinding = binding("STATIC", "a");
   const handoff = {
     ...p2Handoff([staticBinding]),
