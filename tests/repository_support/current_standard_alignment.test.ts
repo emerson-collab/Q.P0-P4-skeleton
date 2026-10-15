@@ -35,15 +35,15 @@ function filesBelow(root: string): string[] {
 test("CURRENT authority refs and source hashes are pinned exactly", () => {
   assert.equal(REPOSITORY_SKELETON_REF, "Q.SS.STD.META.CONTRACT.REPOSITORY_DIRECTORY_SKELETON@V0152");
   assert.equal(REPOSITORY_SKELETON_HASH, "sha256:0d8b2a5fb33b657db9eff3d379969b8c26e541f9ff5827d443bd8d2aa8fe60c9");
-  assert.equal(P1_CAPABILITY_MATERIALIZATION_REF, "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0116");
-  assert.equal(P1_CAPABILITY_MATERIALIZATION_HASH, "sha256:59dce7f2b10d04fe6053a28d9f2af09d961746befd10795e874b3226aefaf036");
+  assert.equal(P1_CAPABILITY_MATERIALIZATION_REF, "Q.SS.STD.META.CONTRACT.P1_CAPABILITY_MATERIALIZATION@V0117");
+  assert.equal(P1_CAPABILITY_MATERIALIZATION_HASH, "sha256:cc1d1933d88125b400b8a6f3fd0042b521f22276ff74b2dda19798ddce76757f");
   assert.equal(P1_CONTRACT_REF, "Q.SS.STD.P1.CONTRACT.BUSINESS_RUNTIME@V0186");
   assert.equal(P1_CONTRACT_HASH, "sha256:4637e7370406d558514f8ff3e076336b0e557e5b002e8a7123fa51db4d68dbc3");
   assert.equal(P2_CONTRACT_REF, "Q.SS.STD.P2.CONTRACT.CROSS_DOMAIN_REALIZATION@V0128");
   assert.equal(P2_CONTRACT_HASH, "sha256:15549a6a4a0c005ccbeddb0c7b40b4f4918f336c731b7c2017f05e2926bbb71d");
 });
 
-test("V0116 and V0186 preserve the exact GENERAL-slot and framework-anchor boundaries", () => {
+test("V0117 and V0186 preserve the exact GENERAL-slot and framework-anchor boundaries", () => {
   assert.equal(P1_CAPABILITY_GENERAL_SLOT_IDS.length, 13);
   assert.deepEqual(P1_CAPABILITY_GENERAL_SLOT_IDS, [
     "capability_ref",
