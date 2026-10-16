@@ -1,0 +1,95 @@
+name: Q SYSTEM - queue Skeleton materialization
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      before_commit:
+        description: Full commit SHA to use as the simulated previous Skeleton state
+        required: true
+        type: string
+      after_commit:
+        description: Full commit SHA to enqueue; defaults to the workflow commit
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: q-system-skeleton-event-${{ github.event.inputs.after_commit || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  persist-event:
+    name: Persist local-materialization event
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      Q_REPOSITORY: ${{ github.repository }}
+      Q_BEFORE_COMMIT: ${{ github.event.inputs.before_commit || github.event.before }}
+      Q_AFTER_COMMIT: ${{ github.event.inputs.after_commit || github.sha }}
+      Q_EVENT_NAME: ${{ github.event_name }}
+      Q_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Validate and persist one idempotent queue issue
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! "$Q_AFTER_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "after_commit must be a full Git commit SHA" >&2
+            exit 1
+          fi
+          if [[ ! "$Q_BEFORE_COMMIT" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "before_commit must be a full Git commit SHA" >&2
+            exit 1
+          fi
+
+          label="q-auto-materialization"
+          title="[q-auto-materialization] skeleton ${Q_AFTER_COMMIT}"
+
+          gh label create "$label" \
+            --repo "$Q_REPOSITORY" \
+            --color "0E8A16" \
+            --description "Durable event awaiting Lucas local materialization" \
+            --force
+
+          existing_url="$(gh issue list \
+            --repo "$Q_REPOSITORY" \
+            --state all \
+            --label "$label" \
+            --search "${Q_AFTER_COMMIT} in:title" \
+            --limit 100 \
+            --json title,url \
+            --jq '.[0].url // ""' 2>/dev/null || true)"
+
+          if [[ -n "$existing_url" ]]; then
+            echo "Existing durable event: $existing_url" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          body_file="${RUNNER_TEMP}/q-system-skeleton-event.md"
+          {
+            echo '<!-- Q_SYSTEM_SKELETON_UPDATE_EVENT_V1 -->'
+            echo '# Q SYSTEM Skeleton update event'
+            echo
+            echo 'This issue is a durable queue record. GitHub Actions does not modify downstream repositories.'
+            echo
+            echo '```json'
+            printf '{"schema_version":"Q_SYSTEM_SKELETON_UPDATE_EVENT_V1","repository":"%s","before_commit":"%s","after_commit":"%s","event_name":"%s","workflow_run_url":"%s"}\n' \
+              "$Q_REPOSITORY" "$Q_BEFORE_COMMIT" "$Q_AFTER_COMMIT" "$Q_EVENT_NAME" "$Q_RUN_URL"
+            echo '```'
+            echo
+            echo 'The Lucas local runner closes this issue only after it writes a terminal local receipt.'
+          } > "$body_file"
+
+          issue_url="$(gh issue create \
+            --repo "$Q_REPOSITORY" \
+            --title "$title" \
+            --label "$label" \
+            --body-file "$body_file")"
+          echo "Created durable event: $issue_url" >> "$GITHUB_STEP_SUMMARY"
